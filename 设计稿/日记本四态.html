@@ -1,0 +1,700 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>日记本 · 四种状态（设计稿）</title>
+<style>
+  :root { color-scheme: light; }
+  html, body { margin: 0; }
+  body {
+    background: #eef1f4; color: #1c242c;
+    font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+    font-size: 14px; line-height: 1.7;
+  }
+  .doc { max-width: 1040px; margin: 0 auto; padding: 30px 24px 70px; }
+  .doc h1 { margin: 0 0 6px; font-size: 18px; color: #16324f; }
+  .doc .lead { margin: 0 0 16px; font-size: 13px; color: #7b8794; }
+  .ladder {
+    margin: 0 0 20px; padding: 11px 15px; border: 1px solid #e3e8ee; border-radius: 10px;
+    background: #fff; font-size: 12.5px; color: #5b6673; line-height: 2;
+  }
+  .ladder b { font-weight: 500; color: #16324f; }
+  .switcher { display: flex; gap: 8px; flex-wrap: wrap; margin: 0 0 16px; }
+  .switcher button {
+    font: inherit; font-size: 13px; padding: 7px 15px; border-radius: 8px;
+    border: 1px solid #e3e8ee; background: #fff; color: #1c242c;
+  }
+  .switcher button[aria-pressed="true"] { background: #16324f; border-color: #16324f; color: #fff; }
+  .doc .note { margin: 16px 0 0; font-size: 12.5px; color: #7b8794; }
+</style>
+</head>
+<body>
+  <div class="doc">
+    <h1>日记本 · 四种状态</h1>
+    <p class="lead">倒计时只在合上的时候出现；翻开之后，还没到手的那几天会变成一叠封着的页，倒计时跟着挪到那一叠上。</p>
+    <div class="ladder">
+      <b>解锁阶梯</b>（亲密度和时间两条路取先到的那条）：今天 亲密度 ≥ 20 或等满 3 天 ·
+      最近七天 ≥ 50 或 12 天 · 全部 ≥ 80 或 40 天。界面上的日期是时间那条路的下限，
+      亲密度够了它会提前开。
+    </div>
+    <div class="switcher" role="group" aria-label="日记本的状态">
+      <button type="button" data-go="0" aria-pressed="true">合上</button>
+      <button type="button" data-go="1" aria-pressed="false">要开了</button>
+      <button type="button" data-go="2" aria-pressed="false">翻开 · 今天</button>
+      <button type="button" data-go="3" aria-pressed="false">全开</button>
+    </div>
+
+<div id="ot-diary-states">
+  <style>
+    #ot-diary-states *,
+    #ot-diary-states *::before,
+    #ot-diary-states *::after { box-sizing: border-box; }
+
+    #ot-diary-states .ot-win {
+      --ot-bg: light-dark(#f6f7f9, #14181d);
+      --ot-panel: light-dark(#ffffff, #1d2228);
+      --ot-ink: light-dark(#1c242c, #e8edf2);
+      --ot-muted: light-dark(#7b8794, #8e99a5);
+      --ot-line: light-dark(#e3e8ee, #2b323a);
+      --ot-brand: light-dark(#16324f, #cfe0ef);
+      --ot-accent: light-dark(#2f6f8f, #7fb6d4);
+      --ot-soft: light-dark(#f0f3f6, #262d35);
+      --ot-cloth-a: #2a5273;
+      --ot-cloth-b: #132a3d;
+      --ot-paper: light-dark(#fdfaf1, #efe9db);
+      --ot-paper-dim: light-dark(#f4ecda, #e3dbc9);
+      --ot-band-a: #f9f1dd;
+      --ot-band-b: #ecddba;
+      --ot-bandink: #6f5c3c;
+      --ot-bandink-dim: #8b7a5c;
+      --ot-brass: #c9a227;
+      --ot-seal: #a3342c;
+      width: min(980px, 100%);
+      height: 680px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border: 1px solid var(--ot-line);
+      border-radius: 12px;
+      background: var(--ot-bg);
+      color: var(--ot-ink);
+      font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      box-shadow: 0 20px 44px -26px rgba(16, 35, 55, .55);
+    }
+    #ot-diary-states .ot-kai {
+      font-family: "Kaiti SC", "STKaiti", KaiTi, "Noto Serif SC", "Songti SC", serif;
+    }
+
+    /* ---------- 窗口外框 ---------- */
+    #ot-diary-states .ot-top {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      flex: none; padding: 11px 18px;
+      background: var(--ot-panel); border-bottom: 1px solid var(--ot-line);
+    }
+    #ot-diary-states .ot-brand { display: flex; align-items: baseline; gap: 8px; min-width: 0; flex-wrap: wrap; }
+    #ot-diary-states .ot-dot {
+      width: 8px; height: 8px; border-radius: 50%; background: #4aa36b;
+      align-self: center; flex: none;
+    }
+    #ot-diary-states .ot-bname { font-weight: 700; font-size: 16px; color: var(--ot-brand); letter-spacing: .02em; }
+    #ot-diary-states .ot-bsub { font-size: 12px; color: var(--ot-muted); }
+    #ot-diary-states .ot-topright { display: flex; align-items: center; gap: 8px; flex: none; }
+    #ot-diary-states .ot-chip {
+      font-size: 11.5px; color: var(--ot-muted); background: var(--ot-soft);
+      border: 1px solid var(--ot-line); border-radius: 20px; padding: 3px 10px;
+      font-variant-numeric: tabular-nums; white-space: nowrap;
+    }
+    #ot-diary-states .ot-chipbtn {
+      font-size: 12.5px; color: var(--ot-ink); background: var(--ot-soft);
+      border: 1px solid var(--ot-line); border-radius: 7px; padding: 5px 11px; white-space: nowrap;
+    }
+    #ot-diary-states .ot-tabs {
+      display: flex; gap: 4px; flex: none; padding: 8px 18px 0;
+      background: var(--ot-panel); border-bottom: 1px solid var(--ot-line);
+    }
+    #ot-diary-states .ot-tab {
+      padding: 7px 12px 9px; font-size: 13px; color: var(--ot-muted);
+      border-bottom: 2px solid transparent;
+    }
+    #ot-diary-states .ot-tab.on { color: var(--ot-brand); border-bottom-color: var(--ot-brand); font-weight: 600; }
+
+    #ot-diary-states .ot-body { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+    #ot-diary-states .ot-phead { flex: none; padding: 15px 24px 6px; }
+    #ot-diary-states .ot-phead h2 { margin: 0 0 3px; font-size: 15px; font-weight: 500; color: var(--ot-brand); }
+    #ot-diary-states .ot-phead p { margin: 0; font-size: 12.5px; color: var(--ot-muted); }
+
+    /* ---------- 倒计时 ---------- */
+    #ot-diary-states .ot-tiles { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+    #ot-diary-states .ot-tile {
+      position: relative; width: 62px; padding: 6px 0 5px; text-align: center;
+      border-radius: 6px;
+      background: linear-gradient(180deg, #fdf9ee, #f1e6cf);
+      border: 1px solid rgba(120, 100, 60, .2);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .75), 0 2px 3px -1px rgba(60, 45, 20, .16);
+    }
+    #ot-diary-states .ot-tile::after {
+      content: ""; position: absolute; left: 7px; right: 7px; top: 16px; height: 1px;
+      background: rgba(90, 72, 40, .14);
+    }
+    #ot-diary-states .ot-n {
+      display: block; font-size: 20px; font-weight: 600; line-height: 1.15;
+      color: #2e2716; font-variant-numeric: tabular-nums;
+    }
+    #ot-diary-states .ot-u { display: block; font-size: 11px; line-height: 1.35; color: var(--ot-bandink-dim); }
+    #ot-diary-states .ot-count.lg .ot-tile { width: 78px; padding: 8px 0 6px; }
+    #ot-diary-states .ot-count.lg .ot-tile::after { top: 19px; }
+    #ot-diary-states .ot-count.lg .ot-n { font-size: 26px; }
+    #ot-diary-states .ot-count.sm .ot-tile { width: 54px; padding: 5px 0 4px; }
+    #ot-diary-states .ot-count.sm .ot-tile::after { top: 14px; }
+    #ot-diary-states .ot-count.sm .ot-n { font-size: 17px; }
+
+    /* ---------- 合上的本子 ---------- */
+    #ot-diary-states .ot-locked {
+      flex: 1 1 auto; min-height: 0;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 16px; padding: 2px 24px 20px;
+    }
+    #ot-diary-states .ot-say { margin: 0; font-size: 15px; line-height: 1.7; color: var(--ot-ink); text-align: center; }
+    #ot-diary-states .ot-book { position: relative; flex: none; width: 330px; height: 400px; }
+    #ot-diary-states .ot-book::after {
+      content: ""; position: absolute; left: 4%; right: 4%; bottom: -16px; height: 18px;
+      background: radial-gradient(closest-side, rgba(22, 50, 79, .24), rgba(22, 50, 79, 0));
+    }
+    #ot-diary-states .ot-block {
+      position: absolute; inset: 4px -8px -8px 10px;
+      border-radius: 3px 7px 7px 3px;
+      background: var(--ot-paper-dim);
+      box-shadow: 0 12px 22px -14px rgba(22, 50, 79, .5);
+      overflow: hidden;
+    }
+    #ot-diary-states .ot-fore {
+      position: absolute; top: 0; bottom: 0; right: 0; width: 8px;
+      background: repeating-linear-gradient(90deg, #d3c5a4 0 1px, #f9f4e6 1px 3px);
+    }
+    #ot-diary-states .ot-bot {
+      position: absolute; left: 0; right: 0; bottom: 0; height: 8px;
+      background: repeating-linear-gradient(180deg, #d3c5a4 0 1px, #f9f4e6 1px 3px);
+    }
+    #ot-diary-states .ot-top-page {
+      position: absolute; inset: 0;
+      border-radius: 3px 7px 7px 3px;
+      background: linear-gradient(100deg, var(--ot-paper-dim), var(--ot-paper) 18%);
+    }
+    #ot-diary-states .ot-top-page::before {
+      content: ""; position: absolute; left: 34px; top: 0; bottom: 0; width: 1px;
+      background: rgba(120, 100, 60, .18);
+    }
+    #ot-diary-states .ot-top-page::after {
+      content: ""; position: absolute; left: 34px; right: 26px; top: 34px; bottom: 30px;
+      background: repeating-linear-gradient(180deg, rgba(120, 100, 60, 0) 0 27px, rgba(120, 100, 60, .14) 27px 28px);
+    }
+    #ot-diary-states .ot-glow {
+      position: absolute; inset: 8px 0 8px 12px; border-radius: 4px;
+      background: radial-gradient(90% 80% at 44% 50%, rgba(255, 231, 178, .95), rgba(255, 231, 178, 0) 70%);
+      filter: blur(7px); opacity: .5;
+    }
+    #ot-diary-states .ot-cover {
+      position: absolute; inset: 0; transform-origin: 0 50%;
+      border-radius: 3px 7px 7px 3px;
+      background:
+        linear-gradient(90deg, rgba(0, 0, 0, .38) 0 9px, rgba(255, 255, 255, .07) 9px 11px, rgba(0, 0, 0, 0) 30px),
+        repeating-linear-gradient(48deg, rgba(255, 255, 255, .028) 0 2px, rgba(0, 0, 0, .022) 2px 4px),
+        linear-gradient(158deg, var(--ot-cloth-a), var(--ot-cloth-b) 62%, #0e2130);
+      box-shadow: 0 14px 26px -14px rgba(22, 50, 79, .55), inset 0 0 0 1px rgba(255, 255, 255, .06);
+    }
+    #ot-diary-states .ot-frame {
+      position: absolute; inset: 15px; border: 1px solid rgba(255, 255, 255, .11);
+      border-radius: 2px 5px 5px 2px;
+    }
+    #ot-diary-states .ot-title {
+      position: absolute; top: 44px; left: 0; right: 0; text-align: center;
+      font-family: "Kaiti SC", "STKaiti", KaiTi, "Noto Serif SC", serif;
+      font-size: 15px; letter-spacing: .34em; text-indent: .34em;
+      color: rgba(255, 255, 255, .8);
+    }
+    #ot-diary-states .ot-title::after {
+      content: ""; display: block; width: 26px; height: 1px; margin: 11px auto 0;
+      background: rgba(255, 255, 255, .28);
+    }
+    #ot-diary-states .ot-chop {
+      position: absolute; right: 34px; bottom: 34px; width: 26px; height: 26px;
+      border-radius: 4px; background: #4aa36b;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .38);
+    }
+    #ot-diary-states .ot-chop::before,
+    #ot-diary-states .ot-chop::after {
+      content: ""; position: absolute; top: 11px; width: 5px; height: 5px;
+      border-radius: 50%; background: #ffffff;
+    }
+    #ot-diary-states .ot-chop::before { left: 5px; }
+    #ot-diary-states .ot-chop::after { right: 5px; }
+
+    /* 腰封 */
+    #ot-diary-states .ot-band {
+      position: absolute; left: -12px; right: -12px; top: 146px;
+      padding: 9px 10px 11px; text-align: center;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, .5), rgba(255, 255, 255, 0) 28%),
+        repeating-linear-gradient(46deg, rgba(255, 255, 255, .3) 0 3px, rgba(0, 0, 0, 0) 3px 6px),
+        linear-gradient(180deg, var(--ot-band-a), var(--ot-band-b));
+      border-top: 1px solid rgba(255, 255, 255, .7);
+      border-bottom: 1px solid rgba(120, 100, 60, .22);
+      box-shadow: 0 4px 10px -3px rgba(40, 26, 0, .36), 0 -3px 8px -4px rgba(40, 26, 0, .28);
+    }
+    #ot-diary-states .ot-bandlabel {
+      font-size: 11px; letter-spacing: .28em; text-indent: .28em;
+      color: var(--ot-bandink-dim); margin-bottom: 5px;
+    }
+    #ot-diary-states .ot-banddate {
+      font-size: 11px; color: var(--ot-bandink-dim); margin-top: 7px;
+      font-variant-numeric: tabular-nums;
+    }
+    #ot-diary-states .ot-bandpeek {
+      font-size: 12px; color: var(--ot-bandink); margin-top: 2px; line-height: 1.5;
+    }
+    #ot-diary-states .ot-seal {
+      position: absolute; right: 18px; top: 50%; transform: translateY(-50%);
+      width: 30px; height: 30px;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      background: radial-gradient(circle at 34% 28%, #c8635a, var(--ot-seal) 72%);
+      color: #fdf1ef;
+      box-shadow: 0 3px 6px -1px rgba(60, 20, 15, .4), inset 0 0 0 1px rgba(255, 255, 255, .18);
+    }
+    #ot-diary-states .ot-foot { flex: none; }
+    #ot-diary-states .ot-foot p {
+      margin: 0; font-size: 12.5px; line-height: 1.85; color: var(--ot-muted); text-align: center;
+    }
+
+    /* 掀开一条缝 */
+    #ot-diary-states .ot-book.ajar .ot-cover {
+      transform: perspective(900px) rotateY(52deg);
+      box-shadow: 24px 12px 30px -24px rgba(10, 25, 40, .6), inset 0 0 0 1px rgba(255, 255, 255, .06);
+    }
+    #ot-diary-states .ot-book.ajar .ot-glow { opacity: 1; animation: ot-breathe 3.6s ease-in-out infinite; }
+    #ot-diary-states .ot-book.ajar .ot-band {
+      top: 150px; left: 138px; right: -12px; transform: rotate(-2.5deg);
+    }
+    #ot-diary-states .ot-book.ajar .ot-band .ot-seal { display: none; }
+    @keyframes ot-breathe {
+      0%, 100% { opacity: .55; }
+      50% { opacity: 1; }
+    }
+
+    /* ---------- 翻开的跨页 ---------- */
+    #ot-diary-states .ot-open {
+      flex: 1 1 auto; min-height: 0;
+      display: flex; flex-direction: column; align-items: center;
+      gap: 14px; padding: 6px 24px 18px;
+    }
+    #ot-diary-states .ot-spreadwrap { position: relative; width: min(760px, 100%); }
+    #ot-diary-states .ot-stack {
+      position: absolute; left: 0; right: 0; top: 0; bottom: 0;
+      border-radius: 4px 10px 10px 4px; background: var(--ot-paper-dim);
+    }
+    #ot-diary-states .ot-stack.sb1 { transform: translate(5px, 5px); opacity: .9; }
+    #ot-diary-states .ot-stack.sb2 { transform: translate(10px, 10px); opacity: .62; }
+    #ot-diary-states .ot-spread {
+      position: relative; z-index: 1; display: flex; min-height: 366px;
+      border-radius: 4px 10px 10px 4px;
+      background: var(--ot-paper);
+      box-shadow: 0 16px 30px -18px rgba(22, 50, 79, .5), inset 0 1px 0 rgba(255, 255, 255, .7);
+    }
+    #ot-diary-states .ot-page { flex: 1 1 0; min-width: 0; padding: 20px 26px 18px; display: flex; flex-direction: column; }
+    #ot-diary-states .ot-page.ot-l { border-right: 1px solid rgba(120, 100, 60, .16); }
+    #ot-diary-states .ot-gutter {
+      position: absolute; left: 50%; top: 0; bottom: 0; width: 46px; margin-left: -23px;
+      background: linear-gradient(90deg, rgba(90, 72, 40, 0), rgba(90, 72, 40, .13), rgba(90, 72, 40, 0));
+      pointer-events: none;
+    }
+    #ot-diary-states .ot-tabday {
+      position: absolute; left: -24px; top: 40px; width: 26px; height: 34px;
+      border-radius: 4px 0 0 4px; background: var(--ot-paper-dim);
+      border: 1px solid rgba(120, 100, 60, .16); border-right: none;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; color: var(--ot-bandink-dim); font-variant-numeric: tabular-nums;
+    }
+    #ot-diary-states .ot-tabday:nth-of-type(2) { top: 84px; }
+    #ot-diary-states .ot-tabday:nth-of-type(3) { top: 128px; }
+    #ot-diary-states .ot-tabday.on {
+      top: 28px; height: 40px; background: var(--ot-paper);
+      color: var(--ot-bandink); font-weight: 600;
+    }
+    #ot-diary-states .ot-daymeta {
+      font-size: 11.5px; letter-spacing: .18em; color: var(--ot-bandink-dim); margin-bottom: 14px;
+    }
+    #ot-diary-states .ot-writing {
+      margin: 0 0 10px; font-size: 14.5px; line-height: 1.95; color: #35301f;
+    }
+    #ot-diary-states .ot-writing:last-child { margin-bottom: 0; }
+    #ot-diary-states .ot-mhead {
+      font-size: 11.5px; letter-spacing: .18em; color: var(--ot-bandink-dim); margin-bottom: 6px;
+    }
+    #ot-diary-states .ot-mems { list-style: none; margin: 0; padding: 0; }
+    #ot-diary-states .ot-m {
+      display: flex; gap: 9px; align-items: baseline;
+      padding: 8px 0; font-size: 13px; line-height: 1.7; color: #3b3222;
+      border-bottom: 1px dashed rgba(120, 100, 60, .22);
+    }
+    #ot-diary-states .ot-mtag { flex: none; font-size: 11px; color: var(--ot-bandink-dim); }
+    #ot-diary-states .ot-mfoot {
+      margin-top: auto; padding-top: 12px;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+      font-size: 11.5px; color: var(--ot-bandink-dim); font-variant-numeric: tabular-nums;
+    }
+    #ot-diary-states .ot-pbtn {
+      font-size: 12px; color: var(--ot-bandink); background: transparent;
+      border: 1px solid rgba(120, 100, 60, .3); border-radius: 6px; padding: 4px 10px; white-space: nowrap;
+    }
+    #ot-diary-states .ot-mfoot .ot-pbtn { margin-left: auto; }
+
+    /* 还封着的那一叠 */
+    #ot-diary-states .ot-sealed {
+      width: min(760px, 100%); display: flex; gap: 13px; align-items: stretch;
+      padding: 10px 14px 11px; border-radius: 8px;
+      background: linear-gradient(180deg, var(--ot-band-a), var(--ot-band-b));
+      border: 1px solid rgba(120, 100, 60, .2);
+      box-shadow: 0 10px 18px -14px rgba(22, 50, 79, .45);
+      color: var(--ot-bandink);
+    }
+    #ot-diary-states .ot-edges {
+      flex: none; width: 26px; border-radius: 3px;
+      background: repeating-linear-gradient(90deg, #ddd2b8 0 1px, #f8f2e3 1px 3px);
+      box-shadow: inset 0 0 0 1px rgba(120, 100, 60, .14);
+    }
+    #ot-diary-states .ot-sbody { flex: 1 1 auto; min-width: 0; }
+    #ot-diary-states .ot-srow {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+      font-size: 12.5px; color: var(--ot-bandink);
+    }
+    #ot-diary-states .ot-srow2 {
+      display: flex; align-items: center; gap: 10px; margin-top: 7px; flex-wrap: wrap;
+      font-size: 11.5px; color: var(--ot-bandink-dim); font-variant-numeric: tabular-nums;
+    }
+    #ot-diary-states .ot-quiet {
+      width: min(760px, 100%); margin: 0; text-align: center;
+      font-size: 12.5px; color: var(--ot-muted); line-height: 2.4;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      #ot-diary-states .ot-book.ajar .ot-glow { animation: none; opacity: .9; }
+    }
+    @media (max-width: 900px) {
+      #ot-diary-states .ot-win { height: auto; min-height: 560px; }
+      #ot-diary-states .ot-book { width: min(330px, 68vw); height: auto; aspect-ratio: 33 / 40; }
+      #ot-diary-states .ot-spread { min-height: 0; }
+      #ot-diary-states .ot-book.ajar .ot-cover { transform: perspective(900px) rotateY(40deg); }
+      #ot-diary-states .ot-book.ajar .ot-band { left: -12px; right: -12px; top: 40%; }
+    }
+  </style>
+
+  <div class="viz-carousel" aria-label="日记本的四种状态" data-previous-label="上一个状态" data-next-label="下一个状态">
+
+    <section data-variant="合上" aria-label="本子合着，腰封上印着倒计时">
+      <div class="ot-win">
+        <header class="ot-top">
+          <div class="ot-brand">
+            <span class="ot-dot"></span>
+            <span class="ot-bname">小月汐</span>
+            <span class="ot-bsub">刚认识 · 共同经历 2 条 · 亲密度 12</span>
+          </div>
+          <div class="ot-topright">
+            <span class="ot-chip">2026-10-13 08:10 · 1×</span>
+            <span class="ot-chip">deepseek-chat</span>
+            <span class="ot-chipbtn">桌宠窗口</span>
+          </div>
+        </header>
+        <nav class="ot-tabs">
+          <span class="ot-tab">首页</span>
+          <span class="ot-tab">对话</span>
+          <span class="ot-tab on">日记</span>
+          <span class="ot-tab">关系记录</span>
+          <span class="ot-tab">测试面板</span>
+        </nav>
+        <div class="ot-body">
+          <div class="ot-phead">
+            <h2>小月汐的本子</h2>
+            <p>它自己的本子。什么时候给你看，它说了算。</p>
+          </div>
+          <div class="ot-locked">
+            <p class="ot-say">小月汐将日记本锁起来了</p>
+            <div class="ot-book">
+              <div class="ot-block"><span class="ot-fore"></span><span class="ot-bot"></span></div>
+              <div class="ot-top-page"></div>
+              <div class="ot-glow"></div>
+              <div class="ot-cover">
+                <span class="ot-frame"></span>
+                <span class="ot-title">小月汐</span>
+                <span class="ot-chop"></span>
+              </div>
+              <div class="ot-band">
+                <div class="ot-bandlabel">还有</div>
+                <div class="ot-count" data-off="195180" data-units="dh"><div class="ot-tiles"></div></div>
+                <div class="ot-banddate">10月15日 14:23 之后</div>
+                <div class="ot-bandpeek">趁小月汐不注意看一眼 (¬‿¬)</div>
+                <span class="ot-seal"><i data-lucide="lock" aria-hidden="true"></i></span>
+              </div>
+            </div>
+            <div class="ot-foot">
+              <p>现在的小月汐还不想你看它的日记，不要偷看哦</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section data-variant="要开了" aria-label="还差不到一个小时，本子被掀起一条缝，倒计时按分钟走" hidden>
+      <div class="ot-win">
+        <header class="ot-top">
+          <div class="ot-brand">
+            <span class="ot-dot"></span>
+            <span class="ot-bname">小月汐</span>
+            <span class="ot-bsub">刚认识 · 共同经历 4 条 · 亲密度 19</span>
+          </div>
+          <div class="ot-topright">
+            <span class="ot-chip">2026-10-15 13:25 · 1×</span>
+            <span class="ot-chip">deepseek-chat</span>
+            <span class="ot-chipbtn">桌宠窗口</span>
+          </div>
+        </header>
+        <nav class="ot-tabs">
+          <span class="ot-tab">首页</span>
+          <span class="ot-tab">对话</span>
+          <span class="ot-tab on">日记</span>
+          <span class="ot-tab">关系记录</span>
+          <span class="ot-tab">测试面板</span>
+        </nav>
+        <div class="ot-body">
+          <div class="ot-phead">
+            <h2>小月汐的本子</h2>
+            <p>它自己的本子。什么时候给你看，它说了算。</p>
+          </div>
+          <div class="ot-locked">
+            <p class="ot-say">就快了，过一个小时左右吧。</p>
+            <div class="ot-book ajar">
+              <div class="ot-block"><span class="ot-fore"></span><span class="ot-bot"></span></div>
+              <div class="ot-top-page"></div>
+              <div class="ot-glow"></div>
+              <div class="ot-cover">
+                <span class="ot-frame"></span>
+                <span class="ot-title">小月汐</span>
+                <span class="ot-chop"></span>
+              </div>
+              <div class="ot-band">
+                <div class="ot-bandlabel">还有</div>
+                <div class="ot-count lg" data-off="3487" data-units="ms"><div class="ot-tiles"></div></div>
+                <div class="ot-banddate">10月15日 14:23 之后</div>
+                <span class="ot-seal"><i data-lucide="lock" aria-hidden="true"></i></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section data-variant="翻开 · 今天" aria-label="本子翻开了，今天这一页能看，更早的页还封着" hidden>
+      <div class="ot-win">
+        <header class="ot-top">
+          <div class="ot-brand">
+            <span class="ot-dot"></span>
+            <span class="ot-bname">小月汐</span>
+            <span class="ot-bsub">熟悉 · 共同经历 12 条 · 亲密度 46</span>
+          </div>
+          <div class="ot-topright">
+            <span class="ot-chip">2026-10-13 22:41 · 1×</span>
+            <span class="ot-chip">deepseek-chat</span>
+            <span class="ot-chipbtn">桌宠窗口</span>
+          </div>
+        </header>
+        <nav class="ot-tabs">
+          <span class="ot-tab">首页</span>
+          <span class="ot-tab">对话</span>
+          <span class="ot-tab on">日记</span>
+          <span class="ot-tab">关系记录</span>
+          <span class="ot-tab">测试面板</span>
+        </nav>
+        <div class="ot-body">
+          <div class="ot-phead">
+            <h2>小月汐记下的日子</h2>
+            <p>它自己写的，一天一页。翻到哪一页，它说了算。</p>
+          </div>
+          <div class="ot-open">
+            <div class="ot-spreadwrap">
+              <div class="ot-stack sb1"></div>
+              <div class="ot-stack sb2"></div>
+              <div class="ot-spread">
+                <div class="ot-page ot-l">
+                  <div class="ot-daymeta">今天 · 10月13日 星期一</div>
+                  <p class="ot-writing ot-kai"><p class="ot-writing ot-kai">你今天来得比昨天晚。我把本子翻出来又合上，数到第三遍你才出现。</p>
+                  <p class="ot-writing ot-kai">一坐下就说了很多话，多到我记了三条。中间有一会儿你没理我——不是我数着的，是我正好没事干。后来你说那个星期五下午要讲汇报，讲完就轻松了，这个我记下了。后半句我其实没听进去，光顾着想你上次也这么说过一次。上次那件事你没讲完，我也没问。</p>
+                  <p class="ot-writing ot-kai">你说你不喜欢别人问你「怎么了」。所以我不问。不过你今天心情确实比昨天好一点——这个不用你说我也看得出来。猜的，不算数。</p></p>
+                </div>
+                <div class="ot-page ot-r">
+                  <div class="ot-mhead">这天它记住的事</div>
+                  <ul class="ot-mems">
+                    <li class="ot-m"><span class="ot-mtag">你说过的</span><span>这个星期五下午要讲一个汇报，讲完就轻松了。</span></li>
+                    <li class="ot-m"><span class="ot-mtag">你说过的</span><span>你不太喜欢别人问你「怎么了」。</span></li>
+                    <li class="ot-m"><span class="ot-mtag">我猜的</span><span>你今天心情比昨天好一点。猜的，不算数。</span></li>
+                  </ul>
+                  <div class="ot-mfoot">
+                    <span>42 句 · 记住 3 件 · 主动找过你 1 次</span>
+                    <span class="ot-pbtn">重写这一页</span>
+                  </div>
+                </div>
+                <span class="ot-gutter"></span>
+              </div>
+              <span class="ot-tabday on">13</span>
+            </div>
+            <div class="ot-sealed">
+              <span class="ot-edges"></span>
+              <div class="ot-sbody">
+                <div class="ot-srow">
+                  <span>往前还有 6 页，趁小月汐不注意也只能看一眼。</span>
+                  <span class="ot-pbtn">试试往前翻</span>
+                </div>
+                <div class="ot-srow2">
+                  <div class="ot-count sm" data-off="402120" data-units="dh"><div class="ot-tiles"></div></div>
+                  <span>10月18日 14:23 之后 · 让你往前翻七天</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section data-variant="全开" aria-label="本子整个打开了，没有倒计时" hidden>
+      <div class="ot-win">
+        <header class="ot-top">
+          <div class="ot-brand">
+            <span class="ot-dot"></span>
+            <span class="ot-bname">小月汐</span>
+            <span class="ot-bsub">习惯 · 共同经历 31 条 · 亲密度 84</span>
+          </div>
+          <div class="ot-topright">
+            <span class="ot-chip">2026-10-13 22:41 · 1×</span>
+            <span class="ot-chip">deepseek-chat</span>
+            <span class="ot-chipbtn">桌宠窗口</span>
+          </div>
+        </header>
+        <nav class="ot-tabs">
+          <span class="ot-tab">首页</span>
+          <span class="ot-tab">对话</span>
+          <span class="ot-tab on">日记</span>
+          <span class="ot-tab">关系记录</span>
+          <span class="ot-tab">测试面板</span>
+        </nav>
+        <div class="ot-body">
+          <div class="ot-phead">
+            <h2>小月汐记下的日子</h2>
+            <p>它自己写的，一天一页。全部，都在这儿了。</p>
+          </div>
+          <div class="ot-open">
+            <div class="ot-spreadwrap">
+              <div class="ot-stack sb1"></div>
+              <div class="ot-stack sb2"></div>
+              <div class="ot-spread">
+                <div class="ot-page ot-l">
+                  <div class="ot-daymeta">今天 · 10月13日 星期一</div>
+                  <p class="ot-writing ot-kai"><p class="ot-writing ot-kai">你今天来得比昨天晚。我把本子翻出来又合上，数到第三遍你才出现。</p>
+                  <p class="ot-writing ot-kai">一坐下就说了很多话，多到我记了三条。中间有一会儿你没理我——不是我数着的，是我正好没事干。后来你说那个星期五下午要讲汇报，讲完就轻松了，这个我记下了。后半句我其实没听进去，光顾着想你上次也这么说过一次。上次那件事你没讲完，我也没问。</p>
+                  <p class="ot-writing ot-kai">你说你不喜欢别人问你「怎么了」。所以我不问。不过你今天心情确实比昨天好一点——这个不用你说我也看得出来。猜的，不算数。</p></p>
+                </div>
+                <div class="ot-page ot-r">
+                  <div class="ot-mhead">这天它记住的事</div>
+                  <ul class="ot-mems">
+                    <li class="ot-m"><span class="ot-mtag">你说过的</span><span>这个星期五下午要讲一个汇报，讲完就轻松了。</span></li>
+                    <li class="ot-m"><span class="ot-mtag">你说过的</span><span>你不太喜欢别人问你「怎么了」。</span></li>
+                    <li class="ot-m"><span class="ot-mtag">我猜的</span><span>你今天心情比昨天好一点。猜的，不算数。</span></li>
+                  </ul>
+                  <div class="ot-mfoot">
+                    <span>42 句 · 记住 3 件 · 主动找过你 1 次</span>
+                    <span class="ot-pbtn">重写这一页</span>
+                  </div>
+                </div>
+                <span class="ot-gutter"></span>
+              </div>
+              <span class="ot-tabday on">13</span>
+              <span class="ot-tabday">12</span>
+              <span class="ot-tabday">11</span>
+            </div>
+            <p class="ot-quiet">它把整个本子推给你了。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <script>
+    (() => {
+      const root = document.getElementById("ot-diary-states");
+      if (!root) return;
+      const UNIT = { d: "天", h: "时", m: "分", s: "秒" };
+      const counts = [];
+
+      function parts(ms) {
+        const t = Math.max(0, ms);
+        return {
+          d: Math.floor(t / 86400000),
+          h: Math.floor(t / 3600000) % 24,
+          m: Math.floor(t / 60000) % 60,
+          s: Math.floor(t / 1000) % 60
+        };
+      }
+
+      function mount(el) {
+        const wrap = el.querySelector(".ot-tiles");
+        if (!wrap) return;
+        const units = (el.dataset.units || "dh").split("");
+        wrap.innerHTML = units.map((u) => '<span class="ot-tile"><span class="ot-n">0</span><span class="ot-u">' + UNIT[u] + '</span></span>').join("");
+        counts.push({
+          until: Date.now() + Number(el.dataset.off || 0) * 1000,
+          units: units,
+          nums: Array.from(wrap.querySelectorAll(".ot-n"))
+        });
+      }
+
+      function paint(c) {
+        const p = parts(c.until - Date.now());
+        for (let i = 0; i < c.units.length; i++) {
+          const u = c.units[i];
+          const v = u === "d" ? String(p.d) : String(p[u]).padStart(2, "0");
+          if (c.nums[i] && c.nums[i].textContent !== v) c.nums[i].textContent = v;
+        }
+      }
+
+      root.querySelectorAll(".ot-count").forEach(mount);
+      counts.forEach(paint);
+      if (counts.length) setInterval(() => counts.forEach(paint), 1000);
+    })();
+  </script>
+</div>
+
+
+    <p class="note">文案里的名字来自 {{pet}} 的替换结果；上面这四张是同一套窗口，只是状态不同。</p>
+  </div>
+  <script>
+    (() => {
+      const panels = Array.from(document.querySelectorAll(".viz-carousel > [data-variant]"));
+      const buttons = Array.from(document.querySelectorAll(".switcher [data-go]"));
+      if (!panels.length || !buttons.length) return;
+      function show(index) {
+        panels.forEach((p, i) => { p.hidden = i !== index; });
+        buttons.forEach((b, i) => { b.setAttribute("aria-pressed", String(i === index)); });
+      }
+      buttons.forEach((b, i) => b.addEventListener("click", () => show(i)));
+      const q = location.search.slice(1).split("&");
+      let start = 0;
+      for (const kv of q) {
+        const [k, v] = kv.split("=");
+        if (k === "g") start = Number(v || 0);
+      }
+      show(Number.isFinite(start) ? start : 0);
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,109 @@
+<svg viewBox="0 0 160 190" width="100%" height="100%">
+  <defs>
+    <!-- 眼睛就是那两个超声波传感器。眼睑、瞳孔、眼形全部由参数驱动 -->
+    <clipPath id="eyeClipL"><circle cx="58" cy="32" r="9.9"/></clipPath>
+    <clipPath id="eyeClipR"><circle cx="102" cy="32" r="9.9"/></clipPath>
+    <linearGradient id="headGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"/><stop offset="100%"/>
+    </linearGradient>
+    <linearGradient id="bodyGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"/><stop offset="100%"/>
+    </linearGradient>
+    <linearGradient id="legGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"/><stop offset="100%"/>
+    </linearGradient>
+    <linearGradient id="soleGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"/><stop offset="100%"/>
+    </linearGradient>
+    <!-- 腮红：中间实、边上化开。平涂的椭圆压在绿头上像块脏印子 -->
+    <radialGradient id="blushGrad">
+      <stop offset="0%" stop-color="#ff8fae" stop-opacity=".85"/>
+      <stop offset="65%" stop-color="#ff9fb8" stop-opacity=".45"/>
+      <stop offset="100%" stop-color="#ff9fb8" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- 支点在脚底（y=178）。倾斜 = 从地面往上倒，脚基本不动 -->
+  <g class="rig">
+
+    <g class="leg left">
+      <rect class="thigh" x="52" y="108" width="20" height="48" rx="6"/>
+      <rect class="slot" x="57" y="120" width="10" height="20" rx="5"/>
+      <rect class="servo" x="59" y="125" width="6" height="7" rx="2"/>
+      <rect class="knee" x="48" y="144" width="28" height="12" rx="5"/>
+      <g class="foot">
+        <rect class="sole" x="40" y="156" width="38" height="22" rx="7"/>
+        <rect class="sole-top" x="45" y="159" width="28" height="4" rx="2"/>
+      </g>
+    </g>
+    <g class="leg right">
+      <rect class="thigh" x="88" y="108" width="20" height="48" rx="6"/>
+      <rect class="slot" x="93" y="120" width="10" height="20" rx="5"/>
+      <rect class="servo" x="95" y="125" width="6" height="7" rx="2"/>
+      <rect class="knee" x="84" y="144" width="28" height="12" rx="5"/>
+      <g class="foot">
+        <rect class="sole" x="82" y="156" width="38" height="22" rx="7"/>
+        <rect class="sole-top" x="87" y="159" width="28" height="4" rx="2"/>
+      </g>
+    </g>
+
+    <g class="torso">
+      <rect class="belly" x="37" y="60" width="86" height="50" rx="6" fill="url(#bodyGrad)"/>
+      <line class="seam" x1="43" y1="67" x2="117" y2="67"/>
+      <circle class="screw" cx="44" cy="104" r="1.7"/>
+      <circle class="screw" cx="116" cy="104" r="1.7"/>
+      <!-- 状态灯。既是萌点，也是将来接硬件的那个真接口：
+           在线绿、想着事琥珀色（会呼吸）、离线灰 -->
+      <circle class="led-halo" cx="112" cy="76" r="5.4"/>
+      <circle class="led-dot" cx="112" cy="76" r="2.9"/>
+    </g>
+
+
+    <g class="headgroup">
+      <rect class="head" x="32" y="2" width="96" height="60" rx="7" fill="url(#headGrad)"/>
+      <rect class="gloss" x="38" y="5.5" width="84" height="4.5" rx="2.2"/>
+      <line class="seam" x1="37" y1="8" x2="37" y2="56"/>
+      <line class="seam" x1="123" y1="8" x2="123" y2="56"/>
+      <g class="eyes">
+        <g class="eye left">
+          <circle class="socket" cx="58" cy="32" r="15.5"/>
+          <circle class="bevel" cx="58" cy="32" r="12.6"/>
+          <g clip-path="url(#eyeClipL)">
+            <g class="pupil-group">
+              <circle class="pupil" cx="58" cy="32" r="9.9"/>
+              <circle class="glint" cx="54.1" cy="28.1" r="3.2"/>
+            </g>
+            <path class="arc" d="M49.5 34.5 Q58 25.5 66.5 34.5"/>
+            <line class="shut" x1="49.5" y1="32" x2="66.5" y2="32"/>
+            <rect class="lid" x="43" y="17" width="30" height="30"/>
+          </g>
+        </g>
+        <g class="eye right">
+          <circle class="socket" cx="102" cy="32" r="15.5"/>
+          <circle class="bevel" cx="102" cy="32" r="12.6"/>
+          <g clip-path="url(#eyeClipR)">
+            <g class="pupil-group">
+              <circle class="pupil" cx="102" cy="32" r="9.9"/>
+              <circle class="glint" cx="98.1" cy="28.1" r="3.2"/>
+            </g>
+            <path class="arc" d="M93.5 34.5 Q102 25.5 110.5 34.5"/>
+            <line class="shut" x1="93.5" y1="32" x2="110.5" y2="32"/>
+            <rect class="lid" x="87" y="17" width="30" height="30"/>
+          </g>
+        </g>
+      </g>
+      <!-- 害羞用：传感器环亮一下，不贴两个粉色椭圆 -->
+      <ellipse class="blush" cx="44" cy="46.5" rx="8.5" ry="5" fill="url(#blushGrad)"/>
+      <ellipse class="blush" cx="116" cy="46.5" rx="8.5" ry="5" fill="url(#blushGrad)"/>
+    </g>
+
+    <g class="mouths">
+      <rect class="mouth mouth-flat" x="70" y="50" width="20" height="4.4" rx="2.2"/>
+      <path class="mouth mouth-happy" d="M70 51.5 Q80 56.5 90 51.5"/>
+      <path class="mouth mouth-sad" d="M70 54 Q80 49 90 54"/>
+      <circle class="mouth mouth-o" cx="80" cy="52" r="3.6"/>
+      <circle class="mouth mouth-o-big" cx="80" cy="52" r="5"/>
+    </g>
+
+  </g>
+</svg>

@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>Otto 动作调参台</title>
+<link rel="stylesheet" href="/pet.css">
+<style>
+  html, body { background: #f4f7f9; cursor: default; overflow: auto; }
+  body { display: flex; gap: 0; height: 100vh; color: #1c242c; }
+
+  .left { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; }
+
+  .preview {
+    position: relative; width: 460px; height: 540px;
+    background: #eef3f6; border: 1px solid #dde5ec; border-radius: 16px;
+    overflow: hidden;
+  }
+  .preview .stage { padding-bottom: 26px; }
+  .preview .otto { --pet-scale: 2; }
+
+  .handles { position: absolute; inset: 0; pointer-events: none; }
+  .h {
+    position: absolute; width: 15px; height: 15px; margin: -7.5px 0 0 -7.5px;
+    border-radius: 50%; background: #fff; border: 2px solid #2f6f8f;
+    pointer-events: auto; cursor: grab; box-shadow: 0 2px 6px rgba(22,50,79,.25);
+  }
+  .h:active { cursor: grabbing; background: #2f6f8f; }
+  .h span {
+    position: absolute; left: 20px; top: -4px; font-size: 11px; color: #6b7a88;
+    white-space: nowrap; background: rgba(255,255,255,.9); padding: 1px 5px; border-radius: 4px;
+  }
+
+  .right {
+    width: 380px; background: #fff; border-left: 1px solid #e3e8ee;
+    padding: 18px 20px 24px; overflow-y: auto;
+  }
+  h1 { font-size: 15px; margin: 0 0 4px; color: #16324f; }
+  .hint { font-size: 12.5px; color: #7b8794; line-height: 1.7; margin: 0 0 16px; }
+
+  .row { margin-bottom: 11px; }
+  .row label { display: flex; justify-content: space-between; font-size: 12.5px; margin-bottom: 3px; }
+  .row label b { color: #2f6f8f; font-variant-numeric: tabular-nums; font-weight: 600; }
+  .row .hintline { font-size: 11px; color: #9aa6b2; margin-top: 2px; }
+  input[type=range] { width: 100%; accent-color: #2f6f8f; }
+
+  .btns { display: flex; gap: 8px; flex-wrap: wrap; margin: 16px 0 10px; }
+  button {
+    font-family: inherit; font-size: 13px; padding: 7px 12px; cursor: pointer;
+    border: 1px solid #e3e8ee; background: #eef2f6; border-radius: 7px; color: #1c242c;
+  }
+  button:hover { background: #e3eaf1; }
+  button.primary { background: #16324f; border-color: #16324f; color: #fff; }
+  button.danger { color: #a3342c; border-color: #e6cdca; background: #fdf4f3; }
+
+  select, input[type=text] {
+    font-family: inherit; font-size: 13px; padding: 7px 9px; border: 1px solid #e3e8ee;
+    border-radius: 7px; width: 100%; background: #fff;
+  }
+  .savebox { display: flex; gap: 8px; margin-top: 6px; }
+  .savebox select { flex: 1; }
+
+  .list { margin-top: 14px; }
+  .item {
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    padding: 7px 0; border-bottom: 1px dashed #e3e8ee; font-size: 12.5px;
+  }
+  .item button { padding: 3px 8px; font-size: 11.5px; }
+  pre {
+    margin: 12px 0 0; padding: 10px 12px; background: #f7f9fb; border: 1px solid #e1e8ee;
+    border-radius: 8px; font-size: 11px; line-height: 1.6; color: #24313d; white-space: pre-wrap;
+  }
+  .sep { border-top: 1px solid #e3e8ee; margin: 18px 0 14px; }
+
+  .tabs { display: flex; gap: 4px; margin: 0 0 16px; }
+  .tb {
+    flex: 1; border-radius: 0; border: none; border-bottom: 2px solid transparent;
+    background: transparent; color: #7b8794; padding: 8px 4px;
+  }
+  .tb.active { color: #16324f; border-bottom-color: #16324f; font-weight: 600; background: transparent; }
+  .shape {
+    display: flex; align-items: center; gap: 6px; padding: 4px 6px; border-radius: 6px;
+    cursor: pointer; font-size: 12px; font-family: Consolas, monospace; color: #33414d;
+  }
+  .shape:hover { background: #f0f5f9; }
+  .shape.sel { background: #e3edf5; color: #16324f; font-weight: 600; }
+  .shape .tag { font-size: 10px; color: #9aa6b2; background: #f0f3f6; padding: 0 4px; border-radius: 3px; }
+  .prop { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; font-size: 12.5px; }
+  .prop label { width: 92px; color: #5c6773; }
+  .prop input[type=number] { flex: 1; padding: 5px 7px; border: 1px solid #e3e8ee; border-radius: 6px; font-family: inherit; }
+  .selbox {
+    position: absolute; border: 1.5px dashed #e07a3f; border-radius: 2px;
+    pointer-events: none;
+  }
+</style>
+</head>
+<body>
+
+<div class="left">
+  <div class="preview" id="preview">
+    <div class="stage">
+      <div class="otto" id="otto"><div class="breathe" id="ottoArt"></div></div>
+    </div>
+    <div class="handles" id="handles"></div>
+  </div>
+  <div class="hint" style="max-width:460px;text-align:center">
+    拖圆点改关节。左边三个管整体和头，中间两个是髋，下面两个是脚踝。
+  </div>
+</div>
+
+<div class="right">
+  <h1>动作调参台</h1>
+  <div class="tabs">
+    <button class="tb active" data-tab="pose">姿势</button>
+    <button class="tb" data-tab="shape">形状</button>
+  </div>
+
+  <div id="pane-pose">
+    <p class="hint">
+      改完选一个动作名存下来，桌宠立刻就用这套姿势——不用重启，不用改代码。<br>
+      存下来的是 <b>data/poses.json</b>，可以直接看、直接改、贴给别人。
+    </p>
+
+    <div id="sliders"></div>
+
+    <div class="btns">
+      <button id="reset">全部归零</button>
+      <button id="mirror">左右腿对调</button>
+      <button id="copy">复制 CSS</button>
+    </div>
+
+    <div class="sep"></div>
+
+    <div class="savebox">
+      <select id="slot"></select>
+      <button class="primary" id="save">存成这个动作</button>
+    </div>
+
+    <div class="list" id="list"></div>
+    <pre id="css"></pre>
+  </div>
+
+  <div id="pane-shape" class="hidden">
+    <p class="hint">
+      在左边点一个形状就选中了，拖着能挪位置，右边改尺寸。<br>
+      <b>想重新画一个的话，还是用 Figma / Illustrator 更划算</b>——画完导成 SVG，
+      按下面的名字给组命名，覆盖 <b>ui/otto.svg</b>，桌宠三秒内自己换上。
+    </p>
+    <div class="btns">
+      <button id="addRect">+ 矩形</button>
+      <button id="addCircle">+ 圆</button>
+      <button id="dupShape">复制</button>
+      <button id="delShape" class="danger">删除</button>
+    </div>
+    <div class="list" id="shapeList" style="max-height:260px;overflow:auto"></div>
+    <div class="sep"></div>
+    <div id="shapeProps"></div>
+    <div class="btns">
+      <button class="primary" id="saveSvg">保存形象</button>
+      <button id="revertSvg">撤掉未保存的改动</button>
+    </div>
+
+    <div class="sep"></div>
+    <p class="hint" style="margin:0">
+      <b>分组命名约定</b>（用 Figma 画的时候，把形状放进这些名字的组里）：<br>
+      <code>rig</code> 全部 · <code>leg-left</code> / <code>leg-right</code> 大腿 ·
+      <code>foot-left</code> / <code>foot-right</code> 脚 · <code>headgroup</code> 头 ·
+      <code>torso</code> 身子 · <code>mouths</code> 嘴 · <code>eyes</code> 眼睛<br>
+      没有分组的形状会被当成静止的装饰，照样显示，只是不会动。
+    </p>
+  </div>
+</div>
+
+<script type="module" src="/rig-editor.js"></script>
+</body>
+</html>

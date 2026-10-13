@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>Otto</title>
+<link rel="stylesheet" href="/pet.css">
+</head>
+<body>
+<div class="stage" id="stage">
+  <div class="bubble hidden" id="bubble"></div>
+  <div class="otto" id="otto">
+    <!-- 呼吸在最外层，姿势在里面的 .rig 上。
+         两层分开，动作才不会把呼吸顶掉 -->
+    <div class="breathe" id="ottoArt"></div>
+    <!-- 下面这三个是贴在它头上的，必须放在 .otto 里面。
+         放 .stage 下面的话它们会跑到窗口角上，离它十万八千里 -->
+    <div class="dots hidden" id="dots"><i></i><i></i><i></i></div>
+    <div class="zzz hidden" id="zzz">z</div>
+    <div class="extra hidden" id="extra"></div>
+  </div>
+</div>
+<script type="module" src="/pet.js"></script>
+</body>
+</html>

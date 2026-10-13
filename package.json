@@ -1,0 +1,19 @@
+{
+  "name": "otto-companion",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Otto AI Companion - 第一阶段软件 Demo",
+  "main": "electron/main.mjs",
+  "scripts": {
+    "start": "node --disable-warning=ExperimentalWarning server/index.mjs",
+    "smoke": "node scripts/smoke.mjs",
+    "electron": "electron .",
+    "mock": "node --disable-warning=ExperimentalWarning --env-file=.env server/index.mjs",
+    "shot": "electron scripts/shot.mjs",
+    "dist": "electron-builder --win portable"
+  },
+  "devDependencies": {
+    "electron": "^44.7.0"
+  }
+}

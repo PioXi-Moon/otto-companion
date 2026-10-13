@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>道具墙</title>
+<link rel="stylesheet" href="/styles.css">
+<style>
+  body { background: #fbf9f4; }
+  .wall { padding: 22px; display: grid; grid-template-columns: repeat(8, 1fr); gap: 14px; }
+  .cell {
+    background: #fff; border: 1px solid #ece7dc; border-radius: 10px;
+    padding: 10px 8px 8px; text-align: center;
+  }
+  .cell .box { width: 62px; height: 62px; margin: 0 auto; }
+  .cell .nm { font-size: 11.5px; color: #8b8375; margin-top: 6px; }
+  .cell .id { font-size: 10px; color: #b6ae9f; }
+  .head { padding: 20px 22px 0; }
+  .head h1 { font-size: 16px; color: #16324f; margin: 0 0 4px; }
+  .head p { font-size: 12.5px; color: #7b8794; margin: 0; }
+</style>
+</head>
+<body>
+<div class="head">
+  <h1>道具墙</h1>
+  <p>手账页上会出现的小画。跟 Otto 同一根线和同一套色，28 个。</p>
+</div>
+<div class="wall" id="wall"></div>
+<script type="module">
+  import { PROPS } from "/props.js";
+  const wall = document.getElementById("wall");
+  for (const p of PROPS) {
+    const cell = document.createElement("div");
+    cell.className = "cell";
+    cell.innerHTML = `<div class="box">${p.svg}</div><div class="nm"></div><div class="id"></div>`;
+    cell.querySelector(".nm").textContent = p.name;
+    cell.querySelector(".id").textContent = p.id;
+    wall.appendChild(cell);
+  }
+</script>
+</body>
+</html>

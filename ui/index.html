@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{pet}}</title>
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <span class="dot" id="statusDot"></span>
+    <span class="name">{{pet}}</span>
+    <span class="sub" id="relationLine">还没开始</span>
+  </div>
+  <div class="top-right">
+    <span class="chip" id="clockChip">时间 --</span>
+    <span class="chip" id="llmChip">模型 --</span>
+    <button class="ghost" id="openPet">桌宠窗口</button>
+    <button class="ghost" id="quitOtto" title="关掉这个窗口它还在，双击桌宠就回来。不想留了就用这个">让它睡</button>
+  </div>
+</header>
+
+<div class="banner hidden" id="banner"></div>
+
+<!-- 这一条要说的是"记录"，不是参数。
+     真机上的对话和交互，回来都会落在这里——这是软件存在的理由 -->
+<div class="recbar">
+  <span class="rec-chip">它现在住在电脑里</span>
+  <span class="rec-text">等把它接上之后，<b>你在它那边说过的话、碰过它的每一次，回来都会记在这里</b>——
+    说过的进对话和记忆，做过的动作进今天这一页。</span>
+  <button class="rec-go" id="recGo">看看现在记了什么</button>
+</div>
+
+<!-- 第一次用它的人需要知道能干什么。这些反应落到硬件上都是舵机在动 -->
+<div class="hints hidden" id="hints">
+  <span class="hints-text">摸它一下 · 拎起来再放下 · 滚轮改大小 · 双击开面板 · 右键有别的</span>
+  <span class="hints-note">这些反应落到硬件上，就是四颗舵机在动。</span>
+  <button id="hintsClose">知道了</button>
+</div>
+
+<div class="shell">
+  <!-- 左边这条是"本子"的装订边，五个页签像索引贴纸一样竖着贴在上面。
+       文案用它的口气，不用功能词：它今天 / 使唤它 / 它的本子 / 你们之间 -->
+  <nav class="rail" aria-label="页签">
+    <button class="tab active" data-tab="home">它今天</button>
+    <button class="tab" data-tab="tools">使唤它</button>
+    <button class="tab" data-tab="memory">它的本子</button>
+    <button class="tab" data-tab="timeline">你们之间</button>
+    <button class="tab" data-tab="test">测试面板</button>
+  </nav>
+
+  <main>
+  <!-- 首页：不点任何东西，也应该已经得到了一次陪伴 -->
+  <section class="pane active" id="pane-home">
+    <div class="home">
+      <!-- 一张桌子：它站在左边，右边摆着今天的三样东西 -->
+      <div class="desk">
+        <div class="desk-left" id="homeTop" title="右键有{{pet}}的东西">
+          <div class="desk-otto" id="homeOtto"></div>
+        </div>
+        <div class="desk-right">
+          <div class="home-state" id="homeState">{{pet}}趴着，看起来在打瞌睡</div>
+          <div class="home-sub" id="homeSub">刚认识</div>
+          <div class="home-say" id="homeSay"></div>
+          <div class="desk-items">
+            <div class="ditem note" id="homeToday"></div>
+            <div class="ditem page" id="homePage"></div>
+            <div class="ditem letter" id="homeLetter"></div>
+          </div>
+          <div class="home-keepsakes" id="homeKeepsakes"></div>
+          <div class="home-recent" id="homeRecent"></div>
+          <div class="home-actions">
+            <button class="primary" id="goChat">聊聊</button>
+            <button id="goTimeline">看看最近发生的事</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 工具：聊天降到这里的最后一块。它是通道，不是主场 -->
+  <section class="pane" id="pane-tools">
+    <div class="pane-head">
+      <h2>使唤它</h2>
+      <p class="muted">这些是<b>通道</b>，不是陪伴本身——它不是因为你使唤它才存在的。
+        硬件语音到位之后，这一页都能用嘴开。</p>
+      <!-- 硬件的两条通道。软件这边干的活，就是围着这两条转 -->
+      <div class="hwchannels">
+        <div class="hwch">
+          <b>通道一 · 动作</b>
+          <span>它今天做了哪些动作 → 今天和你有过哪些互动和情绪。<b>这一条正在记</b>，你看「你们之间」和「它的本子」就是它。</span>
+        </div>
+        <div class="hwch">
+          <b>通道二 · 语音</b>
+          <span>你和它在硬件上说了什么 → 聊天的内容、语气、以及从中长出来的记忆。<b>等硬件</b>，现在只能从这里打字。</span>
+        </div>
+      </div>
+    </div>
+    <div class="tools" id="toolGrid"></div>
+    <div class="chat-head">
+      <div class="hint" id="initHint">
+        还没做过人格初始化。第一次相处是聊天，不是填表。
+        <button class="primary" id="startInit">开始初始化</button>
+      </div>
+    </div>
+    <div class="messages" id="messages"></div>
+    <div class="composer">
+      <textarea id="input" rows="1" placeholder="说点什么…（Enter 发送，Shift+Enter 换行）"></textarea>
+      <button class="primary" id="send">发送</button>
+    </div>
+  </section>
+
+  <!-- 日记 -->
+  <section class="pane" id="pane-memory">
+    <div class="pane-head">
+      <div class="head-row">
+        <div>
+          <h2 id="diaryTitle">{{pet}}记下的日子</h2>
+          <p class="muted" id="diaryLead">一天一页。印章、画面、正文、页脚写在同一张纸上，是{{pet}}写给自己看的，过了当天才让你翻。
+            这一天它记住的事收在每页底下，摊开就能看到。</p>
+        </div>
+      </div>
+    </div>
+    <div id="diaryList" class="dbook"></div>
+    <div id="diaryGate" class="dg hidden"></div>
+  </section>
+
+  <!-- 关系记录 -->
+  <section class="pane" id="pane-timeline">
+    <div class="pane-head">
+      <h2>你们之间</h2>
+      <p class="muted">每一天里有两样东西：你们<b>说过的话、它做过的动作</b>（原样记着，没加工），
+        和它给你留的一张卡片。<b>卡片要过了当天才能翻开</b>——当天就拆开，就不像"这一天过完了"。
+        {{pet}}自己写的那一页在「日记」里。</p>
+    </div>
+    <div id="timeline" class="timeline"></div>
+  </section>
+
+  <!-- 测试面板 -->
+  <section class="pane" id="pane-test">
+    <div class="pane-head">
+      <h2>测试面板</h2>
+      <p class="muted">这一页不会给测试者看。H2 要验证的是"关系感来自记忆连续"，所以需要能把记忆关掉、把时间加速、把数据导出来。</p>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h3>虚拟时间</h3>
+        <p class="muted" id="clockDetail">--</p>
+        <div class="row">
+          <button data-scale="1">1×</button>
+          <button data-scale="60">60×</button>
+          <button data-scale="1440">1440×</button>
+        </div>
+        <div class="row">
+          <button data-jump="60">+1 小时</button>
+          <button data-jump="1440">+1 天</button>
+          <button data-jump="4320">+3 天</button>
+          <button id="resetClock">归零</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>A / B 开关</h3>
+        <p class="muted">H2 的两个版本，除了记忆注入以外，其余必须完全一致。</p>
+        <label class="switch">
+          <input type="checkbox" id="memoryToggle">
+          <span>开启长期记忆（关掉就是对照组）</span>
+        </label>
+        <label class="switch">
+          <input type="checkbox" id="mockToggle">
+          <span>用假模型跑（不消耗额度，只用来验证链路）</span>
+        </label>
+        <label class="switch">
+          <input type="checkbox" id="unlockCardsToggle">
+          <span>跳过卡片的「等一天」（开发用）</span>
+        </label>
+        <div class="row">
+          <button id="tickNow">立即检查主动发起</button>
+          <button id="exportData">导出 JSON</button>
+        </div>
+        <div class="row">
+          <button class="danger" id="resetData">清空数据（回到 Day 0）</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>开发</h3>
+        <p class="muted">调试用的旁路。只影响本机这一份数据，不进关系记录，也不占用任何里程碑。</p>
+        <label class="switch">
+          <input type="checkbox" id="devUnlock">
+          <span>日记全开（跳过解锁阶梯，直接看全部页）</span>
+        </label>
+        <p class="muted small">关掉之后，日记回到按亲密度和天数算出来的那一层。</p>
+      </div>
+
+      <div class="card">
+        <h3>人格参数</h3>
+        <div id="dims"></div>
+        <div class="mapwrap">
+          <svg id="personaMap" viewBox="0 0 200 200"></svg>
+          <p class="muted small">横轴 活跃程度，纵轴 社交倾向。虚线是允许{{pet}}慢慢移动的范围，初始化时锁定。</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>未闭合的线头</h3>
+        <div id="loops" class="list"></div>
+      </div>
+
+      <div class="card wide">
+        <h3>召回打分（这次回复用了哪些记忆）</h3>
+        <div id="recall" class="list muted">还没有记录</div>
+      </div>
+
+      <div class="card wide">
+        <h3>埋点事件</h3>
+        <p class="muted">"非任务型互动"就是靠 interaction_type 分出来的，没有它 D30 算不出来。</p>
+        <div id="events" class="list small"></div>
+      </div>
+
+      <!-- 给固件同学看的那一帧：软件算出姿势之后，往下发的就是这个 -->
+      <div class="card wide">
+        <h3>硬件接口</h3>
+        <p class="muted">软件把姿势算好，往下发的就是这一帧。四颗舵机（头、左腿、右腿、前倾）
+          加一颗指示灯和一个蜂鸣器——接上就是它这具身体。角度以中位 90° 为基准，夹在 20°~160°。</p>
+        <div class="hwbar" id="hwbar">
+          <span class="hw-state">模拟中</span>
+          <span class="hw-last" id="hwLast">等它动一下…</span>
+          <span class="hw-servos" id="hwServos"></span>
+          <span class="hw-aux" id="hwAux"></span>
+        </div>
+        <pre class="frame" id="hwFrame">（还没下发过）</pre>
+      </div>
+
+      <!-- 动作调试：把动作库整个摊开，一个一个看。
+           这一栏只是"看姿势"，跟"它真的做了这个动作"是两件事：
+           不计入记忆、不写事件、不影响关系 -->
+      <div class="card wide">
+        <h3>动作调试</h3>
+        <p class="muted">点一个就在桌宠窗口里演一遍，同时看它翻译成硬件是什么样。
+          <b>这一栏只是调试和检查用</b>：不计入记忆、不写事件、不动关系——
+          跟"它真的做了这个动作"是两件事。</p>
+        <div class="actgrid" id="actGrid"></div>
+      </div>
+    </div>
+  </section>
+  </main>
+</div>
+
+<div class="toast hidden" id="toast"></div>
+
+<!-- 右键菜单 -->
+<div class="ctxmenu hidden" id="ctxMenu"></div>
+
+<!-- 它记得的事：记忆管理。入口藏在右键后面，但每条两步内可达 -->
+<div class="modal hidden" id="memModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3>{{pet}}记得的事</h3>
+      <button id="closeMem">关掉</button>
+    </div>
+    <p class="muted">这里是你自己的数据，随时可以改和删。{{pet}}的日记在另一页，那一页归{{pet}}。</p>
+    <div id="memAll" class="list"></div>
+  </div>
+</div>
+
+<!-- 第一次点开：先给它起个名字 -->
+<div class="modal hidden" id="nameModal">
+  <div class="modal-box narrow">
+    <h3>先给它起个名字</h3>
+    <p class="muted">叫什么都行，以后也能改。</p>
+    <input id="nameInput" maxlength="8" value="小月汐" autocomplete="off" />
+    <div class="row">
+      <button class="primary" id="nameOk">就叫这个</button>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="/app.js"></script>
+</body>
+</html>
