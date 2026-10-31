@@ -436,6 +436,16 @@ async function renderOntology() {
       ` · 偏见学习：冷淡 ${b.aloof?.corrected ?? 0} 次 / 面子 ${b.proud?.corrected ?? 0} 次` +
       `（误读概率 ${o.misreadChance?.aloof ?? "-"}）`;
   }
+  if (o.growth) {
+    const c = o.growth.counts ?? {};
+    const DIM_LABEL = { activity: "活跃", sociability: "社交", expressiveness: "表达", amplitude: "情绪", curiosity: "好奇" };
+    const deltas = Object.entries(o.growth.deltas ?? {})
+      .map(([k, v]) => `${DIM_LABEL[k] ?? k}${v > 0 ? "+" : ""}${v}`)
+      .join(" ");
+    el.querySelector(".onto-reason").textContent +=
+      ` · 长期变化：${deltas || "还没开始"}` +
+      `（纠正 ${c.correction ?? 0} · 示弱 ${c.vulnerable ?? 0} · 拒绝 ${c.rejection ?? 0} · 夸 ${c.praise ?? 0}）`;
+  }
 }
 
 async function runOntology() {

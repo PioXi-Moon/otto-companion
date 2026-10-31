@@ -201,6 +201,15 @@ async function writeDiary(day, memories, messages, { last = {}, feedback = "" } 
         .join("\n")
     : "（这一天没有误读，也没有纠正）";
 
+  const growthEvents = q(
+    "select title, detail from timeline where ts >= ? and ts < ? and kind = 'growth' order by ts",
+    dayStartAt,
+    dayEndAt
+  );
+  const growthList = growthEvents.length
+    ? growthEvents.map((e) => `- ${e.title}${e.detail ? `（${e.detail}）` : ""}`).join("\n")
+    : "（这一天没有明显的变化）";
+
   try {
     const text = await chatStream({
       messages: [
@@ -234,6 +243,9 @@ ${memList}
 
 这一天它自己的误读与纠正：
 ${ontoList}
+
+这一天它自己的变化：
+${growthList}
 
 人称：正文里的他是"他"，"我"是你自己；卡片是写给他的，用"你"。
 

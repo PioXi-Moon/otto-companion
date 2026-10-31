@@ -14,6 +14,7 @@ import { getSetting, setSetting } from "./db.mjs";
 import { getPersona, getRelation } from "./persona.mjs";
 import { now } from "./clock.mjs";
 import { track } from "./events.mjs";
+import { noteEvent, summary as growthSummary } from "./growth.mjs";
 
 /* ---------------- 六个状态维度 ---------------- */
 
@@ -165,6 +166,7 @@ export function correct(text) {
       learned: learnedNow,
       why: last.misread?.why ?? null,
     });
+    noteEvent("correction");
   }
 
   setSetting("ontologyLast", { ...last, corrected: true, correctedTo: to });
@@ -313,6 +315,14 @@ export function observe(text, { stage, rng = Math.random } = {}) {
       : base;
   const rel = (stage ? { stage } : getRelation());
   applyEvent(state, speech.act, { stage: rel.stage, confidence: speech.confidence });
+
+  /* 只有"没被误读"的真实行为才算进长期变化——
+     否则一次误读会把"被拒绝"记到关系账上，越处越远。 */
+  if (!mis) {
+    if (base.act === "示弱") noteEvent("vulnerable");
+    else if (base.act === "拒绝") noteEvent("rejection");
+    else if (base.act === "评价") noteEvent("praise");
+  }
   const conflict = findConflict(state);
   const coef = coefficients();
   let intent = resolveIntent(conflict, state, coef);
@@ -364,6 +374,7 @@ export function snapshot() {
     calibrations: calibrations().length,
     calibrationList: calibrations().slice(-5),
     bias: biasStats(),
+    growth: growthSummary(),
     misreadChance: {
       aloof: +misreadChance(biasStats().aloof.corrected).toFixed(3),
       proud: +misreadChance(biasStats().proud.corrected).toFixed(3),
