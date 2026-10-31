@@ -378,6 +378,7 @@ class BleRobot:
                 raise RuntimeError(ack)
             if base in {"STOP", "REST"}:
                 self.armed = False
+            self.last_error = None
             return {"ok": True, "command": command, "ack": ack}
 
     async def _write(self, command: str) -> None:
@@ -569,6 +570,7 @@ class SerialRobot:
                 raise RuntimeError(f"firmware rebooted during {command}")
             if ack.startswith("ERR "):
                 raise RuntimeError(ack)
+            self.last_error = None
             return {"ok": True, "command": command, "ack": ack}
 
     def command(self, command: str, timeout: float = 20) -> dict:
