@@ -10,7 +10,7 @@ import { baseLayer, chatLayer, proactiveLayer, ACTION_ALIAS, SYSTEM_ACTION_WORDS
 import { resolveEmotion, byKey as emotionByKey, fallbackAction } from "./emotion.mjs";
 import {
   observe as observeOntology,
-  intentAllows,
+  actionFitsDecision,
   isCorrection,
   correct as correctOntology,
 } from "./ontology.mjs";
@@ -413,8 +413,10 @@ export async function handleChat({ sessionId, text, mode = "chat", emit }) {
   /* 硬约束：模型选的动作必须落在本体这一轮给的意图里。
      不在就换成本体建议的那个，并记下来——这样"它有自己的意志"不是一句设定，
      而是一条能在日志里查到的规则。 */
-  if (ontoDecision && !intentAllows(ontoDecision.intent, action)) {
-    log(`本体接管：${action} → ${ontoDecision.action}（意图 ${ontoDecision.intent}）`);
+  if (ontoDecision && !actionFitsDecision(ontoDecision, action)) {
+    log(
+      `动作语义接管：${action} → ${ontoDecision.action}（意图 ${ontoDecision.intent}，语义 ${ontoDecision.fit}）`
+    );
     action = ontoDecision.action;
   }
   const msg = insertMessage({

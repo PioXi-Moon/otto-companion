@@ -14,7 +14,7 @@ import {
   guessInteractionType,
   insertMessage,
 } from "./messages.mjs";
-import { observe, intentAllows } from "./ontology.mjs";
+import { observe, actionFitsDecision } from "./ontology.mjs";
 import { getRelation, updateRelation } from "./persona.mjs";
 import { log } from "./util.mjs";
 
@@ -51,7 +51,7 @@ export function resolveVoiceAction(text, proposedAction) {
     };
   }
 
-  if (intentAllows(decision.intent, proposed)) {
+  if (actionFitsDecision(decision, proposed)) {
     return {
       action: proposed,
       proposedAction: proposed,

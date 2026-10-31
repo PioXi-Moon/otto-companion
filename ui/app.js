@@ -431,6 +431,31 @@ async function renderOntology() {
     }
     ${last.calibrated ? `<div class="onto-mis">这条用的是校准后的读法。</div>` : ""}`;
   el.querySelector(".onto-reason").textContent = `「${last.text}」 → ${last.reason}`;
+  if (last.target) {
+    const labels = {
+      closeness: "靠近",
+      energy: "能量",
+      warmth: "温度",
+      assertiveness: "主导",
+      vulnerability: "暴露",
+      clarity: "清晰",
+      initiative: "主动",
+      playfulness: "玩心",
+    };
+    const target = Object.entries(last.target)
+      .sort((a, b) => Math.abs(b[1]) - Math.abs(a[1]))
+      .slice(0, 3)
+      .map(([key, value]) => `${labels[key] ?? key}${value >= 0 ? "+" : ""}${value.toFixed(2)}`)
+      .join(" · ");
+    const candidates = (last.candidates ?? [])
+      .slice(0, 3)
+      .map((item) => `${item.action} ${item.fit.toFixed(2)}`)
+      .join(" / ");
+    const semantic = document.createElement("div");
+    semantic.className = "onto-reason";
+    semantic.textContent = `动作语义目标：${target}｜候选：${candidates}`;
+    el.appendChild(semantic);
+  }
   el.querySelector(".onto-reason").textContent += ` · 已校准 ${o.calibrations ?? 0} 条`;
   if (o.bias) {
     const b = o.bias;

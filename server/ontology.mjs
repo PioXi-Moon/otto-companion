@@ -15,6 +15,11 @@ import { getPersona, getRelation } from "./persona.mjs";
 import { now } from "./clock.mjs";
 import { track } from "./events.mjs";
 import { noteEvent, summary as growthSummary } from "./growth.mjs";
+import {
+  chooseSemanticAction,
+  buildTargetVector,
+  actionFitsDecision as semanticActionFitsDecision,
+} from "./action-semantics.mjs";
 
 /* ---------------- 六个状态维度 ---------------- */
 
@@ -33,6 +38,7 @@ function defaultState() {
   const s = {};
   for (const d of DIMS) s[d.key] = d.base;
   s.lastAction = null;
+  s.recentActions = [];
   s.updatedAt = now();
   return s;
 }
@@ -260,13 +266,13 @@ export function resolveIntent(conflict, state, coef = coefficients()) {
 
 const INTENT_ACTIONS = {
   // 只用桌宠认识的动作名（ui/actions.js），否则本体一接管就会变成静默失败
-  approach: ["nuzzle", "approach", "expect", "welcome_back"],
+  approach: ["nuzzle", "approach", "lean_in", "expect", "welcome_back", "listening"],
   withdraw: ["turn_away", "sulk", "hide", "droop", "sit"],
-  deflect: ["tsundere", "peek", "shy", "fidget"],
+  deflect: ["tsundere", "peek", "shy", "fidget", "guilty"],
   freeze: ["confused", "shake", "alert", "surprise"],
   show: ["proud", "celebrate", "happy", "wave"],
-  settle: ["listening", "doze", "sit", "immersed"],
-  silent: ["idle"],
+  settle: ["listening", "doze", "sit", "immersed", "idle"],
+  silent: ["idle", "immersed", "sit", "doze"],
 };
 
 /** 这个动作在不在该意图的候选里——给"硬约束"用 */
@@ -278,22 +284,30 @@ export function intentPool(intent) {
   return [...(INTENT_ACTIONS[intent] ?? [])];
 }
 
-export function chooseAction(intent, state, lastAction = null) {
+export function chooseAction(intent, state, lastAction = null, context = {}) {
   const pool = INTENT_ACTIONS[intent] ?? INTENT_ACTIONS.settle;
-  // 惯性：上一次的动作在同一个意图里，加权
-  const weighted = pool.map((a) => ({ a, w: a === lastAction ? 1.4 : 1 }));
-  // 精力低的时候更偏向安静的动作
-  for (const item of weighted) {
-    if (state.energy < 0.35 && ["sit", "doze", "droop", "content"].includes(item.a)) item.w += 0.6;
-    if (state.energy > 0.7 && ["excited", "celebrate", "playful", "nuzzle"].includes(item.a)) item.w += 0.4;
-  }
-  const total = weighted.reduce((n, x) => n + x.w, 0);
-  let r = Math.random() * total;
-  for (const item of weighted) {
-    r -= item.w;
-    if (r <= 0) return { action: item.a, pool };
-  }
-  return { action: weighted[0].a, pool };
+  const target = buildTargetVector({
+    intent,
+    state,
+    speech: context.speech,
+    relation: context.relation,
+    persona: context.persona,
+  });
+  return {
+    pool,
+    ...chooseSemanticAction({
+      intent,
+      pool,
+      state,
+      lastAction,
+      target,
+      rng: context.rng,
+    }),
+  };
+}
+
+export function actionFitsDecision(decision, proposed) {
+  return semanticActionFitsDecision(decision, proposed);
 }
 
 /* ---------------- 一次完整观察 ---------------- */
@@ -305,9 +319,10 @@ export function chooseAction(intent, state, lastAction = null) {
 export function observe(text, { stage, rng = Math.random } = {}) {
   const state = loadState();
   const base = classifySpeechAct(text);
+  const persona = getPersona();
   /* 先看这句话有没有被校准过；没有，再看人格偏见会不会听错 */
   const cal = findCalibration(text);
-  const mis = cal ? null : maybeMisread(text, base, getPersona(), rng);
+  const mis = cal ? null : maybeMisread(text, base, persona, rng);
   const speech = cal
     ? { act: cal.to, confidence: 0.95 }
     : mis
@@ -333,8 +348,14 @@ export function observe(text, { stage, rng = Math.random } = {}) {
     else if (["评价", "关心"].includes(speech.act)) intent = "show";
     else if (speech.act === "玩笑") intent = "deflect";
   }
-  const { action, pool } = chooseAction(intent, state, state.lastAction);
+  const { action, pool, target, candidates, fitFloor } = chooseAction(
+    intent,
+    state,
+    state.lastAction,
+    { speech, relation: rel, persona, rng }
+  );
   state.lastAction = action;
+  state.recentActions = [...(state.recentActions ?? []), action].slice(-8);
   saveState(state);
 
   const decision = {
@@ -346,8 +367,14 @@ export function observe(text, { stage, rng = Math.random } = {}) {
     intent,
     action,
     pool,
+    target,
+    candidates,
+    fitFloor,
+    fit: candidates.find((item) => item.action === action)?.fit ?? null,
     at: now(),
-    reason: `${conflict.label}（张力 ${conflict.t.toFixed(2)}）→ ${intent} → ${action}`,
+    reason: `${conflict.label}（张力 ${conflict.t.toFixed(2)}）→ ${intent} → ${action}（语义 ${(
+      candidates.find((item) => item.action === action)?.fit ?? 0
+    ).toFixed(2)}）`,
   };
   if (mis) {
     track("ontology_misread", {
@@ -369,6 +396,7 @@ export function snapshot() {
   return {
     dims: DIMS.map((d) => ({ key: d.key, label: d.label, value: +state[d.key].toFixed(3), base: d.base })),
     lastAction: state.lastAction,
+    recentActions: state.recentActions ?? [],
     conflict: { id: conflict.id, label: conflict.label, tension: +conflict.t.toFixed(3) },
     coefficients: coefficients(),
     calibrations: calibrations().length,

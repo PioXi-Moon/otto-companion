@@ -100,7 +100,7 @@ node scripts/smoke.mjs --static   # 静态自检，不需要服务
 
 ## 怎么验证
 
-完整自检（61 项）跑起来是这样：
+完整自检（62 项）跑起来是这样：
 
 ```powershell
 $env:OTTO_ENV_FILE="scripts/smoke.env"

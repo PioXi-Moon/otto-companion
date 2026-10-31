@@ -19,6 +19,7 @@ import {
   maybeMisread,
   isCorrection,
   misreadChance,
+  actionFitsDecision,
 } from "../server/ontology.mjs";
 
 /* 默认打测试实例（7789），不打正在用的那一个。
@@ -296,6 +297,20 @@ async function main() {
   if (!(misreadChance(0) > misreadChance(3))) misBad.push("纠正三次后误读概率没下降");
   if (misreadChance(3) > 0.09) misBad.push("学了三轮还是太容易误读");
   check("本体：误解由人格造成，纠正可识别", misBad.length === 0, misBad.join(" / "));
+
+  const semanticDecision = {
+    pool: ["nuzzle", "approach"],
+    candidates: [
+      { action: "nuzzle", fit: 0.82 },
+      { action: "approach", fit: 0.73 },
+    ],
+    fitFloor: 0.7,
+  };
+  check(
+    "动作语义：接近但不最优的动作可保留，池外动作会被拒绝",
+    actionFitsDecision(semanticDecision, "approach") &&
+      !actionFitsDecision(semanticDecision, "proud")
+  );
 
   const wordbook = checkWordbook();
   check(
