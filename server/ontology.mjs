@@ -66,7 +66,7 @@ const SPEECH_ACTS = [
   { act: "评价", re: /可爱|厉害|好看|好丑|真棒|喜欢你|讨厌你|聪明/ },
   { act: "自嘲", re: /我(又|真|太).{0,4}(笨|废|搞砸|不行|失败)|我完蛋了/ },
   { act: "试探", re: /你还记得|记不记得|你是不是|你懂吗|你确定/ },
-  { act: "示弱", re: /难受|难过|累死|好累|害怕|焦虑|想哭|撑不住|睡不着/ },
+  { act: "示弱", re: /难受|难过|累死|好累|有点累|很累|累了|疲惫|害怕|焦虑|想哭|撑不住|睡不着/ },
   { act: "关心", re: /你怎么样|你还好吗|你今天|累不累|开心吗/ },
 ];
 
@@ -76,6 +76,62 @@ export function classifySpeechAct(text) {
     if (s.re.test(t)) return { act: s.act, confidence: 0.75 };
   }
   return { act: "陈述", confidence: t.trim() ? 0.6 : 0.2 };
+}
+
+/* ---------------- 误解与纠正 ---------------- */
+
+const CORRECTION_RE = /不是这个意思|我没那个意思|你误会|我是说|别误会|不是啦|不是这样/;
+
+export function isCorrection(text) {
+  return CORRECTION_RE.test(String(text ?? ""));
+}
+
+const normKey = (text) =>
+  String(text ?? "").replace(/[\s，。！？、,.!?]/g, "").slice(0, 30);
+
+/**
+ * 它为什么会听错：不是随机噪声，是人格偏见。
+ * 冷淡型容易把短句读成敷衍；爱面子的容易把"还行"读成不想多说。
+ * 只对本来就含糊的话（陈述/评价）误读，明确的示弱、拒绝它不会听反。
+ */
+export function maybeMisread(text, base, persona = getPersona(), rng = Math.random) {
+  const d = persona?.dims ?? {};
+  const t = String(text ?? "");
+  const plain = t.replace(/[\s，。！？、,.!?]/g, "");
+  const aloof = (d.sociability ?? 0.5) <= 0.35 && plain.length <= 4;
+  const proud = (d.expressiveness ?? 0.5) >= 0.65 && /还行|还好|随便|都行/.test(t);
+  if (!["陈述", "评价"].includes(base.act) || (!aloof && !proud)) return null;
+  if (rng() > 0.35) return null;
+  return aloof
+    ? { from: base.act, to: "拒绝", why: "他话太少，我往敷衍那边想了" }
+    : { from: base.act, to: "拒绝", why: "他嘴上说还行，我当成了不想多说" };
+}
+
+export function calibrations() {
+  const list = getSetting("ontologyCalibrations", []);
+  return Array.isArray(list) ? list : [];
+}
+
+export function findCalibration(text) {
+  const key = normKey(text);
+  return calibrations().find((c) => c.key === key) ?? null;
+}
+
+/**
+ * 用户纠正之后：把"这句话我该怎么听"写进校准表。
+ * 下次同一句话直接走校准，不再犯同一个错。
+ */
+export function correct(text) {
+  const last = getSetting("ontologyLast", null);
+  if (!last) return null;
+  const right = classifySpeechAct(text);
+  const to = right.act !== "陈述" ? right.act : last.speech.act;
+  const key = normKey(last.text);
+  const list = calibrations().filter((c) => c.key !== key);
+  list.push({ key, from: last.speech.act, to, count: 1, at: now() });
+  setSetting("ontologyCalibrations", list.slice(-20));
+  setSetting("ontologyLast", { ...last, corrected: true, correctedTo: to });
+  return { from: last.speech.act, to, key, why: last.misread?.why ?? null };
 }
 
 /* ---------------- 事件 → 状态 ---------------- */
@@ -207,9 +263,17 @@ export function chooseAction(intent, state, lastAction = null) {
  * 跑一次完整链路。返回的东西既是给界面看的，也是给日志/日记用的。
  * 15% 的扰动就放在 chooseAction 里，不在这里——这里要保持可解释。
  */
-export function observe(text, { stage } = {}) {
+export function observe(text, { stage, rng = Math.random } = {}) {
   const state = loadState();
-  const speech = classifySpeechAct(text);
+  const base = classifySpeechAct(text);
+  /* 先看这句话有没有被校准过；没有，再看人格偏见会不会听错 */
+  const cal = findCalibration(text);
+  const mis = cal ? null : maybeMisread(text, base, getPersona(), rng);
+  const speech = cal
+    ? { act: cal.to, confidence: 0.95 }
+    : mis
+      ? { act: mis.to, confidence: 0.5 }
+      : base;
   const rel = (stage ? { stage } : getRelation());
   applyEvent(state, speech.act, { stage: rel.stage, confidence: speech.confidence });
   const conflict = findConflict(state);
@@ -229,6 +293,8 @@ export function observe(text, { stage } = {}) {
   const decision = {
     text: String(text ?? "").slice(0, 80),
     speech,
+    misread: mis,
+    calibrated: !!cal,
     conflict: { id: conflict.id, label: conflict.label, tension: +conflict.t.toFixed(3) },
     intent,
     action,
@@ -249,6 +315,8 @@ export function snapshot() {
     lastAction: state.lastAction,
     conflict: { id: conflict.id, label: conflict.label, tension: +conflict.t.toFixed(3) },
     coefficients: coefficients(),
+    calibrations: calibrations().length,
+    calibrationList: calibrations().slice(-5),
     lastDecision: getSetting("ontologyLast", null),
   };
 }
@@ -258,5 +326,6 @@ export function resetState() {
   const s = defaultState();
   saveState(s);
   setSetting("ontologyLast", null);
+  setSetting("ontologyCalibrations", []);
   return snapshot();
 }

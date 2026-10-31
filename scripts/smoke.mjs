@@ -13,7 +13,7 @@ import { createActSplitter } from "../server/agent.mjs";
 import { PROPS } from "../server/props.mjs";
 import { lintPage } from "../server/pagelint.mjs";
 import { PROPS as UI_PROPS } from "../ui/props.js";
-import { classifySpeechAct, intentAllows } from "../server/ontology.mjs";
+import { classifySpeechAct, intentAllows, maybeMisread, isCorrection } from "../server/ontology.mjs";
 
 /* 默认打测试实例（7789），不打正在用的那一个。
    原因很实在：冒烟测试第一步就是 /api/dev/reset，它会把对话、记忆、日记、
@@ -279,6 +279,15 @@ async function main() {
   if (intentAllows("withdraw", "proud")) ontoBad.push("退开时不该允许得意");
   if (!intentAllows("show", "proud")) ontoBad.push("展示时应该允许得意");
   check("本体：言语行为与意图约束", ontoBad.length === 0, ontoBad.join(" / "));
+
+  /* 误解与纠正：误读必须由人格造成，纠正必须能被识别 */
+  const misBad = [];
+  const mis = maybeMisread("嗯", { act: "陈述", confidence: 0.6 }, { dims: { sociability: 0.2 } }, () => 0);
+  if (mis?.to !== "拒绝") misBad.push("冷淡人格没把短句读成敷衍");
+  const noMis = maybeMisread("我有点难受", { act: "示弱", confidence: 0.75 }, { dims: { sociability: 0.2 } }, () => 0);
+  if (noMis !== null) misBad.push("明确的示弱不该被误读");
+  if (!isCorrection("你误会了，我不是这个意思")) misBad.push("没认出纠正");
+  check("本体：误解由人格造成，纠正可识别", misBad.length === 0, misBad.join(" / "));
 
   const wordbook = checkWordbook();
   check(

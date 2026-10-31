@@ -8,7 +8,12 @@ import { chatStream, LLMError, status as llmStatus } from "./llm.mjs";
 import { getPersona, getRelation, updateRelation } from "./persona.mjs";
 import { baseLayer, chatLayer, proactiveLayer, ACTION_ALIAS, SYSTEM_ACTION_WORDS } from "./prompt.mjs";
 import { resolveEmotion, byKey as emotionByKey, fallbackAction } from "./emotion.mjs";
-import { observe as observeOntology, intentAllows } from "./ontology.mjs";
+import {
+  observe as observeOntology,
+  intentAllows,
+  isCorrection,
+  correct as correctOntology,
+} from "./ontology.mjs";
 import { recall, extractAndWrite, memoryEnabled } from "./memory.mjs";
 import { dueLoops, markAttempted, closeLoop, downgradeStale, listLoops } from "./openloop.mjs";
 import {
@@ -250,6 +255,17 @@ export async function handleChat({ sessionId, text, mode = "chat", emit }) {
   /* 每句话都先过一遍本体：更新内部状态，并记下这一轮的"冲突 → 意图 → 动作"。
      这一版开始，意图成为动作的硬约束——模型只能在意图给的候选里挑。 */
   let ontoDecision = null;
+  let correctionHint = "";
+
+  /* 纠正要排在 observe 之前：observe 会把"上一次决策"覆盖成这一句，先纠正才拿得到旧的那条 */
+  if (isCorrection(text)) {
+    const fix = correctOntology(text);
+    if (fix) {
+      log(`本体校准：${fix.from} → ${fix.to}${fix.why ? `（上次误读：${fix.why}）` : ""}`);
+      correctionHint = `\n\n【刚刚被纠正】你上一条把他的话听成了「${fix.from}」，他真正的意思是「${fix.to}」。这一轮先承认（别夸张道歉），再用对的方式回应。`;
+    }
+  }
+
   try {
     const { decision } = observeOntology(text);
     ontoDecision = decision;
@@ -292,7 +308,7 @@ export async function handleChat({ sessionId, text, mode = "chat", emit }) {
     immersionEnabled()
       ? "【沉浸模式】用户正在工作。保持安静、简短、不催促；不要做庆祝、移动或大幅度动作，需要动作时只使用安静姿态。"
       : "",
-  ].join("\n\n");
+  ].join("\n\n") + correctionHint;
   const history = sessionMessages(session.id, 40)
     .slice(-12)
     .map((m) => ({ role: m.role === "user" ? "user" : "assistant", content: m.content }));

@@ -318,6 +318,7 @@ main { flex: 1; min-width: 0; min-height: 0; display: flex; }
 }
 .onto-line b { color: var(--brand); }
 .onto-reason { color: #9b9081; margin-top: 3px; }
+.onto-mis { color: #a3623c; margin-top: 3px; }
 .onto-row { display: flex; gap: 8px; margin-top: 10px; }
 .onto-row input {
   flex: 1; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px;

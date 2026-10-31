@@ -421,8 +421,15 @@ async function renderOntology() {
       <b>${last.speech.act}</b>（${last.speech.confidence}） ·
       冲突：${last.conflict.label} ${last.conflict.tension} ·
       意图：<b>${last.intent}</b> · 动作：<b>${last.action}</b>
-    </div><div class="onto-reason"></div>`;
+    </div><div class="onto-reason"></div>
+    ${
+      last.misread
+        ? `<div class="onto-mis">上次误读：${last.misread.from} → ${last.misread.to}（${last.misread.why}）</div>`
+        : ""
+    }
+    ${last.calibrated ? `<div class="onto-mis">这条用的是校准后的读法。</div>` : ""}`;
   el.querySelector(".onto-reason").textContent = `「${last.text}」 → ${last.reason}`;
+  el.querySelector(".onto-reason").textContent += ` · 已校准 ${o.calibrations ?? 0} 条`;
 }
 
 async function runOntology() {
