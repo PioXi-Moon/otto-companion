@@ -171,19 +171,19 @@ ACTION_COMMANDS.update({
 })
 
 
-def build_gait(action: str, cycles: int = 2) -> list[str]:
+def build_gait(action: str, cycles: int = 1) -> list[str]:
     """用固件公开的 SERVO 指令发一遍 OttoDIY 的 16 帧步态。
 
     旧固件里的 WALK 数组幅度被压得太小，只会原地晃。这里按官方振荡器参数
     重新采样，桥发完一帧等一小会儿，再发下一帧，不改固件也能先恢复真实位移。
     """
     direction = -1 if action == "back" else 1
-    hip_amp = [28, 28]
-    foot_amp = [18, 18]
+    hip_amp = [24, 24]
+    foot_amp = [16, 16]
     if action == "left":
-        hip_amp = [28, 9]
+        hip_amp = [24, 8]
     elif action == "right":
-        hip_amp = [9, 28]
+        hip_amp = [8, 24]
     elif action not in {"walk", "back"}:
         return []
 
@@ -196,15 +196,11 @@ def build_gait(action: str, cycles: int = 2) -> list[str]:
             foot_phase = phase + direction * (-math.pi / 2)
             foot_l = round(4 + foot_amp[0] * math.sin(foot_phase))
             foot_r = round(-4 + foot_amp[1] * math.sin(foot_phase))
-            commands.extend(
-                [
-                    f"SERVO 0 {max(60, min(120, 90 + hip_l))}",
-                    f"SERVO 1 {max(60, min(120, 90 + hip_r))}",
-                    f"SERVO 2 {max(60, min(120, 90 + foot_l))}",
-                    f"SERVO 3 {max(60, min(120, 90 + foot_r))}",
-                    "WAIT 45",
-                ]
-            )
+            for index, angle in enumerate((hip_l, hip_r, foot_l, foot_r)):
+                commands.append(f"SERVO {index} {max(60, min(120, 90 + angle))}")
+                # Waiting after every servo keeps the current peak below the
+                # Nano reset threshold on USB power and on a fresh battery.
+                commands.append("WAIT 100")
     commands.append("HOME")
     return commands
 

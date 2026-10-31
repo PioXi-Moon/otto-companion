@@ -39,6 +39,10 @@ Write-Host "Compiling Otto firmware..."
 & $Cli compile --fqbn arduino:avr:nano $Sketch
 if ($LASTEXITCODE -ne 0) { throw "Firmware compile failed." }
 
+Write-Host ""
+Write-Host "IMPORTANT: unplug the Bluetooth serial module's TX/RX wires before flashing."
+Write-Host "The HM-10 module shares D0/D1 with the Nano bootloader and will corrupt the upload."
+
 if ($env:OTTO_FLASH_PORT) {
   $usbPorts = @([pscustomobject]@{ address = $env:OTTO_FLASH_PORT })
 } else {
@@ -74,5 +78,5 @@ foreach ($cpu in @("atmega328", "atmega328old")) {
 Write-Host ""
 Write-Host "Upload failed for both Nano bootloaders."
 Write-Host "Check that the cable is plugged into the Nano's own USB port."
-Write-Host "If a Bluetooth serial module is wired to D0/D1, disconnect its TX/RX wires while flashing."
+Write-Host "Disconnect the Bluetooth serial module's TX/RX wires from D0/D1 and retry."
 exit 1
