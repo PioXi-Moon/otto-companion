@@ -384,11 +384,12 @@ Plan planFor(Action a) {
     case Action::SHAKE: return {planShake, 5, 120};
     case Action::SIT:   return {planSit, 1, 600};
     case Action::DANCE: return {planDance, 7, 480};
-    // 16 samples per 1200 ms step, repeated three times, then HOME.
-    case Action::WALK:  return {planWalk, 49, 75};
-    case Action::BACK:  return {planBack, 49, 75};
-    case Action::LEFT:  return {planLeft, 49, 75};
-    case Action::RIGHT: return {planRight, 49, 75};
+    // 16 samples per step, repeated three times, then HOME.
+    // Slower interpolation keeps the first move from spiking the servo current.
+    case Action::WALK:  return {planWalk, 49, 100};
+    case Action::BACK:  return {planBack, 49, 100};
+    case Action::LEFT:  return {planLeft, 49, 100};
+    case Action::RIGHT: return {planRight, 49, 100};
     case Action::BOUNCE: return {planBounce, 8, 160};
     case Action::WIGGLE: return {planWiggle, 10, 140};
     case Action::HAPPY: return {planSwing, 8, 400};
@@ -416,11 +417,12 @@ void setSegment() {
   for (uint8_t i = 0; i < 4; ++i) {
     origin[i] = position[i];
     int16_t delta = static_cast<int8_t>(pgm_read_byte(plan.frames + index * 4 + i));
-    // The reference gait is too aggressive for the current USB-powered build.
-    // Keep the verified phase relationship, but reduce hip torque and foot lift.
+    // USB/battery brownout is the current failure boundary: the original gait
+    // resets the Nano on its first step. Keep the verified phase relationship,
+    // but lower both hip torque and foot lift until walking stays powered.
     if (current == Action::WALK || current == Action::BACK ||
         current == Action::LEFT || current == Action::RIGHT) {
-      delta = delta * (i < 2 ? 800 : 600) / 1000;
+      delta = delta * (i < 2 ? 600 : 350) / 1000;
     }
     target[i] = 90 + delta;
   }

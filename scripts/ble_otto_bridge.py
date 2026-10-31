@@ -278,9 +278,13 @@ class BleRobot:
             if base in MOTION and base not in {"HOME"} and not self.armed:
                 await self._write("HOME")
                 home = await self._read_until(
-                    lambda line: line.startswith("OK HOME") or line.startswith("ERR "),
+                    lambda line: line.startswith("OK HOME")
+                    or line.startswith("ERR ")
+                    or line.startswith("READY"),
                     12,
                 )
+                if home is not None and home.startswith("READY"):
+                    raise RuntimeError("firmware rebooted before motion")
                 if home is None or not home.startswith("OK HOME"):
                     raise RuntimeError(home or "HOME acknowledgement timeout")
             await self._write(command)
@@ -289,11 +293,14 @@ class BleRobot:
             timeout = 14 if base in MOTION else 3
             ack = await self._read_until(
                 lambda line: line.startswith(f"OK {base}")
-                or line.startswith("ERR "),
+                or line.startswith("ERR ")
+                or line.startswith("READY"),
                 timeout,
             )
             if ack is None:
                 raise RuntimeError(f"acknowledgement timeout: {command}")
+            if ack.startswith("READY"):
+                raise RuntimeError(f"firmware rebooted during {command}")
             if ack.startswith("ERR "):
                 raise RuntimeError(ack)
             if base in {"STOP", "REST"}:
