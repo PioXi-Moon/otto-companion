@@ -1,4 +1,4 @@
-$ErrorActionPreference = "Stop"
+﻿$ErrorActionPreference = "Stop"
 
 $OttoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 $ServerRoot = Join-Path $OttoRoot "vendor\xiaozhi-server\main\xiaozhi-server"
