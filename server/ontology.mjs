@@ -89,10 +89,25 @@ export function isCorrection(text) {
 const normKey = (text) =>
   String(text ?? "").replace(/[\s，。！？、,.!?]/g, "").slice(0, 30);
 
+/** 误读发生的基准概率；被纠正一次就往下掉一点 */
+export const misreadChance = (learned = 0) => 0.35 * Math.max(0.2, 1 - learned * 0.25);
+
+/** 每一类偏见被纠正过几次 */
+export function biasStats() {
+  const saved = getSetting("ontologyBias", null);
+  return {
+    aloof: { corrected: 0, ...(saved?.aloof ?? {}) },
+    proud: { corrected: 0, ...(saved?.proud ?? {}) },
+  };
+}
+
 /**
  * 它为什么会听错：不是随机噪声，是人格偏见。
  * 冷淡型容易把短句读成敷衍；爱面子的容易把"还行"读成不想多说。
  * 只对本来就含糊的话（陈述/评价）误读，明确的示弱、拒绝它不会听反。
+ *
+ * 同一类偏见被纠正得越多，它犯错的概率越低——不是"记住这一句"，
+ * 是"整个人变得不那么容易往那边想了"。
  */
 export function maybeMisread(text, base, persona = getPersona(), rng = Math.random) {
   const d = persona?.dims ?? {};
@@ -101,10 +116,12 @@ export function maybeMisread(text, base, persona = getPersona(), rng = Math.rand
   const aloof = (d.sociability ?? 0.5) <= 0.35 && plain.length <= 4;
   const proud = (d.expressiveness ?? 0.5) >= 0.65 && /还行|还好|随便|都行/.test(t);
   if (!["陈述", "评价"].includes(base.act) || (!aloof && !proud)) return null;
-  if (rng() > 0.35) return null;
+  const kind = aloof ? "aloof" : "proud";
+  const learned = biasStats()[kind]?.corrected ?? 0;
+  if (rng() > misreadChance(learned)) return null;
   return aloof
-    ? { from: base.act, to: "拒绝", why: "他话太少，我往敷衍那边想了" }
-    : { from: base.act, to: "拒绝", why: "他嘴上说还行，我当成了不想多说" };
+    ? { from: base.act, to: "拒绝", bias: "aloof", learned, why: "他话太少，我往敷衍那边想了" }
+    : { from: base.act, to: "拒绝", bias: "proud", learned, why: "他嘴上说还行，我当成了不想多说" };
 }
 
 export function calibrations() {
@@ -130,8 +147,19 @@ export function correct(text) {
   const list = calibrations().filter((c) => c.key !== key);
   list.push({ key, from: last.speech.act, to, count: 1, at: now() });
   setSetting("ontologyCalibrations", list.slice(-20));
+
+  /* 纠正不只修这一句，还修造成这一句的偏见 */
+  const bias = last.misread?.bias;
+  let learnedNow = null;
+  if (bias) {
+    const stats = biasStats();
+    stats[bias].corrected = (stats[bias].corrected ?? 0) + 1;
+    setSetting("ontologyBias", stats);
+    learnedNow = stats[bias].corrected;
+  }
+
   setSetting("ontologyLast", { ...last, corrected: true, correctedTo: to });
-  return { from: last.speech.act, to, key, why: last.misread?.why ?? null };
+  return { from: last.speech.act, to, key, bias, learned: learnedNow, why: last.misread?.why ?? null };
 }
 
 /* ---------------- 事件 → 状态 ---------------- */
@@ -317,6 +345,11 @@ export function snapshot() {
     coefficients: coefficients(),
     calibrations: calibrations().length,
     calibrationList: calibrations().slice(-5),
+    bias: biasStats(),
+    misreadChance: {
+      aloof: +misreadChance(biasStats().aloof.corrected).toFixed(3),
+      proud: +misreadChance(biasStats().proud.corrected).toFixed(3),
+    },
     lastDecision: getSetting("ontologyLast", null),
   };
 }
@@ -327,5 +360,6 @@ export function resetState() {
   saveState(s);
   setSetting("ontologyLast", null);
   setSetting("ontologyCalibrations", []);
+  setSetting("ontologyBias", { aloof: { corrected: 0 }, proud: { corrected: 0 } });
   return snapshot();
 }

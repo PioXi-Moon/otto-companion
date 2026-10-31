@@ -430,6 +430,12 @@ async function renderOntology() {
     ${last.calibrated ? `<div class="onto-mis">这条用的是校准后的读法。</div>` : ""}`;
   el.querySelector(".onto-reason").textContent = `「${last.text}」 → ${last.reason}`;
   el.querySelector(".onto-reason").textContent += ` · 已校准 ${o.calibrations ?? 0} 条`;
+  if (o.bias) {
+    const b = o.bias;
+    el.querySelector(".onto-reason").textContent +=
+      ` · 偏见学习：冷淡 ${b.aloof?.corrected ?? 0} 次 / 面子 ${b.proud?.corrected ?? 0} 次` +
+      `（误读概率 ${o.misreadChance?.aloof ?? "-"}）`;
+  }
 }
 
 async function runOntology() {

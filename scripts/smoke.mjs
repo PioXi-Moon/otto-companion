@@ -13,7 +13,13 @@ import { createActSplitter } from "../server/agent.mjs";
 import { PROPS } from "../server/props.mjs";
 import { lintPage } from "../server/pagelint.mjs";
 import { PROPS as UI_PROPS } from "../ui/props.js";
-import { classifySpeechAct, intentAllows, maybeMisread, isCorrection } from "../server/ontology.mjs";
+import {
+  classifySpeechAct,
+  intentAllows,
+  maybeMisread,
+  isCorrection,
+  misreadChance,
+} from "../server/ontology.mjs";
 
 /* 默认打测试实例（7789），不打正在用的那一个。
    原因很实在：冒烟测试第一步就是 /api/dev/reset，它会把对话、记忆、日记、
@@ -287,6 +293,8 @@ async function main() {
   const noMis = maybeMisread("我有点难受", { act: "示弱", confidence: 0.75 }, { dims: { sociability: 0.2 } }, () => 0);
   if (noMis !== null) misBad.push("明确的示弱不该被误读");
   if (!isCorrection("你误会了，我不是这个意思")) misBad.push("没认出纠正");
+  if (!(misreadChance(0) > misreadChance(3))) misBad.push("纠正三次后误读概率没下降");
+  if (misreadChance(3) > 0.09) misBad.push("学了三轮还是太容易误读");
   check("本体：误解由人格造成，纠正可识别", misBad.length === 0, misBad.join(" / "));
 
   const wordbook = checkWordbook();
