@@ -13,6 +13,7 @@ import { createActSplitter } from "../server/agent.mjs";
 import { PROPS } from "../server/props.mjs";
 import { lintPage } from "../server/pagelint.mjs";
 import { PROPS as UI_PROPS } from "../ui/props.js";
+import { classifySpeechAct, intentAllows } from "../server/ontology.mjs";
 
 /* 默认打测试实例（7789），不打正在用的那一个。
    原因很实在：冒烟测试第一步就是 /api/dev/reset，它会把对话、记忆、日记、
@@ -269,6 +270,15 @@ async function main() {
 
   const actBad = checkActSplitter();
   check("动作标签的解析（先做动作，再说话）", actBad.length === 0, actBad.join(" / "));
+
+  /* 本体：语义识别 + 意图约束。约束错了，模型会做出跟状态矛盾的动作。 */
+  const ontoBad = [];
+  if (classifySpeechAct("别烦我").act !== "拒绝") ontoBad.push("别烦我没识别成拒绝");
+  if (classifySpeechAct("你今天挺可爱的").act !== "评价") ontoBad.push("夸它没识别成评价");
+  if (classifySpeechAct("我有点难受").act !== "示弱") ontoBad.push("示弱没识别出来");
+  if (intentAllows("withdraw", "proud")) ontoBad.push("退开时不该允许得意");
+  if (!intentAllows("show", "proud")) ontoBad.push("展示时应该允许得意");
+  check("本体：言语行为与意图约束", ontoBad.length === 0, ontoBad.join(" / "));
 
   const wordbook = checkWordbook();
   check(

@@ -164,14 +164,24 @@ export function resolveIntent(conflict, state, coef = coefficients()) {
 /* ---------------- 意图 → 动作 ---------------- */
 
 const INTENT_ACTIONS = {
-  approach: ["nuzzle", "approach", "expect", "welcome_back", "grateful"],
+  // 只用桌宠认识的动作名（ui/actions.js），否则本体一接管就会变成静默失败
+  approach: ["nuzzle", "approach", "expect", "welcome_back"],
   withdraw: ["turn_away", "sulk", "hide", "droop", "sit"],
-  deflect: ["tsundere", "mischievous", "playful", "laugh", "shake_head"],
-  freeze: ["confused", "nervous", "shake", "alert"],
-  show: ["proud", "excited", "celebrate", "dance"],
-  settle: ["content", "relieved", "listening", "doze"],
-  silent: ["none"],
+  deflect: ["tsundere", "peek", "shy", "fidget"],
+  freeze: ["confused", "shake", "alert", "surprise"],
+  show: ["proud", "celebrate", "happy", "wave"],
+  settle: ["listening", "doze", "sit", "immersed"],
+  silent: ["idle"],
 };
+
+/** 这个动作在不在该意图的候选里——给"硬约束"用 */
+export function intentAllows(intent, action) {
+  return (INTENT_ACTIONS[intent] ?? []).includes(action);
+}
+
+export function intentPool(intent) {
+  return [...(INTENT_ACTIONS[intent] ?? [])];
+}
 
 export function chooseAction(intent, state, lastAction = null) {
   const pool = INTENT_ACTIONS[intent] ?? INTENT_ACTIONS.settle;

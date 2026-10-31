@@ -8,7 +8,7 @@ import { chatStream, LLMError, status as llmStatus } from "./llm.mjs";
 import { getPersona, getRelation, updateRelation } from "./persona.mjs";
 import { baseLayer, chatLayer, proactiveLayer, ACTION_ALIAS, SYSTEM_ACTION_WORDS } from "./prompt.mjs";
 import { resolveEmotion, byKey as emotionByKey, fallbackAction } from "./emotion.mjs";
-import { observe as observeOntology } from "./ontology.mjs";
+import { observe as observeOntology, intentAllows } from "./ontology.mjs";
 import { recall, extractAndWrite, memoryEnabled } from "./memory.mjs";
 import { dueLoops, markAttempted, closeLoop, downgradeStale, listLoops } from "./openloop.mjs";
 import {
@@ -206,14 +206,7 @@ async function initTurn({ emit, sessionId, text }) {
   if (text) {
     insertMessage({ sessionId: session.id, role: "user", content: text, interactionType: "social" });
 
-  /* 每句话都先过一遍本体：更新内部状态，并记下这一轮的"冲突 → 意图 → 动作"。
-     现在它只做记录与状态推进，动作仍由模型选；等本体跑稳了再接管选择。 */
-  try {
-    const { decision } = observeOntology(text);
-    log(`本体：${decision.reason}`);
-  } catch (e) {
-    log("本体更新失败：", e.message);
-  }
+  /* 初始化阶段的回答是固定流程，不走本体。 */
   }
   const { done, question, state } = text
     ? pushAnswer(text)
@@ -253,6 +246,18 @@ export async function handleChat({ sessionId, text, mode = "chat", emit }) {
 
   const session = ensureSession(sessionId, { source: "app", mode: "chat" });
   const interactionType = guessInteractionType(text);
+
+  /* 每句话都先过一遍本体：更新内部状态，并记下这一轮的"冲突 → 意图 → 动作"。
+     这一版开始，意图成为动作的硬约束——模型只能在意图给的候选里挑。 */
+  let ontoDecision = null;
+  try {
+    const { decision } = observeOntology(text);
+    ontoDecision = decision;
+    log(`本体：${decision.reason}`);
+  } catch (e) {
+    log("本体更新失败：", e.message);
+  }
+
   insertMessage({
     sessionId: session.id,
     role: "user",
@@ -364,10 +369,18 @@ export async function handleChat({ sessionId, text, mode = "chat", emit }) {
   const direct = note ? ACTION_ALIAS[note.trim()] : null;
   const emoKey = direct ? null : resolveEmotion({ actionHint: note, text: clean });
   // <act> 是它自己先定下来的那个（最优），圆括号那套只当兜底
-  const action =
+  let action =
     actName ??
     direct ??
     (emoKey ? emotionByKey(emoKey)?.action ?? fallbackActionFor() : fallbackActionFor());
+
+  /* 硬约束：模型选的动作必须落在本体这一轮给的意图里。
+     不在就换成本体建议的那个，并记下来——这样"它有自己的意志"不是一句设定，
+     而是一条能在日志里查到的规则。 */
+  if (ontoDecision && !intentAllows(ontoDecision.intent, action)) {
+    log(`本体接管：${action} → ${ontoDecision.action}（意图 ${ontoDecision.intent}）`);
+    action = ontoDecision.action;
+  }
   const msg = insertMessage({
     sessionId: session.id,
     role: "assistant",
