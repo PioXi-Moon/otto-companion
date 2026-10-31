@@ -384,12 +384,11 @@ Plan planFor(Action a) {
     case Action::SHAKE: return {planShake, 5, 120};
     case Action::SIT:   return {planSit, 1, 600};
     case Action::DANCE: return {planDance, 7, 480};
-    // 16 samples over roughly one second, repeated three times, then HOME.
-    // This is the actual OttoDIY displacement gait, not the reduced sway.
-    case Action::WALK:  return {planWalk, 49, 63};
-    case Action::BACK:  return {planBack, 49, 63};
-    case Action::LEFT:  return {planLeft, 49, 63};
-    case Action::RIGHT: return {planRight, 49, 63};
+    // Smooth, low-current gait: all four servos are interpolated by one loop.
+    case Action::WALK:  return {planWalk, 49, 110};
+    case Action::BACK:  return {planBack, 49, 110};
+    case Action::LEFT:  return {planLeft, 49, 110};
+    case Action::RIGHT: return {planRight, 49, 110};
     case Action::BOUNCE: return {planBounce, 8, 160};
     case Action::WIGGLE: return {planWiggle, 10, 140};
     case Action::HAPPY: return {planSwing, 8, 400};
@@ -417,9 +416,13 @@ void setSegment() {
   for (uint8_t i = 0; i < 4; ++i) {
     origin[i] = position[i];
     int16_t delta = static_cast<int8_t>(pgm_read_byte(plan.frames + index * 4 + i));
-    // Keep the official amplitudes here. A previous reduction made the robot
-    // sway in place; power stability is handled by USB supply, not by removing
-    // the foot lift that actually creates displacement.
+    // 24-degree hips and 16-degree feet move the body while staying below the
+    // current peak that resets this Nano. The bridge must not send individual
+    // SERVO commands for walking; that makes the gait visibly jerky.
+    if (current == Action::WALK || current == Action::BACK ||
+        current == Action::LEFT || current == Action::RIGHT) {
+      delta = delta * 800 / 1000;
+    }
     target[i] = 90 + delta;
   }
 }
