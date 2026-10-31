@@ -389,6 +389,13 @@ export async function handleChat({ sessionId, text, mode = "chat", emit }) {
     .replace(/\n{3,}/g, "\n\n")
     .trim();
 
+  /* 同样的坑：<mind> 也可能不在开头。取出来当心理流，正文里清掉 */
+  const midMind = [...cleanText.matchAll(/<mind>([\s\S]*?)<\/mind>/g)]
+    .map((m) => m[1].trim())
+    .join(" ");
+  if (midMind && !mindText) mindText = midMind;
+  cleanText = cleanText.replace(/<mind>[\s\S]*?<\/mind>/g, "").replace(/\n{3,}/g, "\n\n").trim();
+
   /* 回访证据兜底：模型没自然带出来，就补一句短的。
      变化必须能被用户遇到，不能只存在于日志里。 */
   if (growthHint.growth && !/以前|早就不|换作我再/.test(cleanText)) {
@@ -426,6 +433,20 @@ export async function handleChat({ sessionId, text, mode = "chat", emit }) {
     mind: mindText,
   });
   broadcast("pet", { action: immersionAction(action), mood: "active" });
+
+  /* 回访的身体版：先转开（嘴硬），过一会儿再转回来（其实没走）。
+     屏幕和实体走同一套：实体那边由桥执行 growth_callback。 */
+  if (growthHint.growth) {
+    setTimeout(() => broadcast("pet", { action: "turn_away" }), 400);
+    setTimeout(() => broadcast("pet", { action: "happy" }), 2000);
+    fetch("http://127.0.0.1:7790/otto", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ action: "growth_callback" }),
+    }).catch(() => {
+      /* 实体没接也不影响屏幕上的这一下 */
+    });
+  }
 
   // 异步抽取，不打断对话
   void postProcess({ sessionId: session.id, messageId: msg.id });

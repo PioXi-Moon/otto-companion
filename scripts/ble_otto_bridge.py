@@ -161,6 +161,8 @@ ACTION_COMMANDS.update({
     "peek": ["FACE WINK", "BOW", "MATRIX SCAN"],
     "fidget": ["SHAKE", "WIGGLE", "SHAKE"],
     "dance": ["DANCE", "WIGGLE", "DANCE", "HOME"],
+    # 回访：先转开（嘴硬），再转回来（其实没走）
+    "growth_callback": ["FACE WINK", "TWIST", "HOME", "FACE CALM"],
     "bounce": ["BOUNCE", "BOUNCE"],
     "wiggle": ["WIGGLE", "WIGGLE"],
     "sleep": ["FACE SLEEP", "SIT"],
