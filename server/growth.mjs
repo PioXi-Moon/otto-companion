@@ -83,6 +83,9 @@ export function noteEvent(kind) {
   });
   updateRelation({ intimacyDelta: 2 });
 
+  /* 留一个"下次提起"的钩子：变化不能只躺在页面里，要能在下一次相处时被说出来 */
+  setSetting("pendingGrowth", { title: rule.title, tag: rule.tag, kind, at: Date.now() });
+
   return { kind, dim: rule.dim, from: current, to: dims[rule.dim], title: rule.title };
 }
 
@@ -97,11 +100,12 @@ export function summary() {
       if (Math.abs(d) >= 0.01) deltas[k] = d;
     }
   }
-  return { counts: c, baseline, deltas };
+  return { counts: c, baseline, deltas, pending: getSetting("pendingGrowth", null) };
 }
 
 export function resetGrowth() {
   setSetting("growthCounts", {});
   setSetting("growthBaseline", null);
+  setSetting("pendingGrowth", null);
   return summary();
 }

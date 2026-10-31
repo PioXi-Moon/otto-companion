@@ -302,13 +302,14 @@ export async function handleChat({ sessionId, text, mode = "chat", emit }) {
     });
   }
 
+  const growthHint = takeGrowthHint();
   const system = [
     baseLayer({ memories, dueLoops: due, relation: getRelation() }),
     chatLayer(),
     immersionEnabled()
       ? "【沉浸模式】用户正在工作。保持安静、简短、不催促；不要做庆祝、移动或大幅度动作，需要动作时只使用安静姿态。"
       : "",
-  ].join("\n\n") + correctionHint;
+  ].join("\n\n") + correctionHint + growthHint.text;
   const history = sessionMessages(session.id, 40)
     .slice(-12)
     .map((m) => ({ role: m.role === "user" ? "user" : "assistant", content: m.content }));
@@ -381,9 +382,21 @@ export async function handleChat({ sessionId, text, mode = "chat", emit }) {
 
   // 正文取 splitter 累积的那一份：它已经剔掉 <mind>，而 full 里还留着原始标记
   const { note, clean } = extractAnnotation(splitter.body || full);
+  /* 模型偶尔把 <act> 写在句子中间——开头的 splitter 只管开头，
+     剩下的必须在正文里清干净，否则会被当成话念出来。 */
+  let cleanText = clean
+    .replace(/<act>[\s\S]*?<\/act>/g, "")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+
+  /* 回访证据兜底：模型没自然带出来，就补一句短的。
+     变化必须能被用户遇到，不能只存在于日志里。 */
+  if (growthHint.growth && !/以前|早就不|换作我再/.test(cleanText)) {
+    cleanText += "\n\n换以前我可能就不理了。";
+  }
   // 模型标的中文名优先。只有它知道这一轮该是什么表情，外面猜不准
   const direct = note ? ACTION_ALIAS[note.trim()] : null;
-  const emoKey = direct ? null : resolveEmotion({ actionHint: note, text: clean });
+  const emoKey = direct ? null : resolveEmotion({ actionHint: note, text: cleanText });
   // <act> 是它自己先定下来的那个（最优），圆括号那套只当兜底
   let action =
     actName ??
@@ -400,14 +413,14 @@ export async function handleChat({ sessionId, text, mode = "chat", emit }) {
   const msg = insertMessage({
     sessionId: session.id,
     role: "assistant",
-    content: clean,
+    content: cleanText,
     interactionType,
     meta: { raw: full, action, emotion: emoKey, mind: mindText },
   });
   emit({
     type: "done",
     messageId: msg.id,
-    text: clean,
+    text: cleanText,
     action: immersionAction(action),
     emotion: emoKey,
     mind: mindText,
@@ -422,6 +435,22 @@ export async function handleChat({ sessionId, text, mode = "chat", emit }) {
 
 function fallbackActionFor() {
   return fallbackAction(getPersona()?.dims);
+}
+
+/**
+ * "回访证据"：性格刚发生过变化时，下一次开口可以用一句带过。
+ * 只取一次——说过就不再提，不然就成了炫耀成长。
+ */
+function takeGrowthHint() {
+  const g = getSetting("pendingGrowth", null);
+  if (!g) return { text: "", growth: null };
+  setSetting("pendingGrowth", null);
+  log(`回访证据：准备提起「${g.title}」`);
+  return {
+    text: `\n\n【这一轮必须带一句回访】你最近变了一点：${g.title}。
+在这句话的结尾，自然地带一句类似"你以前这样我早就不理了"的话——要像随口说的，不要解释机制，不要提"成长/参数/变化/校准"，也不要为此单独起一段。`,
+    growth: g,
+  };
 }
 
 async function postProcess({ sessionId, messageId }) {
@@ -528,7 +557,7 @@ export async function proactiveTick() {
           content: [
             baseLayer({ persona, relation, memories: [], dueLoops: [target] }),
             proactiveLayer(persona, relation),
-          ].join("\n\n"),
+          ].join("\n\n") + takeGrowthHint().text,
         },
         {
           role: "user",
