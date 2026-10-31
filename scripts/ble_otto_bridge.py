@@ -18,6 +18,8 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Callable
 
 from bleak import BleakClient, BleakScanner
+import serial
+from serial.tools import list_ports
 
 
 BLE_NAME = os.getenv("OTTO_BLE_NAME", "OTTO")
@@ -217,6 +219,7 @@ def log(message: str) -> None:
 
 class BleRobot:
     def __init__(self) -> None:
+        self.transport = "ble"
         self.loop: asyncio.AbstractEventLoop | None = None
         self.client: BleakClient | None = None
         self.connected = threading.Event()
@@ -387,6 +390,141 @@ class BleRobot:
                 self.command(command)
 
 
+class SerialRobot:
+    """Same bridge interface, backed by the Nano's USB serial port."""
+
+    def __init__(self, port_name: str | None = None) -> None:
+        self.transport = "usb"
+        self.port_name = port_name or self._find_port()
+        if not self.port_name:
+            raise RuntimeError("CH340 USB serial port not found")
+        self.device_address = self.port_name
+        self.connected = threading.Event()
+        self.ready = threading.Event()
+        self.last_error: str | None = None
+        self.armed = False
+        self._port: serial.Serial | None = None
+        self._op_lock = threading.Lock()
+        self._play_lock = threading.Lock()
+        self._open()
+        self.ready.set()
+
+    @staticmethod
+    def _find_port() -> str | None:
+        candidates = []
+        for item in list_ports.comports():
+            desc = f"{item.description or ''} {item.product or ''}".upper()
+            if item.vid == 0x1A86 and item.pid == 0x7523:
+                candidates.append(item.device)
+            elif "CH340" in desc:
+                candidates.append(item.device)
+        return candidates[0] if candidates else None
+
+    def _open(self) -> None:
+        try:
+            port = serial.Serial(self.port_name, 115200, timeout=0.1)
+            port.dtr = True
+            port.rts = True
+            time.sleep(2)
+            port.reset_input_buffer()
+            self._port = port
+            self.connected.set()
+            self.last_error = None
+            log(f"SERIAL connected: {self.port_name}")
+        except Exception as exc:
+            self._port = None
+            self.connected.clear()
+            self.last_error = f"{type(exc).__name__}: {exc}"
+            log(f"SERIAL disconnected: {self.last_error}")
+
+    def _ensure_open(self) -> serial.Serial:
+        if self._port is not None and self._port.is_open:
+            return self._port
+        self._open()
+        if self._port is None:
+            raise RuntimeError(self.last_error or "Otto USB serial is offline")
+        return self._port
+
+    def _write(self, command: str) -> None:
+        port = self._ensure_open()
+        port.write((command.rstrip() + "\n").encode("utf-8"))
+        port.flush()
+        log(f"SERIAL TX: {command}")
+
+    def _read_until(
+        self, predicate: Callable[[str], bool], timeout: float
+    ) -> str | None:
+        port = self._ensure_open()
+        deadline = time.monotonic() + timeout
+        while time.monotonic() < deadline:
+            line = port.readline().decode("utf-8", "replace").strip()
+            if not line:
+                continue
+            if line.startswith("READY"):
+                self.armed = False
+            elif line.startswith("OK HOME"):
+                self.armed = True
+            log(f"SERIAL RX: {line}")
+            if predicate(line):
+                return line
+        return None
+
+    def _execute(self, command: str, wait_ok: bool = True) -> dict:
+        with self._op_lock:
+            base = command.split(" ", 1)[0]
+            if base in MOTION and base != "HOME" and not self.armed:
+                self._write("HOME")
+                home = self._read_until(
+                    lambda line: line.startswith("OK HOME")
+                    or line.startswith("ERR ")
+                    or line.startswith("READY"),
+                    12,
+                )
+                if home is None:
+                    raise RuntimeError("HOME acknowledgement timeout")
+                if home.startswith("READY"):
+                    raise RuntimeError("firmware rebooted before motion")
+                if home.startswith("ERR "):
+                    raise RuntimeError(home)
+
+            self._write(command)
+            if not wait_ok:
+                return {"ok": True, "command": command, "ack": None}
+            timeout = 14 if base in MOTION else 3
+            ack = self._read_until(
+                lambda line: line.startswith(f"OK {base}")
+                or line.startswith("ERR ")
+                or line.startswith("READY"),
+                timeout,
+            )
+            if ack is None:
+                raise RuntimeError(f"acknowledgement timeout: {command}")
+            if ack.startswith("READY"):
+                raise RuntimeError(f"firmware rebooted during {command}")
+            if ack.startswith("ERR "):
+                raise RuntimeError(ack)
+            return {"ok": True, "command": command, "ack": ack}
+
+    def command(self, command: str, timeout: float = 20) -> dict:
+        command = command.strip().upper()
+        if not command:
+            raise ValueError("empty command")
+        try:
+            return self._execute(command)
+        except serial.SerialException as exc:
+            self.connected.clear()
+            self.last_error = str(exc)
+            raise RuntimeError(f"Otto USB serial disconnected: {exc}") from exc
+
+    def play(self, commands: list[str]) -> None:
+        with self._play_lock:
+            for command in commands:
+                if command.startswith("WAIT "):
+                    time.sleep(max(0, int(command.split(" ", 1)[1])) / 1000)
+                    continue
+                self.command(command)
+
+
 class OttoHandler(BaseHTTPRequestHandler):
     robot: BleRobot
 
@@ -404,7 +542,7 @@ class OttoHandler(BaseHTTPRequestHandler):
                 200,
                 {
                     "ok": self.robot.connected.is_set(),
-                    "transport": "ble",
+                    "transport": self.robot.transport,
                     "device": self.robot.device_address,
                     "connected": self.robot.connected.is_set(),
                     "armed": self.robot.armed,
@@ -465,7 +603,10 @@ class OttoHandler(BaseHTTPRequestHandler):
 
 
 def main() -> None:
-    robot = BleRobot()
+    requested_port = os.getenv("OTTO_SERIAL_PORT", "").strip()
+    force_ble = os.getenv("OTTO_BRIDGE_TRANSPORT", "auto").strip().lower() == "ble"
+    serial_port = None if force_ble else (requested_port or SerialRobot._find_port())
+    robot = SerialRobot(serial_port) if serial_port else BleRobot()
     OttoHandler.robot = robot
     server = ThreadingHTTPServer((HTTP_HOST, HTTP_PORT), OttoHandler)
     log(f"HTTP listening on {HTTP_HOST}:{HTTP_PORT}")
