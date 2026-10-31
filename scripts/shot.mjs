@@ -155,8 +155,7 @@ const shots = [
     eval: `[...document.querySelectorAll('.tab')].find(b => b.dataset.tab === 'test').click();
            setTimeout(() => {
              document.querySelectorAll('#actGrid .actbtn')[3]?.click();
-             const pane = document.getElementById('pane-test');
-             if (pane) pane.scrollTop = pane.scrollHeight;
+               document.getElementById('ontoDims')?.scrollIntoView({ block: 'center' });
            }, 1600);`,
     settle: 2600,
   },

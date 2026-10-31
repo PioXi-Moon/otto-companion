@@ -35,6 +35,7 @@ import {
   startProactiveLoop,
   llmStatus,
 } from "./agent.mjs";
+import { snapshot as ontologySnapshot, observe as ontologyObserve, resetState as ontologyReset } from "./ontology.mjs";
 import {
   listMemories,
   listKeepsakes,
@@ -165,6 +166,14 @@ function overview() {
 
 const routes = {
   "GET /api/state": (req, res) => sendJson(res, overview()),
+
+  /* 本体：状态驱动的交互。调试面板和语音层都从这里读/写 */
+  "GET /api/ontology": (req, res) => sendJson(res, ontologySnapshot()),
+  "POST /api/ontology/observe": async (req, res) => {
+    const body = await readBody(req);
+    sendJson(res, ontologyObserve(String(body.text ?? "")));
+  },
+  "POST /api/ontology/reset": (req, res) => sendJson(res, ontologyReset()),
 
   "GET /api/modules": (req, res) => sendJson(res, modulesSnapshot()),
 

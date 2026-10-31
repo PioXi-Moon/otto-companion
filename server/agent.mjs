@@ -8,6 +8,7 @@ import { chatStream, LLMError, status as llmStatus } from "./llm.mjs";
 import { getPersona, getRelation, updateRelation } from "./persona.mjs";
 import { baseLayer, chatLayer, proactiveLayer, ACTION_ALIAS, SYSTEM_ACTION_WORDS } from "./prompt.mjs";
 import { resolveEmotion, byKey as emotionByKey, fallbackAction } from "./emotion.mjs";
+import { observe as observeOntology } from "./ontology.mjs";
 import { recall, extractAndWrite, memoryEnabled } from "./memory.mjs";
 import { dueLoops, markAttempted, closeLoop, downgradeStale, listLoops } from "./openloop.mjs";
 import {
@@ -204,6 +205,15 @@ async function initTurn({ emit, sessionId, text }) {
   const session = ensureSession(sessionId, { source: "app", mode: "init" });
   if (text) {
     insertMessage({ sessionId: session.id, role: "user", content: text, interactionType: "social" });
+
+  /* 每句话都先过一遍本体：更新内部状态，并记下这一轮的"冲突 → 意图 → 动作"。
+     现在它只做记录与状态推进，动作仍由模型选；等本体跑稳了再接管选择。 */
+  try {
+    const { decision } = observeOntology(text);
+    log(`本体：${decision.reason}`);
+  } catch (e) {
+    log("本体更新失败：", e.message);
+  }
   }
   const { done, question, state } = text
     ? pushAnswer(text)

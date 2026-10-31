@@ -119,7 +119,9 @@ async function init() {
   bindQuit();
   bindHints();
   bindRecbar();
+  bindOntology();
   renderActGrid();
+  renderOntology();
   await refresh();
   // 硬件帧要等模块走完（SERVOS 在上面那段 const 里，提前碰会撞上暂时性死区）
   showFrame("idle");
@@ -384,6 +386,65 @@ function renderActGrid() {
     };
     box.appendChild(b);
   }
+}
+
+/**
+ * 本体调试：六个状态条 + 上一次的"冲突 → 意图 → 动作"。
+ * 这个面板的意义是让状态可见——看不见的状态，最后都会变成自嗨。
+ */
+async function renderOntology() {
+  const box = $("#ontoDims");
+  if (!box) return;
+  let o = null;
+  try {
+    o = await fetch("/api/ontology").then((r) => r.json());
+  } catch {
+    return;
+  }
+  if (!o?.dims) return;
+  box.innerHTML = o.dims
+    .map(
+      (d) => `<div class="onto-d">
+        <span class="onto-l">${d.label}</span>
+        <i><u style="width:${Math.round(d.value * 100)}%"></u><em style="left:${Math.round(d.base * 100)}%"></em></i>
+        <b>${d.value.toFixed(2)}</b>
+      </div>`
+    )
+    .join("");
+  const el = $("#ontoDecision");
+  const last = o.lastDecision;
+  if (!last) {
+    el.textContent = "还没有观察过。";
+    return;
+  }
+  el.innerHTML = `<div class="onto-line">
+      <b>${last.speech.act}</b>（${last.speech.confidence}） ·
+      冲突：${last.conflict.label} ${last.conflict.tension} ·
+      意图：<b>${last.intent}</b> · 动作：<b>${last.action}</b>
+    </div><div class="onto-reason"></div>`;
+  el.querySelector(".onto-reason").textContent = `「${last.text}」 → ${last.reason}`;
+}
+
+async function runOntology() {
+  const input = $("#ontoInput");
+  const text = (input?.value ?? "").trim();
+  if (!text) return toast("先说一句");
+  await post("/api/ontology/observe", { text });
+  input.value = "";
+  await renderOntology();
+  toast("观察了一次");
+}
+
+function bindOntology() {
+  $("#ontoRun")?.addEventListener("click", runOntology);
+  $("#ontoInput")?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") runOntology();
+  });
+  $("#ontoReset")?.addEventListener("click", async () => {
+    await post("/api/ontology/reset", {});
+    await renderOntology();
+    toast("本体归零");
+  });
 }
 
 /* 第一次用它的人需要知道能干什么 */

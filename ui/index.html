@@ -370,6 +370,19 @@
 
       <!-- 给固件同学看的那一帧：软件算出姿势之后，往下发的就是这个 -->
       <div class="card wide">
+        <h3>角色本体（状态驱动）</h3>
+        <p class="muted">每句话先改变它的六个内部状态，再由最紧的那对冲突决定意图，最后才选动作。
+          这里可以手动观察一句话，看它怎么被推动。</p>
+        <div class="onto-dims" id="ontoDims"></div>
+        <div class="onto-decision" id="ontoDecision">还没有观察过。</div>
+        <div class="onto-row">
+          <input id="ontoInput" maxlength="80" placeholder="打一句话，比如：你今天挺可爱的" autocomplete="off" />
+          <button class="primary" id="ontoRun">观察</button>
+          <button id="ontoReset">归零</button>
+        </div>
+      </div>
+
+      <div class="card wide">
         <h3>硬件接口</h3>
         <p class="muted">软件把姿势算好，往下发的就是这一帧。四颗舵机（头、左腿、右腿、前倾）
           加一颗指示灯和一个蜂鸣器——接上就是它这具身体。角度以中位 90° 为基准，夹在 20°~160°。</p>

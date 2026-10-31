@@ -292,6 +292,38 @@ main { flex: 1; min-width: 0; min-height: 0; display: flex; }
   font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
 }
 
+/* ---------- 角色本体（状态驱动） ---------- */
+.onto-dims { display: flex; flex-direction: column; gap: 6px; margin: 10px 0 12px; }
+.onto-d { display: flex; align-items: center; gap: 10px; font-size: 12px; }
+.onto-l { width: 56px; color: #6b5c3e; }
+.onto-d i {
+  position: relative; flex: 1; height: 8px; border-radius: 5px;
+  background: #efe7d8;
+}
+.onto-d u {
+  display: block; height: 100%; border-radius: 5px; background: var(--accent);
+  transition: width .4s cubic-bezier(.34, 1.4, .5, 1);
+}
+/* 基线刻度：一眼能看出现在是高于还是低于它平时的样子 */
+.onto-d em {
+  position: absolute; top: -3px; width: 2px; height: 14px;
+  background: #c9b795; border-radius: 1px;
+}
+.onto-d b {
+  width: 38px; text-align: right; font-variant-numeric: tabular-nums; color: #5c5346;
+}
+.onto-decision {
+  background: #f7f2e7; border: 1px solid var(--line); border-radius: 8px;
+  padding: 8px 12px; font-size: 12px; color: #5c5346; line-height: 1.8;
+}
+.onto-line b { color: var(--brand); }
+.onto-reason { color: #9b9081; margin-top: 3px; }
+.onto-row { display: flex; gap: 8px; margin-top: 10px; }
+.onto-row input {
+  flex: 1; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px;
+  font: inherit; font-size: 13px;
+}
+
 /* 面板里的小像。跟桌宠同一套色：绿头、白圈黑瞳、一点高光、两片腮红 */
 .omark { display: block; width: 100%; height: auto; }
 .omark .om-head { fill: #5cc46b; }
