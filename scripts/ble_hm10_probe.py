@@ -13,6 +13,8 @@ UART_UUID = "0000ffe1-0000-1000-8000-00805f9b34fb"
 async def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--name", default="OTTO")
+    parser.add_argument("--scan-timeout", type=float, default=15)
+    parser.add_argument("--wait-before-scan", type=float, default=0)
     parser.add_argument("--without-response", action="store_true")
     parser.add_argument(
         "commands",
@@ -21,7 +23,12 @@ async def main() -> int:
     )
     args = parser.parse_args()
 
-    device = await BleakScanner.find_device_by_name(args.name, timeout=15)
+    if args.wait_before_scan > 0:
+        print(f"WAIT {args.wait_before_scan:.1f}s before scanning", flush=True)
+        await asyncio.sleep(args.wait_before_scan)
+    device = await BleakScanner.find_device_by_name(
+        args.name, timeout=args.scan_timeout
+    )
     if device is None:
         print(f"NOT_FOUND {args.name}")
         return 2

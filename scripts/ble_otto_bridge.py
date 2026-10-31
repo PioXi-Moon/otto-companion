@@ -260,6 +260,8 @@ class BleRobot:
                     self.connected.set()
                     self.last_error = None
                     log(f"BLE connected: {device.address}")
+                    if not await self._link_handshake():
+                        log("BLE warning: UART handshake did not return PONG")
                     while client.is_connected:
                         await asyncio.sleep(1)
             except Exception as exc:
@@ -270,6 +272,24 @@ class BleRobot:
                 self.client = None
                 self.armed = False
             await asyncio.sleep(2)
+
+    async def _link_handshake(self) -> bool:
+        """Nano 会在常见波特率间轮换，持续 PING 直到收到 PONG。"""
+        if self._op_lock is None:
+            return False
+        async with self._op_lock:
+            for _ in range(36):
+                await self._write("PING")
+                ack = await self._read_until(
+                    lambda line: line.startswith("PONG")
+                    or line.startswith("READY"),
+                    0.45,
+                )
+                if ack and ack.startswith("PONG"):
+                    log("BLE UART handshake: PONG")
+                    return True
+                await asyncio.sleep(0.2)
+        return False
 
     def _on_notification(self, _sender, data: bytearray) -> None:
         if self.loop is None or self._notifications is None:
@@ -412,6 +432,7 @@ class SerialRobot:
         self.last_error: str | None = None
         self.armed = False
         self._port: serial.Serial | None = None
+        self.baud = 115200
         self._op_lock = threading.Lock()
         self._play_lock = threading.Lock()
         self._open()
@@ -430,12 +451,13 @@ class SerialRobot:
 
     def _open(self) -> None:
         try:
-            port = serial.Serial(self.port_name, 115200, timeout=0.1)
+            port = serial.Serial(self.port_name, self.baud, timeout=0.1)
             port.dtr = True
             port.rts = True
-            time.sleep(2)
+            time.sleep(1.5)
             port.reset_input_buffer()
             self._port = port
+            self._handshake()
             self.connected.set()
             self.last_error = None
             log(f"SERIAL connected: {self.port_name}")
@@ -444,6 +466,34 @@ class SerialRobot:
             self.connected.clear()
             self.last_error = f"{type(exc).__name__}: {exc}"
             log(f"SERIAL disconnected: {self.last_error}")
+
+    def _handshake(self) -> None:
+        """Match the Nano's temporary baud scan before normal traffic."""
+        if self._port is None:
+            return
+        candidates = (115200, 9600, 57600, 38400, 19200)
+        deadline = time.monotonic() + 24
+        while time.monotonic() < deadline:
+            for baud in candidates:
+                try:
+                    self._port.baudrate = baud
+                    self._port.reset_input_buffer()
+                    for _ in range(3):
+                        self._port.write(b"PING\n")
+                        self._port.flush()
+                        reply_deadline = time.monotonic() + 0.4
+                        while time.monotonic() < reply_deadline:
+                            line = (
+                                self._port.readline()
+                                .decode("utf-8", "replace")
+                                .strip()
+                            )
+                            if line == "PONG":
+                                self.baud = baud
+                                log(f"SERIAL handshake: PONG at {baud}")
+                                return
+                except serial.SerialException:
+                    return
 
     def _ensure_open(self) -> serial.Serial:
         if self._port is not None and self._port.is_open:

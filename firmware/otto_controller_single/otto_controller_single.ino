@@ -235,6 +235,13 @@ namespace {
 char line[48];
 uint8_t used = 0;
 bool invalid = false;
+bool linkLocked = false;
+uint8_t linkBaudIndex = 0;
+unsigned long linkBaudSwitchAt = 0;
+const uint32_t linkBauds[] = {
+    115200UL, 9600UL, 57600UL, 38400UL, 19200UL
+};
+const uint8_t linkBaudCount = sizeof(linkBauds) / sizeof(linkBauds[0]);
 }
 
 void replyError(const __FlashStringHelper* error) {
@@ -243,16 +250,37 @@ void replyError(const __FlashStringHelper* error) {
 void replyOk(const char* command) {
   Serial.print(F("OK ")); Serial.println(command);
 }
-void controlLinkBegin() { Serial.begin(OTTO_LINK_BAUD); }
+
+void setLinkBaud(uint8_t index) {
+  Serial.end();
+  Serial.begin(linkBauds[index]);
+  used = 0;
+  invalid = false;
+}
+
+void controlLinkBegin() {
+  linkLocked = false;
+  linkBaudIndex = 0;
+  setLinkBaud(linkBaudIndex);
+  linkBaudSwitchAt = millis() + 1500;
+}
 
 void controlLinkPoll() {
+  if (!linkLocked && static_cast<long>(millis() - linkBaudSwitchAt) >= 0) {
+    linkBaudIndex = (linkBaudIndex + 1) % linkBaudCount;
+    setLinkBaud(linkBaudIndex);
+    linkBaudSwitchAt = millis() + 1500;
+  }
   // 限制每轮输入工作量，让动作、传感器和停止请求都得到处理。
   for (uint8_t count = 0; count < 16 && Serial.available(); ++count) {
     char c = static_cast<char>(Serial.read());
     if (c == '\n') {
       line[used] = '\0';
       if (invalid) replyError(F("INVALID_OR_LONG_LINE"));
-      else if (used) routeCommand(line);
+      else if (used) {
+        if (!strcmp(line, "PING")) linkLocked = true;
+        routeCommand(line);
+      }
       used = 0; invalid = false;
     } else if (c == '\r') {
       // CRLF
