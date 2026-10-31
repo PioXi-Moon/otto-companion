@@ -133,6 +133,9 @@ node scripts/smoke.mjs
 重新打 Windows 便携 ZIP：`pnpm package:zip`。脚本会生成 `dist/Otto-Windows-x64-日期.zip`，
 并自动排除 `.env` 与本机 `data/`。
 
+需要更新 Otto Nano 固件时，把 USB 线接到 Nano 自己的 USB 口，双击
+`烧录 Otto 固件.bat`。第一次会安装 Arduino CLI 和 AVR 工具链，之后直接编译烧录。
+
 ## 一些实现上的判断
 
 **提示词分三层。** 说话的场合共用一层，日记、主动发起、对话各叠一层；

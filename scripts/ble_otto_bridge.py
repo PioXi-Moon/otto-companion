@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import math
 import os
 import threading
 import time
@@ -170,6 +171,50 @@ ACTION_COMMANDS.update({
 })
 
 
+def build_gait(action: str, cycles: int = 2) -> list[str]:
+    """用固件公开的 SERVO 指令发一遍 OttoDIY 的 16 帧步态。
+
+    旧固件里的 WALK 数组幅度被压得太小，只会原地晃。这里按官方振荡器参数
+    重新采样，桥发完一帧等一小会儿，再发下一帧，不改固件也能先恢复真实位移。
+    """
+    direction = -1 if action == "back" else 1
+    hip_amp = [28, 28]
+    foot_amp = [18, 18]
+    if action == "left":
+        hip_amp = [28, 9]
+    elif action == "right":
+        hip_amp = [9, 28]
+    elif action not in {"walk", "back"}:
+        return []
+
+    commands: list[str] = ["HOME"]
+    for _ in range(cycles):
+        for frame in range(16):
+            phase = 2 * math.pi * frame / 16
+            hip_l = round(hip_amp[0] * math.sin(phase))
+            hip_r = round(hip_amp[1] * math.sin(phase))
+            foot_phase = phase + direction * (-math.pi / 2)
+            foot_l = round(4 + foot_amp[0] * math.sin(foot_phase))
+            foot_r = round(-4 + foot_amp[1] * math.sin(foot_phase))
+            commands.extend(
+                [
+                    f"SERVO 0 {max(60, min(120, 90 + hip_l))}",
+                    f"SERVO 1 {max(60, min(120, 90 + hip_r))}",
+                    f"SERVO 2 {max(60, min(120, 90 + foot_l))}",
+                    f"SERVO 3 {max(60, min(120, 90 + foot_r))}",
+                    "WAIT 45",
+                ]
+            )
+    commands.append("HOME")
+    return commands
+
+
+def commands_for_action(action: str) -> list[str]:
+    if action in {"walk", "back", "left", "right"}:
+        return build_gait(action)
+    return ACTION_COMMANDS.get(action, [])
+
+
 def log(message: str) -> None:
     print(f"{time.strftime('%H:%M:%S')} {message}", flush=True)
 
@@ -184,6 +229,7 @@ class BleRobot:
         self.last_error: str | None = None
         self.armed = False
         self._op_lock: asyncio.Lock | None = None
+        self._play_lock = threading.Lock()
         self._notifications: asyncio.Queue[str] | None = None
         self._rx_buffer = ""
         threading.Thread(target=self._run, daemon=True, name="otto-ble").start()
@@ -335,8 +381,14 @@ class BleRobot:
             raise RuntimeError("BLE command timeout") from exc
 
     def play(self, commands: list[str]) -> None:
-        for command in commands:
-            self.command(command)
+        # 动作组合必须整体串行，但不阻塞 HTTP 请求。否则一段 3–6 秒的动作
+        # 会让语音工具超时，用户听到“没连上”，机器人其实已经走完了。
+        with self._play_lock:
+            for command in commands:
+                if command.startswith("WAIT "):
+                    time.sleep(max(0, int(command.split(" ", 1)[1])) / 1000)
+                    continue
+                self.command(command)
 
 
 class OttoHandler(BaseHTTPRequestHandler):
@@ -389,16 +441,25 @@ class OttoHandler(BaseHTTPRequestHandler):
 
         if self.path == "/otto":
             action = str(body.get("action", "")).strip()
-            commands = ACTION_COMMANDS.get(action)
+            commands = commands_for_action(action)
             if not commands:
                 self._reply(404, {"error": "unknown action", "action": action})
                 return
-            try:
-                self.robot.play(commands)
-            except Exception as exc:
-                self._reply(503, {"ok": False, "error": str(exc)})
-                return
-            self._reply(200, {"ok": True, "action": action})
+
+            def run_action() -> None:
+                try:
+                    self.robot.play(commands)
+                    log(f"ACTION complete: {action}")
+                except Exception as exc:
+                    self.robot.last_error = str(exc)
+                    log(f"ACTION failed: {action}: {exc}")
+
+            threading.Thread(
+                target=run_action,
+                daemon=True,
+                name=f"otto-action-{action}",
+            ).start()
+            self._reply(202, {"ok": True, "accepted": True, "action": action})
             return
 
         self._reply(404, {"error": "not found"})

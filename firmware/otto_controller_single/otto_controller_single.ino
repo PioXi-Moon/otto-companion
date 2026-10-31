@@ -384,12 +384,12 @@ Plan planFor(Action a) {
     case Action::SHAKE: return {planShake, 5, 120};
     case Action::SIT:   return {planSit, 1, 600};
     case Action::DANCE: return {planDance, 7, 480};
-    // 16 samples per step, repeated three times, then HOME.
-    // Slower interpolation keeps the first move from spiking the servo current.
-    case Action::WALK:  return {planWalk, 49, 100};
-    case Action::BACK:  return {planBack, 49, 100};
-    case Action::LEFT:  return {planLeft, 49, 100};
-    case Action::RIGHT: return {planRight, 49, 100};
+    // 16 samples over roughly one second, repeated three times, then HOME.
+    // This is the actual OttoDIY displacement gait, not the reduced sway.
+    case Action::WALK:  return {planWalk, 49, 63};
+    case Action::BACK:  return {planBack, 49, 63};
+    case Action::LEFT:  return {planLeft, 49, 63};
+    case Action::RIGHT: return {planRight, 49, 63};
     case Action::BOUNCE: return {planBounce, 8, 160};
     case Action::WIGGLE: return {planWiggle, 10, 140};
     case Action::HAPPY: return {planSwing, 8, 400};
@@ -417,13 +417,9 @@ void setSegment() {
   for (uint8_t i = 0; i < 4; ++i) {
     origin[i] = position[i];
     int16_t delta = static_cast<int8_t>(pgm_read_byte(plan.frames + index * 4 + i));
-    // USB/battery brownout is the current failure boundary: the original gait
-    // resets the Nano on its first step. Keep the verified phase relationship,
-    // but lower both hip torque and foot lift until walking stays powered.
-    if (current == Action::WALK || current == Action::BACK ||
-        current == Action::LEFT || current == Action::RIGHT) {
-      delta = delta * (i < 2 ? 600 : 350) / 1000;
-    }
+    // Keep the official amplitudes here. A previous reduction made the robot
+    // sway in place; power stability is handled by USB supply, not by removing
+    // the foot lift that actually creates displacement.
     target[i] = 90 + delta;
   }
 }
