@@ -5,6 +5,7 @@
  * 例：退开时关系期待还高，就 turn_away → peek → sit。
  */
 import { ACTION_VECTORS, rankActions } from "./action-semantics.mjs";
+import { ACTIONS } from "../ui/actions.js";
 
 const RULES = {
   approach: {
@@ -78,6 +79,11 @@ function chooseWeighted(items, rng) {
   return items[0];
 }
 
+function durationOf(action) {
+  const definition = ACTIONS[action];
+  return definition?.ms ?? (definition?.kind === "state" ? 2200 : 1800);
+}
+
 export function planGestureCombo({
   primary,
   intent,
@@ -117,8 +123,14 @@ export function planGestureCombo({
   const endingPool = rule.endings.filter((action) => action !== accent);
   const ending = endingPool[Math.floor(rng() * endingPool.length)] ?? null;
 
-  const steps = [{ action: accent, atMs: 1250 }];
-  if (ending) steps.push({ action: ending, atMs: 2550 });
+  const accentAt = Math.max(1100, Math.round(durationOf(primary) * 0.78));
+  const steps = [{ action: accent, atMs: accentAt }];
+  if (ending) {
+    steps.push({
+      action: ending,
+      atMs: accentAt + Math.max(900, Math.round(durationOf(accent) * 0.72)),
+    });
+  }
 
   const contrast =
     Math.abs((ACTION_VECTORS[accent]?.closeness ?? 0) - target.closeness) +
