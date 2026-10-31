@@ -20,6 +20,7 @@ import {
   buildTargetVector,
   actionFitsDecision as semanticActionFitsDecision,
 } from "./action-semantics.mjs";
+import { planGestureCombo } from "./gesture-combo.mjs";
 
 /* ---------------- 六个状态维度 ---------------- */
 
@@ -39,6 +40,7 @@ function defaultState() {
   for (const d of DIMS) s[d.key] = d.base;
   s.lastAction = null;
   s.recentActions = [];
+  s.lastComboAt = 0;
   s.updatedAt = now();
   return s;
 }
@@ -354,6 +356,19 @@ export function observe(text, { stage, rng = Math.random } = {}) {
     state.lastAction,
     { speech, relation: rel, persona, rng }
   );
+  const decisionAt = now();
+  const canCombo = decisionAt - (state.lastComboAt ?? 0) >= 1200;
+  const combo = canCombo
+    ? planGestureCombo({
+        primary: action,
+        intent,
+        target,
+        lastAction: state.lastAction,
+        energy: state.energy,
+        rng,
+      })
+    : null;
+  if (combo) state.lastComboAt = decisionAt;
   state.lastAction = action;
   state.recentActions = [...(state.recentActions ?? []), action].slice(-8);
   saveState(state);
@@ -371,7 +386,8 @@ export function observe(text, { stage, rng = Math.random } = {}) {
     candidates,
     fitFloor,
     fit: candidates.find((item) => item.action === action)?.fit ?? null,
-    at: now(),
+    combo,
+    at: decisionAt,
     reason: `${conflict.label}（张力 ${conflict.t.toFixed(2)}）→ ${intent} → ${action}（语义 ${(
       candidates.find((item) => item.action === action)?.fit ?? 0
     ).toFixed(2)}）`,

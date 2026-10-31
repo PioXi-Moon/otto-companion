@@ -17,6 +17,7 @@ import {
 import { observe, actionFitsDecision } from "./ontology.mjs";
 import { getRelation, updateRelation } from "./persona.mjs";
 import { log } from "./util.mjs";
+import { scheduleCombo } from "./gesture-combo.mjs";
 
 const SYSTEM_ACTIONS = new Set(["stop", "home", "quiet", "normal"]);
 
@@ -180,6 +181,20 @@ export function recordVoiceTurn({
   if (resolved.action) {
     broadcast("pet", { action: resolved.action, mood: "active", source: "voice" });
   }
+  if (resolved.decision.combo) {
+    scheduleCombo(
+      resolved.decision.combo,
+      (nextAction, step) =>
+        broadcast("pet", {
+          action: nextAction,
+          mood: "combo",
+          source: "voice",
+          combo: resolved.decision.combo.label,
+          step,
+        }),
+      { skipAction: resolved.action }
+    );
+  }
   broadcast("state", {
     voiceTurn: {
       sessionId: session.id,
@@ -202,6 +217,10 @@ export function recordVoiceTurn({
     move: finalMove,
     overridden: resolved.overridden,
     proposedAction: resolved.proposedAction,
+    sequence: [
+      ...(resolved.action ? [{ action: resolved.action, atMs: 0 }] : []),
+      ...(resolved.decision.combo?.steps ?? []),
+    ],
     ontology: {
       speech: resolved.decision.speech,
       conflict: resolved.decision.conflict,

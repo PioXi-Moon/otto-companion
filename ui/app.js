@@ -456,6 +456,14 @@ async function renderOntology() {
     semantic.textContent = `动作语义目标：${target}｜候选：${candidates}`;
     el.appendChild(semantic);
   }
+  if (last.combo) {
+    const combo = document.createElement("div");
+    combo.className = "onto-reason";
+    combo.textContent =
+      `这一次的动作组合：${last.combo.label}｜` +
+      last.combo.steps.map((step) => `${step.atMs}ms ${step.action}`).join(" → ");
+    el.appendChild(combo);
+  }
   el.querySelector(".onto-reason").textContent += ` · 已校准 ${o.calibrations ?? 0} 条`;
   if (o.bias) {
     const b = o.bias;

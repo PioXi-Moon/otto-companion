@@ -30,6 +30,7 @@ import { log } from "./util.mjs";
 import { initState, pushAnswer, inferPersona, startInit } from "./initflow.mjs";
 import { syncDay, dayKey } from "./diary.mjs";
 import { immersionEnabled, immersionAction } from "./immersion.mjs";
+import { scheduleCombo } from "./gesture-combo.mjs";
 
 const FALLBACK = {
   no_key: { text: "我还没接上大脑——API Key 没配置。这会儿我只能陪你待着。", action: "lie_down" },
@@ -435,6 +436,19 @@ export async function handleChat({ sessionId, text, mode = "chat", emit }) {
     mind: mindText,
   });
   broadcast("pet", { action: immersionAction(action), mood: "active" });
+  if (!immersionEnabled() && ontoDecision?.combo) {
+    scheduleCombo(
+      ontoDecision.combo,
+      (nextAction, step) =>
+        broadcast("pet", {
+          action: nextAction,
+          mood: "combo",
+          combo: ontoDecision.combo.label,
+          step,
+        }),
+      { skipAction: action }
+    );
+  }
 
   /* 回访的身体版：先转开（嘴硬），过一会儿再转回来（其实没走）。
      屏幕和实体走同一套：实体那边由桥执行 growth_callback。 */

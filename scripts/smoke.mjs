@@ -21,6 +21,7 @@ import {
   misreadChance,
   actionFitsDecision,
 } from "../server/ontology.mjs";
+import { planGestureCombo } from "../server/gesture-combo.mjs";
 
 /* 默认打测试实例（7789），不打正在用的那一个。
    原因很实在：冒烟测试第一步就是 /api/dev/reset，它会把对话、记忆、日记、
@@ -311,6 +312,36 @@ async function main() {
     actionFitsDecision(semanticDecision, "approach") &&
       !actionFitsDecision(semanticDecision, "proud")
   );
+  const combo = planGestureCombo({
+    primary: "approach",
+    intent: "approach",
+    target: {
+      closeness: 0.7,
+      energy: 0.4,
+      warmth: 0.7,
+      assertiveness: 0.1,
+      vulnerability: 0.4,
+      clarity: 0.8,
+      initiative: 0.6,
+      playfulness: 0.5,
+    },
+    lastAction: "sit",
+    energy: 0.8,
+    rng: () => 0,
+  });
+  check(
+    "动作组合：次级需要会生成不同动作、可被沉浸模式关闭",
+    combo?.steps?.length >= 1 &&
+      combo.steps.every((step) => step.action !== "approach") &&
+      !planGestureCombo({
+        primary: "approach",
+        intent: "approach",
+        target: { closeness: 1, energy: 0, warmth: 1, assertiveness: 0, vulnerability: 0, clarity: 1, initiative: 1, playfulness: 1 },
+        energy: 0.8,
+        immersion: true,
+        rng: () => 0,
+      })
+  );
 
   const wordbook = checkWordbook();
   check(
@@ -353,7 +384,8 @@ async function main() {
     voiceTurn.ok === true &&
       voiceTurn.overridden === true &&
       voiceTurn.ontology?.speech?.act === "示弱" &&
-      voiceTurn.action !== "celebrate",
+      voiceTurn.action !== "celebrate" &&
+      voiceTurn.sequence?.length >= 1,
     `${voiceTurn.proposedAction} → ${voiceTurn.action}（${voiceTurn.ontology?.intent}）`
   );
   const voiceMessages = await api("/api/messages", undefined, "GET");
