@@ -44,6 +44,12 @@ let idleTimer = null;
 let sleeping = false;
 let bubbleTimer = null;
 let currentAction = "idle";
+let immersion = false;
+
+const IMMERSION_ACTIONS = new Set([
+  "immersed", "idle", "sleepy", "doze", "sit", "lean_in",
+  "listening", "think", "speaking", "confirm",
+]);
 
 /* 动作层（关键帧）和附加符号，都要能被下一次动作清掉 */
 const ANIM_CLASSES = [
@@ -102,6 +108,7 @@ const isState = (name) => (ACTIONS[name] ?? {}).kind === "state";
  * 两层分开所以能叠加：可以一边坐着（姿势）一边抖（动作）。
  */
 export function setAction(name, { ms } = {}) {
+  if (immersion && !IMMERSION_ACTIONS.has(name)) name = "immersed";
   const a = ACTIONS[name];
   if (!a) return;
   currentAction = name;
@@ -129,6 +136,12 @@ export function setAction(name, { ms } = {}) {
 /* 闲着的时候分两档：先犯困，再打盹。一上来就睡过去太突然 */
 function scheduleIdle() {
   clearTimeout(idleTimer);
+  if (immersion) {
+    // 用户主动对话时的 listening / think / speaking 仍然允许；
+    // 只把会自然扩散出去的 idle / sleepy / doze 收回到沉浸姿势。
+    if (["idle", "sleepy", "doze"].includes(currentAction)) setAction("immersed");
+    return;
+  }
   idleTimer = setTimeout(() => {
     const a = ACTIONS[currentAction];
     if (!a || a.kind !== "state" || currentAction === "idle") setAction("sleepy");
@@ -152,6 +165,7 @@ const EGG_POOL = ["wronged", "approach", "hide", "done"];
 let eggsToday = 0;
 let eggDay = "";
 setInterval(() => {
+  if (immersion) return;
   const day = new Date().toDateString();
   if (day !== eggDay) { eggDay = day; eggsToday = 0; }
   if (eggsToday >= 8) return;
@@ -183,12 +197,19 @@ es.onmessage = (e) => {
     return;
   }
   if (ev.type === "proactive") {
+    if (immersion) return;
     setAction(ev.action ?? "perk", { ms: 2600 });
     blushPulse(2600);
     say(ev.message.content, 20000, "");
   } else if (ev.type === "murmur") {
+    if (immersion) return;
     setAction(ev.action ?? "idle", { ms: 2200 });
     say(ev.kaomoji ? `${ev.text} ${ev.kaomoji}` : ev.text, 22000, "murmur");
+  } else if (ev.type === "immersion") {
+    immersion = ev.state?.enabled === true;
+    if (immersion) setAction("immersed");
+    else scheduleIdle();
+    if (ev.notice) say(ev.notice, 7000, "murmur");
   } else if (ev.type === "pet") {
     setAction(ev.action ?? "idle", { ms: ev.ms });
   } else if (ev.type === "state" && ev.closedLoops) {
@@ -202,9 +223,18 @@ es.onmessage = (e) => {
 
 let scale = 1;
 
+/* 把"我在窗口里的哪儿"报给主进程：夹屏幕边界时用它，比主进程自己算准。
+   窗口尺寸一变就再报一次——缩放、系统缩放取整、穿透状态切换都会挪动它。 */
+function reportBox() {
+  const r = otto.getBoundingClientRect();
+  BRIDGE?.box?.({ left: r.left, top: r.top, width: r.width, height: r.height });
+}
+window.addEventListener("resize", reportBox);
+
 async function applyScale(next, { persist = true, quiet = false } = {}) {
   scale = Math.min(2.2, Math.max(0.6, Math.round(next * 100) / 100));
   document.documentElement.style.setProperty("--pet-scale", String(scale));
+  reportBox(); // 先报新的本体尺寸，主进程好按新尺寸摆窗口
   BRIDGE?.resize?.(scale);
   if (!quiet) say(`大小 ${Math.round(scale * 100)}%`, 1400, "murmur");
   if (persist) {
@@ -254,7 +284,8 @@ async function touchPet(kind) {
     /* 点一下的反应 = 左右晃。**不换姿势**——
        一换姿势它就会往一边斜，和晃动叠起来就不对称了 */
     if (kind === "tap") {
-      duang();
+      if (immersion) blushPulse(900);
+      else duang();
       if (r.text) say(r.kaomoji ? `${r.text} ${r.kaomoji}` : r.text, 5000, "murmur");
       return;
     }
@@ -367,6 +398,8 @@ function endDrag(e) {
   document.body.classList.remove("dragging");
   otto.classList.remove("flailing");
   BRIDGE?.dragEnd?.();
+  // 松手之后再报一次：拖动途中穿透状态变过一次，量一遍把差的那几像素收回来
+  reportBox();
   if (moved) touchPet("drop");
   else if (e.detail < 2) touchPet("tap"); // 双击的第二下不算摸
 }
@@ -392,11 +425,14 @@ stage.addEventListener("dblclick", () => {
 
 window.ottoPetLocal = { setAction, say, setScale: applyScale, getScale: () => scale };
 
-/* 启动时把上次的大小读回来 */
+/* 启动时把上次的大小读回来，顺便把本体在窗口里的位置报一次 */
 fetch("/api/state")
   .then((r) => r.json())
   .then((s) => {
     if (s.petName) document.title = s.petName;
     if (typeof s.petScale === "number") applyScale(s.petScale, { persist: false, quiet: true });
+    immersion = s.immersion?.enabled === true;
+    if (immersion) setAction("immersed");
   })
-  .catch(() => {});
+  .catch(() => {})
+  .finally(reportBox);

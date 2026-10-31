@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>Otto 作品集</title>
+<style>
+  @page { size: 338.7mm 190.5mm; margin: 0; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { font-family: "Microsoft YaHei", "PingFang SC", system-ui, sans-serif; color: #3b3222;
+         -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .slide { position: relative; width: 338.7mm; min-height: 190.5mm; background: #faf7f1;
+           padding: 16mm 18mm 14mm; page-break-after: always; }
+  .slide:last-child { page-break-after: auto; }
+  .kick { position: absolute; left: 18mm; top: 11mm; font-size: 9.5pt; color: #a89579; letter-spacing: .2em; }
+  .pno { position: absolute; right: 18mm; bottom: 8mm; font-size: 9.5pt; color: #b0a695; }
+  h1 { font-size: 30pt; margin: 10mm 0 4mm; line-height: 1.3; }
+  h1 span { display: block; font-size: 13pt; font-weight: 400; color: #6b5c3e; margin-top: 5mm; }
+  h2 { font-size: 22pt; margin: 10mm 0 7mm; color: #b1452f; line-height: 1.35; }
+  p { font-size: 11.5pt; line-height: 1.9; margin: 0 0 3mm; color: #4a4238; }
+  b { color: #3b3222; }
+  .row { display: flex; gap: 9mm; align-items: flex-start; }
+  .c { flex: 1; }
+  .card { border: 1px solid #e9e0cf; background: #fffdf8; border-radius: 5px; padding: 5mm 6mm; }
+  .card .h { font-size: 12.5pt; font-weight: 700; margin-bottom: 2.5mm; }
+  .card p { font-size: 11pt; margin: 0; }
+  ul { margin: 0; padding-left: 5mm; }
+  li { font-size: 11.5pt; line-height: 1.85; margin-bottom: 2.2mm; color: #4a4238; }
+  img { display: block; width: 100%; border: 1px solid #e9e0cf; border-radius: 4px; }
+  .shot { height: 92mm; object-fit: cover; object-position: top left; }
+  .shot2 { height: 78mm; object-fit: cover; object-position: top left; }
+  .cap { font-size: 9.5pt; color: #a89579; margin-top: 2.5mm; line-height: 1.7; }
+  .quote { border-left: 4px solid #b1452f; padding: 2mm 0 2mm 7mm; margin: 0 0 6mm; }
+  .quote p { font-size: 15pt; margin: 0 0 2mm; line-height: 1.7; }
+  .quote .me { font-size: 11pt; color: #8a7f6d; }
+  .big { font-size: 16pt; line-height: 1.85; margin: 0 0 5mm; }
+  .note { margin-top: 6mm; padding: 4mm 5mm; background: #f4efe4; border-radius: 5px; font-size: 11pt; line-height: 1.8; }
+  .chips { display: flex; gap: 5mm; margin-top: 5mm; }
+  .chip { flex: 1; border: 1px solid #e9e0cf; background: #fffdf8; border-radius: 5px; padding: 4mm 5mm; }
+  .chip .h { font-size: 11.5pt; font-weight: 700; margin-bottom: 1.5mm; }
+  .chip p { font-size: 10.5pt; margin: 0; }
+  .chain { display: flex; flex-wrap: wrap; gap: 3mm; align-items: center; font-size: 11pt; }
+  .chain span { background: #fffdf8; border: 1px solid #e9e0cf; border-radius: 20px; padding: 2.5mm 5mm; }
+  .chain i { color: #b0a695; font-style: normal; }
+  .foot { position: absolute; left: 18mm; right: 18mm; bottom: 8mm; font-size: 9.5pt; color: #a89579; }
+  .mono { font-family: Consolas, monospace; font-size: 10pt; line-height: 1.7; }
+</style>
+</head>
+<body>
+
+<section class="slide">
+  <div class="kick">作品集 · AI 产品实习</div>
+  <h1>Otto · 桌面陪伴机器人
+    <span>一个住在电脑桌面上的陪伴机器人。软件已完成，实体机器人待落地。</span>
+  </h1>
+  <div class="chips">
+    <div class="chip"><div class="h">我负责</div><p>产品定义 · 交互设计 · 软件实现</p></div>
+    <div class="chip"><div class="h">形式</div><p>3 人团队 · 课程项目 · 两周</p></div>
+    <div class="chip"><div class="h">当前进度</div><p>软件可运行，硬件未落地</p></div>
+  </div>
+  <div class="foot">代码、需求文档、每天的改动与取舍记录：github.com/PioXi-Moon/otto-companion</div>
+  <div class="pno">1</div>
+</section>
+
+<section class="slide">
+  <div class="kick">它是什么</div>
+  <h2>它记得你说过的事</h2>
+  <div class="quote">
+    <p>下周四答辩。</p>
+    <p class="me">—— 我随口说了一句，它记下了。</p>
+    <p>周四晚上，它自己来问：那个答辩，过了吗。</p>
+  </div>
+  <p class="big">别的聊天机器人在我说完那句话之后就没有下文了。它会记着，过几天自己回来问。</p>
+  <div class="pno">2</div>
+</section>
+
+<section class="slide">
+  <div class="kick">背景</div>
+  <h2>我看了一圈 AI 陪伴产品，它们有个共同的短板</h2>
+  <div class="chips">
+    <div class="chip"><div class="h">桌面上不缺效率工具</div><p>但没有一个东西知道你昨天经历了什么。</p></div>
+    <div class="chip"><div class="h">都在把回答做得更好</div><p>可回答完就结束了——用户关掉窗口，这段对话就没了。</p></div>
+    <div class="chip"><div class="h">第二天从零开始</div><p>这样的产品可以很好用，但很难让人产生关系。</p></div>
+  </div>
+  <div class="pno">3</div>
+</section>
+
+<section class="slide">
+  <div class="kick">产品定位</div>
+  <h2>所以我不做更聪明的助手</h2>
+  <p class="big">我做的是一个会积累的小东西：它记住你说过的话、记住你们之间发生过的事，并且用日记、卡片这些看得见的东西把这段历史存下来。</p>
+  <p>它的价值不在某一次回答的质量，在它记不记得你。</p>
+  <div class="pno">4</div>
+</section>
+
+<section class="slide">
+  <div class="kick">用户与场景</div>
+  <h2>谁在用，什么时候用</h2>
+  <div class="row">
+    <div class="c card"><div class="h">目标用户</div><p>长时间待在电脑前的人——学生、自由职业者、远程办公的人。他们不孤独到需要求助，但每天有大段时间是一个人待着。他们不想要一个需要照顾的东西，也不想要一个只在有事时才打开的软件。</p></div>
+    <div class="c card"><div class="h">使用场景</div><p>余光场景。不是专门打开来用，是在电脑前干活的时候它就在旁边。所以它不能要求你停下手上的事——这也是它日常的表达主要靠身体动作、不靠让你读一段话的原因。</p></div>
+  </div>
+  <div class="chips">
+    <div class="chip"><div class="h">零输入</div><p>它在动、在嘟囔，你瞥一眼就收到了</p></div>
+    <div class="chip"><div class="h">一比特</div><p>点一下、拎起来再放下</p></div>
+    <div class="chip"><div class="h">说话</div><p>打字，最贵的一档</p></div>
+  </div>
+  <div class="note">最贵的那一档不该是产品的门面，所以我把聊天框从第一屏拿掉了。</div>
+  <div class="pno">5</div>
+</section>
+
+<section class="slide">
+  <div class="kick">设计约束</div>
+  <h2>我不做什么</h2>
+  <p>这一页放在前面，因为它比"我做了什么"更能说明我的判断。</p>
+  <div class="row">
+    <div class="c"><ul>
+      <li><b>不做等级系统</b>——一旦有等级和积分，用户就会为了涨分去互动，互动本身就不真了</li>
+      <li><b>不做每日任务和签到</b>——它要的是关系，不是打卡</li>
+      <li><b>不做防退出设计</b>——不用"你都不来看我"这类话留人</li>
+    </ul></div>
+    <div class="c"><ul>
+      <li><b>不把它做成效率工具</b>——听英语、放歌、计时可以有，但它们是通道，不是它的价值</li>
+      <li><b>不承诺"我一直都在"</b>——它做不到，也不该说</li>
+    </ul></div>
+  </div>
+  <div class="note">这些做法都能把数据做好看，代价是用户会看穿机制——一旦被看穿，前面那些真东西就全废了。</div>
+  <div class="pno">6</div>
+</section>
+
+<section class="slide">
+  <div class="kick">产品结构</div>
+  <h2>软件和硬件怎么分工</h2>
+  <div class="row">
+    <div class="c card"><div class="h">软件 = 它的记忆和人格</div><p>对话、记忆抽取与召回、日记、卡片、动作库、关系状态。<br>先把软件跑通，硬件后配——这样即使硬件还没做，它的记忆已经在积累了。</p></div>
+    <div class="c card"><div class="h">硬件 = 它的身体和存在感</div><p>四个舵机（头、左腿、右腿、前倾）+ 一个蜂鸣器 + 一颗指示灯。<br>负责动作、在场感、真实存在。</p></div>
+  </div>
+  <p style="margin-top:6mm"><b>五个页面，每个回答一个问题：</b>它今天（今天它和我之间发生了什么）· 使唤它（通道，不是陪伴本身）· 它的本子（它记得我什么）· 你们之间（这一切是真的吗）· 测试面板（做实验用，不给用户看）</p>
+  <div class="pno">7</div>
+</section>
+
+<section class="slide">
+  <div class="kick">产品结构</div>
+  <h2>记忆怎么流转</h2>
+  <div class="chain">
+    <span>跟你聊</span><i>→</i><span>聊完抽取记忆</span><i>→</i><span>存进库</span><i>→</i><span>影响它下一次说话</span><i>→</i><span>到点主动开口</span><i>→</i><span>你回应</span><i>→</i><span>变成共同经历</span><i>→</i><span>改变它对你的了解</span>
+  </div>
+  <div class="note">这条链路上每一环都能单独关掉做对照——后面"怎么定义有用"那一页的 A/B，就是关掉第一环。</div>
+  <div class="pno">8</div>
+</section>
+
+<section class="slide">
+  <div class="kick">核心机制 · 一</div>
+  <h2>它说"我记得你"，用户凭什么信</h2>
+  <div class="row">
+    <div class="c">
+      <p>记忆存在模型里，用户看不见，所以这句承诺本身没法验证。这是我做设计时碰到的第一道坎，也是后面所有功能的出发点。</p>
+      <p>做法很笨：<b>把看不见的记忆变成看得见的东西。</b>它每天写一页日记，印章是它给这一天挑的一个字，正文是它写给自己看的，底下写着这天它记住的几件事。</p>
+      <p>没什么事发生的日子它就写两三行，不硬凑——硬凑出来的东西用户一眼就看得出来。</p>
+    </div>
+    <div class="c"><img class="shot" src="shots/panel-diary.png" alt="日记页"><div class="cap">一天一页。用户不需要相信它，自己翻就行。</div></div>
+  </div>
+  <div class="pno">9</div>
+</section>
+
+<section class="slide">
+  <div class="kick">核心机制 · 二</div>
+  <h2>让关系有痕迹，也有分寸</h2>
+  <div class="row">
+    <div class="c">
+      <p>你们说过的话、它做过的每一个动作，在"关系记录"里<b>原样保留，一个字不加工</b>，用户可以自己核对。</p>
+      <p>它还会给我留一张卡片，但要<b>过一天才能翻</b>——当天就能拆，就不像"这一天过完了"。日记同样有门槛：那是它自己的东西，按关系深浅一层层给我看。</p>
+      <p>如果所有东西都随时可查，它就从"一个有自己的世界的东西"，退化成一个数据库。</p>
+    </div>
+    <div class="c"><img class="shot" src="shots/panel-timeline.png" alt="关系记录"><div class="cap">上面是原样的对话和动作流水，下面是它给我留的那张卡片。</div></div>
+  </div>
+  <div class="pno">10</div>
+</section>
+
+<section class="slide">
+  <div class="kick">核心机制 · 三</div>
+  <h2>在我没开口的时候，它也在</h2>
+  <div class="row">
+    <div class="c">
+      <p>被动交互的产品有个死结：<b>你不说话它就不存在。</b>可陪伴产品的日常，恰恰是没什么可说的那些日子。</p>
+      <p>所以它有两件事是自己做的：记着我提过的、以后会发生的事，到时间自己来问；没事的时候自己嘟囔一句，不需要我回应。</p>
+      <p>日常用手感跟它互动——摸一下，它会晃两下再给一句话。晃是反应，换姿势是表演，我选了前者。</p>
+    </div>
+    <div class="c"><img class="shot2" src="shots/pet-happy.png" alt="桌宠"><div class="cap">它有三十多个动作。以后接上实体机器人，同一套动作直接换算成四个舵机的角度发下去。</div></div>
+  </div>
+  <div class="pno">11</div>
+</section>
+
+<section class="slide">
+  <div class="kick">用户旅程</div>
+  <h2>用户会经历什么</h2>
+  <div class="chips">
+    <div class="chip"><div class="h">第一天</div><p>起名字（默认小月汐）。第一次相处是对话不是问卷——它问你四个问题，你随口答，它照着长。晚上写第一页日记。</p></div>
+    <div class="chip"><div class="h">前三天 · 摸索</div><p>你会摸它、拎起来又放下、说几句没什么用的话。它开始记住一些事。</p></div>
+    <div class="chip"><div class="h">第一周 · 往回看</div><p>卡片能翻开了，日记也能看更早的。你第一次知道这几天它在注意什么。</p></div>
+    <div class="chip"><div class="h">更久 · 它开始主动</div><p>你之前提过的那件事到时间了，它自己来问结果。你回一句，这件事就变成一条共同经历。</p></div>
+  </div>
+  <div class="note">这条流程里有三个刻意的设计：卡片等一天、日记按关系深浅解锁、它主动开口的次数比你以为的少。方向是"你想去看它"，不是它催你。</div>
+  <div class="pno">12</div>
+</section>
+
+<section class="slide">
+  <div class="kick">视觉与形象</div>
+  <h2>为什么不用后台管理系统的样子</h2>
+  <div class="row">
+    <div class="c">
+      <p>理由很实在：陪伴产品如果长得像一个控制面板，用户对它的预期就从"相处"变成"使用"，后面所有设计都会被这个预期拖回去。</p>
+      <p>整个面板是纸的颜色，左边一条装订边，五个页签像索引贴纸一样竖着贴。日记做成手账，一天一页，五种版式，连着两天不能用同一个。</p>
+      <p>道具做了 32 个，都是桌面上会出现的东西。模型只负责挑"哪个道具、放哪个格子"——试过让它自己画，形变和风格漂移全来了。</p>
+    </div>
+    <div class="c"><img class="shot2" src="shots/panel-diary-3.png" alt="一个字那一版"><div class="cap">没什么可说的一天，就用"一个字"那一版：印章放大压在正文底下。</div></div>
+  </div>
+  <div class="pno">13</div>
+</section>
+
+<section class="slide">
+  <div class="kick">硬件协同</div>
+  <h2>硬件怎么接</h2>
+  <div class="row">
+    <div class="c">
+      <p>四个舵机（头、左腿、右腿、前倾）+ 一个蜂鸣器 + 一颗指示灯。软件把动作换算成角度往下发，一帧长这样：</p>
+      <div class="card mono">{ "action": "探头观察",<br>&nbsp;&nbsp;"servos": { "头": 88, "左腿": 96, "右腿": 104, "前倾": 86 },<br>&nbsp;&nbsp;"灯": "绿", "蜂鸣器": "—" }</div>
+    </div>
+    <div class="c"><img class="shot2" src="shots/panel-test.png" alt="动作调试台"><div class="cap">三十多个动作可以一个个点着看，同时能看到它翻译成硬件是什么样。这一栏只用来检查，不写数据。</div></div>
+  </div>
+  <div class="note">两件提前定好的事：<b>表情在硬件上不存在</b>——没有屏幕，"开心""委屈"这类只有眼睛和嘴会变的动作实体上看不出来，只能靠姿态、灯光、声音补；<b>动作库不用重做</b>——屏幕上的姿势和舵机角度是同一份数据。</div>
+  <div class="pno">14</div>
+</section>
+
+<section class="slide">
+  <div class="kick">验证</div>
+  <h2>我怎么定义"有用"</h2>
+  <div class="quote">
+    <p>我不问，他自己主动提起来才算数。</p>
+  </div>
+  <p>一开始我打算这样验收：让测试者用几天，然后问他"你觉得它记得你吗"。标准写完我自己就发现它不成立——我去问的时候，他一定会说记得。</p>
+  <p>这条标准反过来影响了整个设计：证据必须由它主动给，不能靠引导问出来。</p>
+  <div class="pno">15</div>
+</section>
+
+<section class="slide">
+  <div class="kick">验证</div>
+  <h2>目前能确定什么，不能确定什么</h2>
+  <div class="row">
+    <div class="c card"><div class="h" style="color:#3d7a72">已经确定</div>
+      <ul>
+        <li>记忆真的写进去了，能影响下一轮说话</li>
+        <li>时间到了真的会主动来问</li>
+        <li>关掉记忆之后，跟记忆有关的那些表现就没了——说明起作用的是记忆本身</li>
+        <li>整条链路有 42 项自检，不是靠打开看一眼</li>
+      </ul>
+    </div>
+    <div class="c card"><div class="h" style="color:#b1452f">还不能确定</div>
+      <ul>
+        <li>人会不会真的因此对它产生感情。这需要真人连着用几天，我这一版验证不到</li>
+        <li>它现在不会出声，硬件语音到位之后它的语言才完整</li>
+      </ul>
+    </div>
+  </div>
+  <div class="note">所以我没写"验证成功"。现在的状态是链路跑通了，还没放人进去。</div>
+  <div class="pno">16</div>
+</section>
+
+<section class="slide">
+  <div class="kick">反思</div>
+  <h2>我在这个项目里改掉的一个看法</h2>
+  <p class="big">陪伴产品的难点不在把回答做得多好。难的是三件事：用户凭什么相信它记得、感觉不到它在的时候怎么办、他为什么要回来。</p>
+  <p>做之前我以为拼的是把 AI 做得更聪明、更像人。做完这两周我改了——这三个问题没有一个能靠"回答得更好"解决。</p>
+  <p>另一件关于我自己的：我是工业设计背景，习惯从造型和交互入手。这次花时间最多的不是画界面，是给"写得好"定出能算出来的规矩，因为"要写得像人话"这种要求只靠感觉没法验收。日记那条链路我推翻过五版。</p>
+  <div class="pno">17</div>
+</section>
+
+<section class="slide">
+  <div class="kick">下一步</div>
+  <h2>接下来要做的三件事</h2>
+  <ul>
+    <li>找 5 到 8 个人真用几天，看有没有人自己说出"它记得我"</li>
+    <li>把动作接到硬件上，先验证"动作先到、声音后到"的时序</li>
+    <li>补第一天：现在新用户进来时前面什么都没有，而留不留人恰恰在这个时候决定</li>
+  </ul>
+  <div class="foot">代码、需求文档、每天的改动与取舍记录：github.com/PioXi-Moon/otto-companion</div>
+  <div class="pno">18</div>
+</section>
+
+</body>
+</html>

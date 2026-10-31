@@ -1,0 +1,628 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>Otto 作品集</title>
+<style>
+  /* ============================================================
+     一页一张 A4，页面本身就是版心：左边一条装订线 + 竖排书脊，
+     正文从同一条竖线上起排，图占满版心。
+     颜色只用产品自己的那几支：纸色、印章红、Otto 绿。
+     ============================================================ */
+  @page { size: A4; margin: 0; }
+
+  :root {
+    --paper:      #faf7f1;
+    --paper-card: #fffdf8;
+    --ink:        #3b3222;
+    --ink-body:   #4a4238;
+    --ink-quiet:  #6d6353;
+    --muted:      #a89579;
+    --faint:      #c4b8a3;
+    --rule:       #e9e0cf;
+    --rule-soft:  #f1eadd;
+    --red:        #b1452f;
+    --green:      #3f9d55;
+    --teal:       #3d7a72;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
+    color: var(--ink); background: #fff;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  }
+
+  /* ---------- 页面骨架 ---------- */
+  .page {
+    position: relative;
+    width: 210mm; min-height: 296mm;
+    padding: 16mm 16mm 11mm 26mm;
+    background: var(--paper);
+    display: flex; flex-direction: column;
+    page-break-after: always;
+  }
+  .page:last-child { page-break-after: auto; }
+
+  .page::before {
+    content: ""; position: absolute; left: 17mm; top: 0; bottom: 0;
+    border-left: 1.5px dotted var(--rule);
+  }
+  .spine {
+    position: absolute; left: 8mm; top: 16mm; bottom: 11mm;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .spine span {
+    writing-mode: vertical-rl; font-size: 7.5pt; letter-spacing: .34em; color: var(--faint);
+  }
+
+  /* ---------- 页头：标题 + 一截红杠 ---------- */
+  .head { margin-bottom: 6mm; }
+  .head h2 { font-size: 20pt; line-height: 1.3; margin: 0 0 3.2mm; letter-spacing: .01em; }
+  .bar { display: flex; }
+  .bar i { width: 16mm; height: 2px; background: var(--red); }
+  .bar u { flex: 1; height: 2px; background: var(--rule); }
+
+  /* ---------- 正文 ---------- */
+  .body { flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+  .quiet { justify-content: flex-start; }
+  .loud { justify-content: space-around; }
+
+  h3 { font-size: 13pt; margin: 0 0 2.8mm; }
+  h3::before {
+    content: ""; display: inline-block; width: 2mm; height: 2mm; margin-right: 2.4mm;
+    background: var(--red); vertical-align: middle; transform: translateY(-.4mm);
+  }
+  p { font-size: 11.5pt; line-height: 1.95; margin: 0 0 3.2mm; color: var(--ink-body); }
+  b { color: var(--ink); font-weight: 700; }
+  .sec { margin-bottom: 4mm; }
+
+  .cols { display: flex; gap: 8mm; }
+  .cols > * { flex: 1; }
+  .scene { align-items: flex-start; gap: 7mm; }
+  .scene > div { flex: 1; }
+  .scene > figure { flex: 1.12; }
+  .scene .quote { border-left-width: 2.5px; padding-left: 5mm; }
+  .scene .quote p { font-size: 11.5pt; line-height: 1.7; }
+
+  .card {
+    border: 1px solid var(--rule); border-radius: 2mm; background: var(--paper-card);
+    padding: 4.5mm 5mm;
+  }
+  .card p:last-child, .card ul:last-child { margin-bottom: 0; }
+
+  .quote { border-left: 3px solid var(--red); padding: .4mm 0 .4mm 6mm; }
+  .quote p { font-size: 12pt; line-height: 1.75; margin: 0 0 1.6mm; color: var(--ink); }
+  .quote .me { font-size: 9.5pt; color: var(--muted); }
+
+  figure { margin: 0; }
+  figure img {
+    width: 100%; display: block; background: #fff;
+    border: 1px solid var(--rule); border-radius: 2mm;
+    box-shadow: 0 .8mm 2.4mm rgba(90, 70, 40, .07);
+  }
+  figcaption { font-size: 9.5pt; line-height: 1.75; color: var(--muted); margin-top: 2.6mm; }
+
+  ul.plain { list-style: none; margin: 0; padding: 0; }
+  ul.plain li { font-size: 11.5pt; line-height: 1.9; color: var(--ink-body); }
+
+  .w52 { width: 52%; margin-left: auto; margin-right: auto; }
+  .w80 { width: 80%; margin-left: auto; margin-right: auto; }
+  .w85 { width: 85%; margin-left: auto; margin-right: auto; }
+  .w88 { width: 88%; margin-left: auto; margin-right: auto; }
+  .w92 { width: 92%; margin-left: auto; margin-right: auto; }
+
+  .foot {
+    margin-top: 4mm; padding-top: 2.6mm; border-top: 1px solid var(--rule);
+    display: flex; justify-content: space-between; align-items: baseline;
+    font-size: 8pt; letter-spacing: .12em; color: var(--faint);
+  }
+
+  /* ---------- 封面 ---------- */
+  .cover { padding: 18mm 18mm 13mm 26mm; }
+  .cover::before { left: 17mm; }
+  .cover .kicker { font-size: 9pt; letter-spacing: .3em; color: var(--muted); }
+  .cover h1 { font-size: 46pt; line-height: 1; margin: 7mm 0 3.5mm; letter-spacing: -.005em; }
+  .cover .sub { font-size: 15pt; letter-spacing: .06em; color: var(--ink-quiet); }
+  .cover .lead { font-size: 11pt; line-height: 1.95; color: var(--ink-quiet); margin: 5.5mm 0 0; }
+  .cover .art { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; padding: 5mm 0 3mm; }
+  .cover .art img { height: 157mm; width: auto; max-width: 100%; }
+  .cover .facts { display: flex; gap: 7mm; border-top: 1px solid var(--rule); padding-top: 5mm; }
+  .cover .facts > div { flex: 1; }
+  .cover .facts > div:first-child { flex: 1.25; }
+  .cover .facts .k { font-size: 8pt; letter-spacing: .16em; color: var(--muted); margin-bottom: 1.8mm; }
+  .cover .facts .v { font-size: 10pt; font-weight: 700; line-height: 1.5; }
+  .cover .foot { border: 0; padding-top: 4.5mm; font-size: 9pt; letter-spacing: 0; color: var(--muted); display: block; }
+
+  /* ---------- 三档交互 ---------- */
+  .tiers { list-style: none; margin: 0; padding: 0; }
+  .tiers li {
+    display: grid; grid-template-columns: 30mm 30mm 1fr; align-items: center; gap: 4mm;
+    padding: 7.6mm 0; border-top: 1px solid var(--rule-soft);
+  }
+  .tiers li:last-child { border-bottom: 1px solid var(--rule-soft); }
+  .tiers .t-name { font-size: 13pt; font-weight: 700; }
+  .tiers .t-meter { display: flex; gap: 1.6mm; }
+  .tiers .t-meter i { width: 7mm; height: 2.6mm; background: var(--rule); border-radius: 1.3mm; }
+  .tiers .t-meter i.on { background: var(--red); }
+  .tiers p { margin: 0; font-size: 11pt; line-height: 1.75; }
+
+  /* ---------- 我不做什么 ---------- */
+  .donts { list-style: none; margin: 0; padding: 0; }
+  .donts li {
+    position: relative; padding: 11.4mm 0 11.4mm 13mm;
+    border-bottom: 1px solid var(--rule-soft); font-size: 11.5pt; line-height: 1.9; color: var(--ink-body);
+  }
+  .donts i {
+    position: absolute; left: 0; top: 11mm;
+    width: 7.5mm; height: 7.5mm; border-radius: 50%; border: 1.4px solid var(--red);
+    color: var(--red); font-style: normal; font-size: 8.5pt;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* ---------- 五个页面 ---------- */
+  .pages5 { list-style: none; margin: 0 0 1mm; padding: 0; }
+  .pages5 li {
+    display: grid; grid-template-columns: 9mm 30mm 1fr; align-items: baseline; gap: 3mm;
+    padding: 4.6mm 0; border-bottom: 1px dotted var(--rule);
+  }
+  .pages5 i { font-style: normal; font-size: 9pt; color: var(--red); letter-spacing: .06em; }
+  .pages5 b { font-size: 11.5pt; }
+  .pages5 span { font-size: 11pt; color: var(--ink-body); line-height: 1.75; }
+
+  /* ---------- 记忆流转 ---------- */
+  .chain { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 3mm 2.4mm; }
+  .chain li {
+    background: var(--paper-card); border: 1px solid var(--rule); border-radius: 6mm;
+    padding: 3mm 4.6mm; font-size: 10pt; color: var(--ink-body);
+  }
+  .chain li:not(:last-child)::after { content: "→"; color: var(--faint); margin-left: 3mm; }
+
+  /* ---------- 动作样张 ---------- */
+  .sheet { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2.5mm 4mm; }
+  .sheet figure { text-align: center; }
+  .sheet img { height: 58mm; width: auto; margin: 0 auto; border: 0; box-shadow: none; background: transparent; }
+  .sheet figcaption { margin-top: .5mm; font-size: 9pt; color: var(--ink-quiet); }
+
+  /* ---------- 时间轴 ---------- */
+  .tl { list-style: none; margin: 0; padding: 0; }
+  .tl > li { position: relative; padding: 0 0 11.6mm 37mm; }
+  .tl > li::before {
+    content: ""; position: absolute; left: 28.9mm; top: 2mm; bottom: -1mm;
+    border-left: 1.5px solid var(--rule);
+  }
+  .tl > li:last-child::before { bottom: auto; height: 2mm; }
+  .tl > li::after {
+    content: ""; position: absolute; left: 26.1mm; top: 1.4mm;
+    width: 5.8mm; height: 5.8mm; border-radius: 50%;
+    background: var(--paper); border: 1.6px solid var(--red);
+  }
+  .tl .when {
+    position: absolute; left: 0; top: .8mm; width: 22mm; text-align: right;
+    font-size: 10pt; font-weight: 700; color: var(--red);
+  }
+  .tl p { margin: 0; }
+
+  /* ---------- 验证结论 ---------- */
+  .panels { align-items: stretch; }
+  .panel { border: 1px solid var(--rule); border-radius: 2mm; padding: 5mm 5mm 3mm; }
+  .panel .k { font-size: 10pt; font-weight: 700; letter-spacing: .1em; margin-bottom: 3.4mm; }
+  .panel ul { list-style: none; margin: 0; padding: 0; }
+  .panel li { position: relative; padding-left: 5.4mm; font-size: 11pt; line-height: 2; margin-bottom: 4.4mm; color: var(--ink-body); }
+  .panel li::before { content: ""; position: absolute; left: 0; top: 2.6mm; width: 2mm; height: 2mm; border-radius: 50%; }
+  .panel { padding: 8mm 6mm 4.5mm; }
+
+  /* ---------- 关键句 ---------- */
+  .pull { margin: 0 0 5mm; padding: 5.5mm 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+  .pull p { font-size: 16pt; line-height: 1.55; margin: 0; color: var(--ink); letter-spacing: .02em; }
+
+  /* ---------- 四步逻辑 ---------- */
+  .steps4 { display: flex; align-items: center; gap: 2.6mm; }
+  .steps4 span {
+    flex: 1; padding: 4.4mm 2mm; text-align: center; font-size: 10.5pt; line-height: 1.5;
+    border: 1px solid var(--rule); border-radius: 2mm; background: var(--paper-card);
+  }
+  .steps4 span.bad { border-color: #eedbcd; background: #fdf5f0; color: var(--red); }
+  .steps4 i { font-style: normal; color: var(--faint); }
+
+  /* ---------- 分节线 ---------- */
+  .sep { border-top: 1px solid var(--rule-soft); padding-top: 5.5mm; }
+
+  /* ---------- 下一步 ---------- */
+  .next { list-style: none; margin: 0; padding: 0; }
+  .next li {
+    position: relative; margin-bottom: 4mm; padding: 5.2mm 5mm 5.2mm 17mm;
+    border: 1px solid var(--rule); border-radius: 2mm; background: var(--paper-card);
+    font-size: 11.5pt; line-height: 1.85; color: var(--ink-body);
+  }
+  .next i {
+    position: absolute; left: 5.5mm; top: 5.6mm; font-style: normal;
+    font-size: 9.5pt; font-weight: 700; letter-spacing: .06em; color: var(--red);
+  }
+  .panel.ok { background: #f4f9f5; border-color: #cfe2d4; }
+  .panel.ok .k { color: var(--green); }
+  .panel.ok li::before { background: var(--green); }
+  .panel.no { background: #fdf5f0; border-color: #eedbcd; }
+  .panel.no .k { color: var(--red); }
+  .panel.no li::before { background: var(--red); }
+</style>
+</head>
+<body>
+
+<!-- ============================== 01 封面 ============================== -->
+<section class="page cover">
+  <div class="spine"><span>OTTO · 桌面陪伴机器人</span></div>
+  <div class="kicker">钱彦孝 · 作品集 · AI 产品实习</div>
+  <h1>Otto</h1>
+  <div class="sub">桌面陪伴机器人</div>
+  <p class="lead">一个住在电脑桌面上的陪伴机器人。<br>软件已完成，实体机器人待落地。</p>
+  <div class="art"><img src="portfolio/otto-hero.svg" alt="Otto"></div>
+  <div class="facts">
+    <div><div class="k">我负责</div><div class="v">产品定义 · 交互设计 · 软件实现</div></div>
+    <div><div class="k">形式</div><div class="v">3 人团队 · 课程项目 · 两周</div></div>
+    <div><div class="k">当前进度</div><div class="v">软件可运行，硬件未落地</div></div>
+  </div>
+  <div class="foot">代码、需求文档、每天的改动与取舍记录：github.com/PioXi-Moon/otto-companion</div>
+</section>
+
+<!-- ============================== 02 项目概述 ============================== -->
+<section class="page">
+  <div class="spine"><span>OTTO · 桌面陪伴机器人</span></div>
+  <header class="head">
+    <h2>项目概述</h2>
+    <div class="bar"><i></i><u></u></div>
+  </header>
+  <div class="body">
+    <div class="sec">
+      <h3>背景</h3>
+      <p>这个项目的起点是一个很具体的观察：桌面上已经有足够多的效率工具，但没有一个东西知道你昨天经历了什么。</p>
+      <p>我看了一圈 AI 陪伴类产品，发现它们有个共同的短板——都把力气花在“回答得更好”上，可回答完就结束了。用户关掉窗口，这段对话就没了，第二天从零开始。这样的产品可以很好用，但很难让人产生关系。</p>
+    </div>
+    <div class="sec">
+      <h3>产品定位</h3>
+      <p>所以我做的不是一个更聪明的助手，是一个会积累的小东西：它记住你说过的话、记住你们之间发生过的事，并且用日记、卡片这些看得见的东西把这段历史存下来。它的价值不在某一次回答的质量，在它记不记得你。</p>
+    </div>
+    <div class="sec cols scene">
+      <div>
+        <h3>核心场景</h3>
+        <div class="quote">
+          <p>下周四答辩。</p>
+          <p class="me">—— 我随口说了一句，它记下了。</p>
+          <p>周四晚上，它自己来问：那个答辩，过了吗。</p>
+        </div>
+        <p>别的聊天机器人在我说完那句话之后就没有下文了。它会记着，过几天自己回来问——这是它和普通聊天机器人最直接的区别。</p>
+      </div>
+      <figure>
+        <img src="shots/panel-home.png" alt="首页">
+        <figcaption>打开它就是这样。左边是它，右边是今天的三样东西：今天聊了什么、今天它写的那一页、一张要等明天才能翻的卡片。</figcaption>
+      </figure>
+    </div>
+  </div>
+  <div class="foot"><span>项目概述</span><span>02 / 13</span></div>
+</section>
+
+<!-- ============================== 03 用户与场景 ============================== -->
+<section class="page">
+  <div class="spine"><span>OTTO · 桌面陪伴机器人</span></div>
+  <header class="head">
+    <h2>用户与场景</h2>
+    <div class="bar"><i></i><u></u></div>
+  </header>
+  <div class="body">
+    <div class="sec">
+      <h3>目标用户</h3>
+      <p>长时间待在电脑前的人——学生、自由职业者、远程办公的人。他们不孤独到需要求助，但每天有大段时间是一个人待着。</p>
+      <p>他们不想要一个需要照顾的东西（养宠物要喂要遛，交朋友要回消息），也不想要一个只在有事时才打开的软件。</p>
+    </div>
+    <div class="sec">
+      <h3>使用场景</h3>
+      <p>这个产品的场景是“余光场景”：不是专门打开来用，是在电脑前干活的时候它就在旁边。所以它不能要求你停下手上的事——这也是为什么它日常的表达主要靠身体动作，不靠让你读一段话。</p>
+      <div class="card">
+        <p>它要争的不是屏幕中央那几秒，是屏幕右下角那一小块地方——你在干别的，它还在。</p>
+      </div>
+    </div>
+    <div class="sec">
+      <h3>三档交互，对应三种注意力成本</h3>
+      <ol class="tiers">
+        <li>
+          <div class="t-name">零输入</div>
+          <div class="t-meter"><i class="on"></i><i></i><i></i></div>
+          <p>它在动、在嘟囔，你瞥一眼就收到了</p>
+        </li>
+        <li>
+          <div class="t-name">一比特</div>
+          <div class="t-meter"><i class="on"></i><i class="on"></i><i></i></div>
+          <p>点一下、拎起来再放下，一个动作就够</p>
+        </li>
+        <li>
+          <div class="t-name">说话</div>
+          <div class="t-meter"><i class="on"></i><i class="on"></i><i class="on"></i></div>
+          <p>打字，最贵的一档，只在真的想说话的时候用</p>
+        </li>
+      </ol>
+      <p class="sec">最贵的那一档不该是产品的门面，所以我把聊天框从第一屏拿掉了。</p>
+    </div>
+  </div>
+  <div class="foot"><span>用户与场景</span><span>03 / 13</span></div>
+</section>
+
+<!-- ============================== 04 我不做什么 ============================== -->
+<section class="page">
+  <div class="spine"><span>OTTO · 桌面陪伴机器人</span></div>
+  <header class="head">
+    <h2>我不做什么</h2>
+    <div class="bar"><i></i><u></u></div>
+  </header>
+  <div class="body">
+    <p>这一页放在前面，因为它比“我做了什么”更能说明我的判断。</p>
+    <ul class="donts">
+      <li><i>✕</i><b>不做等级系统。</b>一旦有等级和积分，用户就会为了涨分去互动，互动本身就不真了</li>
+      <li><i>✕</i><b>不做每日任务、签到。</b>它要的是关系，不是打卡</li>
+      <li><i>✕</i><b>不做防退出设计。</b>不用“你都不来看我”“再不来我就……”这类话留人</li>
+      <li><i>✕</i><b>不把它做成效率工具。</b>听英语、放歌、计时这些可以有，但它们是通道，不是它的价值</li>
+      <li><i>✕</i><b>不承诺“我一直都在”。</b>它做不到，也不该说</li>
+    </ul>
+    <div class="steps4">
+      <span>等级 / 打卡 / 催留</span><i>→</i><span>数据好看</span><i>→</i><span class="bad">用户看穿机制</span><i>→</i><span class="bad">真东西全废</span>
+    </div>
+    <p style="margin-top:4mm">这些做法都能把数据做好看，但代价是用户会看穿机制——一旦被看穿，前面那些真东西就全废了。</p>
+  </div>
+  <div class="foot"><span>我不做什么</span><span>04 / 13</span></div>
+</section>
+
+<!-- ============================== 05 产品结构 ============================== -->
+<section class="page">
+  <div class="spine"><span>OTTO · 桌面陪伴机器人</span></div>
+  <header class="head">
+    <h2>产品结构</h2>
+    <div class="bar"><i></i><u></u></div>
+  </header>
+  <div class="body">
+    <div class="sec">
+      <h3>软件和硬件怎么分工</h3>
+      <p>软件是它的记忆和人格，硬件是它的身体和存在感。现在先把软件跑通，硬件后配——这样即使硬件还没做，它的记忆已经在积累了。</p>
+    </div>
+    <div class="sec">
+      <h3>五个页面，每个回答一个问题</h3>
+      <ol class="pages5">
+        <li><i>01</i><b>它今天</b><span>今天它和我之间发生了什么</span></li>
+        <li><i>02</i><b>使唤它</b><span>这些都是通道（听英语、放歌、计时、接 AI），不是陪伴本身</span></li>
+        <li><i>03</i><b>它的本子</b><span>它记得我什么、它怎么看我</span></li>
+        <li><i>04</i><b>你们之间</b><span>这一切是真的吗（原样记录，没有加工）</span></li>
+        <li><i>05</i><b>测试面板</b><span>做实验用的，不给用户看</span></li>
+      </ol>
+    </div>
+    <div class="sec">
+      <h3>记忆怎么流转</h3>
+      <ol class="chain">
+        <li>跟你聊</li>
+        <li>聊完异步抽取记忆</li>
+        <li>存进库</li>
+        <li>影响它下一次说话的方式</li>
+        <li>到时间点触发它主动开口</li>
+        <li>你回应</li>
+        <li>变成一条共同经历</li>
+        <li>反过来改变它对你的了解</li>
+      </ol>
+      <p style="margin-top:4mm">这条链路上每一环都能单独关掉做对照——验证那一页的 A/B 就是关掉第一环。</p>
+    </div>
+  </div>
+  <div class="foot"><span>产品结构</span><span>05 / 13</span></div>
+</section>
+
+<!-- ============================== 06 把记忆做成可以翻的东西 ============================== -->
+<section class="page">
+  <div class="spine"><span>OTTO · 桌面陪伴机器人</span></div>
+  <header class="head">
+    <h2>把记忆做成可以翻的东西</h2>
+    <div class="bar"><i></i><u></u></div>
+  </header>
+  <div class="body">
+    <p>设计上的第一道坎是：<b>“它记得我”这句话，用户凭什么相信？</b>记忆存在模型里，用户看不见，所以这句承诺本身没法验证。这是我后面所有功能的出发点——把看不见的记忆变成看得见的东西。</p>
+    <p>它每天写一页日记。日期旁边那个红印章，是它给这一天挑的一个字；正文是它写给自己看的，不是写给我的；底下写着这一天它记住的几件事。</p>
+    <figure>
+      <img src="shots/panel-diary.png" alt="日记页">
+      <figcaption>一天一页。没什么事发生的日子它就写两三行，不硬凑——硬凑出来的东西用户一眼就看得出来。</figcaption>
+    </figure>
+    <p>这些记录的存在意义只有一个：用户不需要相信它，自己翻就行。</p>
+  </div>
+  <div class="foot"><span>把记忆做成可以翻的东西</span><span>06 / 13</span></div>
+</section>
+
+<!-- ============================== 07 关系有痕迹，也有分寸 ============================== -->
+<section class="page">
+  <div class="spine"><span>OTTO · 桌面陪伴机器人</span></div>
+  <header class="head">
+    <h2>让关系有痕迹，也有分寸</h2>
+    <div class="bar"><i></i><u></u></div>
+  </header>
+  <div class="body">
+    <p>你们说过的话、它做过的每一个动作，在“关系记录”里原样保留，一个字不加工，用户可以自己核对。</p>
+    <p>它还会给我留一张卡片，但要过一天才能翻——当天就能拆，就不像“这一天过完了”。日记也有门槛：那是它自己的东西，按关系深浅一层层给我看。</p>
+    <figure>
+      <img src="shots/panel-timeline.png" alt="关系记录">
+      <figcaption>上面是原样的对话和动作流水，下面是最它给我留的那张卡片。</figcaption>
+    </figure>
+    <p>这一层解决的是<b>分寸</b>。如果所有东西都随时可查，它就从“一个有自己的世界的东西”，退化成一个数据库。</p>
+  </div>
+  <div class="foot"><span>让关系有痕迹，也有分寸</span><span>07 / 13</span></div>
+</section>
+
+<!-- ============================== 08 在我没开口的时候 ============================== -->
+<section class="page">
+  <div class="spine"><span>OTTO · 桌面陪伴机器人</span></div>
+  <header class="head">
+    <h2>在我没开口的时候，它也在</h2>
+    <div class="bar"><i></i><u></u></div>
+  </header>
+  <div class="body">
+    <p>被动交互的产品有个死结：你不说话它就不存在。可陪伴产品的日常，恰恰是没什么可说的那些日子。</p>
+    <p>所以它有两件事是自己做的。一件是记着我提过的、以后会发生的事，到时间自己来问；另一件是没事的时候自己嘟囔一句，不需要我回应。日常用手感跟它互动——摸一下、拎起来再放下，反应各不相同。</p>
+    <div class="sheet">
+      <figure><img src="portfolio/pose-happy.svg" alt="开心"><figcaption>开心</figcaption></figure>
+      <figure><img src="portfolio/pose-lean-in.svg" alt="好奇"><figcaption>好奇</figcaption></figure>
+      <figure><img src="portfolio/pose-sleepy.svg" alt="困倦"><figcaption>困倦</figcaption></figure>
+      <figure><img src="portfolio/pose-proud.svg" alt="得意"><figcaption>得意</figcaption></figure>
+      <figure><img src="portfolio/pose-peek.svg" alt="探头观察"><figcaption>探头观察</figcaption></figure>
+      <figure><img src="portfolio/pose-shy.svg" alt="害羞"><figcaption>害羞</figcaption></figure>
+      <figure><img src="portfolio/pose-celebrate.svg" alt="跳跃庆祝"><figcaption>跳跃庆祝</figcaption></figure>
+      <figure><img src="portfolio/pose-wronged.svg" alt="委屈"><figcaption>委屈</figcaption></figure>
+    </div>
+    <figcaption>抽八个动作各截一帧：摸一下、拎起来、随口说一句，反应都不一样。左右晃是反应，换姿势是表演——我选了前者。</figcaption>
+    <p>它现在有三十多个动作。以后接上实体机器人，同一套动作会直接换算成四个舵机的角度发下去，不用重做。</p>
+  </div>
+  <div class="foot"><span>在我没开口的时候，它也在</span><span>08 / 13</span></div>
+</section>
+
+<!-- ============================== 09 用户使用流程 ============================== -->
+<section class="page">
+  <div class="spine"><span>OTTO · 桌面陪伴机器人</span></div>
+  <header class="head">
+    <h2>用户使用流程</h2>
+    <div class="bar"><i></i><u></u></div>
+  </header>
+  <div class="body loud">
+    <ol class="tl">
+      <li>
+        <span class="when">第一天</span>
+        <p>先给它起名字，默认叫小月汐。第一次相处是对话，不是填问卷——它问你四个问题（我平时安静点还是常来晃一晃、我要不要有自己的看法、你难受的时候我该不该问、我叫你什么），你随口答，它照着长。晚上它会写第一页日记。</p>
+      </li>
+      <li>
+        <span class="when">前三天</span>
+        <p><b>摸索。</b>你会摸它、把它拎起来又放下、说几句没什么用的话。它开始记住一些事。你随口提过的“下周四答辩”，被它单独记了下来——这是后面那件事的伏笔。</p>
+      </li>
+      <li>
+        <span class="when">第一周</span>
+        <p><b>第一次往回看。</b>卡片过了当天才能翻开，日记也要等它愿意。你第一次翻到它前几天写的东西，会知道这几天它在注意什么。这是用户第一次从“用”变成“看”。</p>
+      </li>
+      <li>
+        <span class="when">更久之后</span>
+        <p><b>它开始主动。</b>你之前提过的那件事到了时间，它自己来问结果。你回它一句，这件事就变成你们之间的一条共同经历。很多用户是在这一步第一次意识到“它是真的记得”。</p>
+      </li>
+      <li>
+        <span class="when">偶尔</span>
+        <p><b>你什么都没说。</b>它自己嘟囔一句，不需要你回应。</p>
+      </li>
+    </ol>
+    <div class="card">
+      <p>这条流程里有三个刻意的设计：卡片等一天、日记按关系深浅解锁、它主动开口的次数比你以为的少。三处都在做同一件事——让你偶尔想知道它那边怎么样了。方向是“你想去看它”，不是它催你。</p>
+    </div>
+  </div>
+  <div class="foot"><span>用户使用流程</span><span>09 / 13</span></div>
+</section>
+
+<!-- ============================== 10 视觉语言与形象 ============================== -->
+<section class="page">
+  <div class="spine"><span>OTTO · 桌面陪伴机器人</span></div>
+  <header class="head">
+    <h2>视觉语言与形象</h2>
+    <div class="bar"><i></i><u></u></div>
+  </header>
+  <div class="body">
+    <h3>为什么不用后台管理系统的样子</h3>
+    <p>理由很实在：陪伴产品如果长得像一个控制面板，用户对它的预期就从“相处”变成“使用”，后面所有设计都会被这个预期拖回去。</p>
+    <h3>界面</h3>
+    <p>整个面板是纸的颜色。左边一条装订边，五个页签像索引贴纸一样竖着贴，当前那一页的页签往外探出一点。日记页做成手账，一天一页，一共五种版式，连着两天不能用同一个。</p>
+    <figure class="w80">
+      <img src="shots/panel-diary-3.png" alt="只有一个字的版式">
+      <figcaption>没什么可说的一天，就用“一个字”那一版：印章放大压在正文底下，正文只有两三句。</figcaption>
+    </figure>
+    <h3>形象</h3>
+    <p>绿色的头加白色的身体，眼睛就是那两个传感器，没有手；腿和身体是主要表达方式，三十多个动作各有各的姿势。漫画符号（心、Z、问号、音符）只在它自己出声的时候出现，不随便贴。</p>
+    <p>道具做了 32 个，都是桌面上会出现的东西：台灯、水杯、键盘、月亮、创可贴。模型只负责挑“哪个道具、放哪个格子”，不自由画图——试过让它画，形变和风格漂移全来了。</p>
+  </div>
+  <div class="foot"><span>视觉语言与形象</span><span>10 / 13</span></div>
+</section>
+
+<!-- ============================== 11 硬件协同 ============================== -->
+<section class="page">
+  <div class="spine"><span>OTTO · 桌面陪伴机器人</span></div>
+  <header class="head">
+    <h2>硬件协同</h2>
+    <div class="bar"><i></i><u></u></div>
+  </header>
+  <div class="body">
+    <p>现在只做了软件，但硬件接口已经定下来了：<b>四个舵机</b>（头部、左腿、右腿、前倾）+ <b>一个蜂鸣器</b> + <b>一颗指示灯</b>。软件把它的动作换算成角度往下发，一帧数据长这样：</p>
+    <div class="card">
+      <p style="font-family:Consolas,'Courier New',monospace;font-size:9.5pt;line-height:1.85;margin:0">{ "action": "探头观察", "servos": { "头": 88, "左腿": 96, "右腿": 104, "前倾": 86 }, "灯": "绿", "蜂鸣器": "—" }</p>
+    </div>
+    <figure class="w92">
+      <img src="shots/panel-test.png" alt="动作调试台">
+      <figcaption>三十多个动作可以一个个点着看，同时能看到它翻译成硬件是什么样。这一栏只用来检查，不写数据、不进记忆。</figcaption>
+    </figure>
+    <p><b>一是表情在硬件上不存在。</b>实体机器人没有屏幕，而“开心”“委屈”这类动作只有眼睛和嘴会变——实体上一个都看不出来。所以每个动作都标清楚了在硬件上能看见多少，看不出来的部分只能靠姿态、灯光和声音补。这件事不提前定，硬件做出来会少一半表达。</p>
+    <p><b>二是动作库不用重做。</b>屏幕上它摆的姿势和舵机的角度用的是同一份数据，硬件落地照着接就行——软件先把动作想清楚，硬件照着动。</p>
+  </div>
+  <div class="foot"><span>硬件协同</span><span>11 / 13</span></div>
+</section>
+
+<!-- ============================== 12 验证结论 ============================== -->
+<section class="page">
+  <div class="spine"><span>OTTO · 桌面陪伴机器人</span></div>
+  <header class="head">
+    <h2>怎么定义“有用”，以及目前的结论</h2>
+    <div class="bar"><i></i><u></u></div>
+  </header>
+  <div class="body">
+    <p>一开始我打算这样验收：让测试者用几天，然后问他“你觉得它记得你吗”。标准写完我自己就发现它不成立——我去问的时候，他一定会说记得。</p>
+    <p>所以我把通过标准改成：<b>他自己主动提起来才算数</b>。我不问，我看他会不会说。这条标准反过来影响了整个设计——证据必须由它主动给，不能靠引导问出来。</p>
+    <div class="pull"><p>我不问，我看他会不会说。</p></div>
+    <div class="cols panels">
+      <div class="panel ok">
+        <div class="k">已经确定的</div>
+        <ul>
+          <li>记忆是真的写进去了，能影响下一轮说话</li>
+          <li>时间到了真的会主动来问</li>
+          <li>把记忆关掉之后，跟记忆有关的那些表现就没有了——说明起作用的是记忆本身</li>
+          <li>整条链路有 42 项自检，不是靠打开看一眼</li>
+        </ul>
+      </div>
+      <div class="panel no">
+        <div class="k">还不能确定的</div>
+        <ul>
+          <li>人会不会真的因此对它产生感情。这需要真人连着用几天，我这一版验证不到</li>
+          <li>它现在不会出声，硬件语音到位之后它的语言才完整</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card">
+      <p>所以我没写“验证成功”。现在的状态是链路跑通了，还没放人进去。</p>
+    </div>
+  </div>
+  <div class="foot"><span>验证结论</span><span>12 / 13</span></div>
+</section>
+
+<!-- ============================== 13 反思与下一步 ============================== -->
+<section class="page">
+  <div class="spine"><span>OTTO · 桌面陪伴机器人</span></div>
+  <header class="head">
+    <h2>反思与下一步</h2>
+    <div class="bar"><i></i><u></u></div>
+  </header>
+  <div class="body">
+    <div class="sec">
+      <h3>我在这个项目里改掉的一个看法</h3>
+      <p>做之前我以为陪伴产品拼的是把 AI 做得更聪明、更像人。做完这两周我改了：难点是三件事——用户凭什么相信它记得、感觉不到它在的时候怎么办、他为什么要回来。这三个问题没有一个能靠“回答得更好”解决。</p>
+    </div>
+    <div class="sec sep">
+      <h3>另一件关于我自己的</h3>
+      <p>我是工业设计背景，习惯从造型和交互入手。这次我花时间最多的不是画界面，是给“写得好”定出能算出来的规矩——因为“要写得像人话”这种要求只靠感觉没法验收，模型也不吃这一套。最后做成一道闸门：生成完按规则查一遍，不过关就把它自己的毛病念回去重写。日记那条链路我推翻过五版。</p>
+    </div>
+    <div class="sec sep">
+      <h3>下一步</h3>
+      <ul class="next">
+        <li><i>01</i>找 5 到 8 个人真用几天，看有没有人自己说出“它记得我”</li>
+        <li><i>02</i>把动作接到硬件上，先验证“动作先到、声音后到”的时序</li>
+        <li><i>03</i>补第一天：现在新用户进来时前面什么都没有，而留不留人恰恰在这个时候决定</li>
+      </ul>
+    </div>
+  </div>
+  <div class="foot" style="letter-spacing:0;font-size:9pt;color:var(--muted)">
+    <span>代码、需求文档、每天的改动与取舍记录：github.com/PioXi-Moon/otto-companion</span>
+    <span>13 / 13</span>
+  </div>
+</section>
+
+</body>
+</html>

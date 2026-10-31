@@ -3,6 +3,7 @@
  * 用法：pnpm shot   （需要服务已经在 7788 跑着）
  *      pnpm shot -- --only diary,props   只拍名字里带这些字的那几张
  */
+import "../electron/quiet-stdio.mjs"; // 管子被掐断时别让 EPIPE 变成弹窗，见 quiet-stdio.mjs 顶部注释
 import { app, BrowserWindow } from "electron";
 import fs from "node:fs";
 import path from "node:path";
@@ -55,6 +56,24 @@ const shots = [
     bg: "#f6f7f9",
     eval: `[...document.querySelectorAll('.tab')].find(b => b.dataset.tab === 'tools').click()`,
     settle: 1200,
+  },
+  {
+    name: "panel-music",
+    path: "/?shot=1",
+    width: 1040,
+    height: 820,
+    bg: "#f6f7f9",
+    eval: `[...document.querySelectorAll('.tab')].find(b => b.dataset.tab === 'music').click()`,
+    settle: 1200,
+  },
+  {
+    name: "panel-words",
+    path: "/?shot=1",
+    width: 1040,
+    height: 900,
+    bg: "#f6f7f9",
+    eval: `[...document.querySelectorAll('.tab')].find(b => b.dataset.tab === 'words').click()`,
+    settle: 1600,
   },
   {
     name: "panel-timeline",

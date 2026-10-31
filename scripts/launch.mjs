@@ -50,9 +50,6 @@ if (state === "other") {
   die(`端口 ${PORT} 被别的程序占着，Otto 起不来。\n  跑一下「关闭 Otto.bat」清干净，或者改 .env 里的 OTTO_PORT。`);
 }
 
-if (!fs.existsSync(path.join(ROOT, ".env"))) {
-  die("没找到 .env。先复制 .env.example 成 .env，把 DEEPSEEK_API_KEY 填上。");
-}
 if (!fs.existsSync(electronExe)) {
   die("没找到 electron。先在工程目录里跑一次 pnpm install。");
 }

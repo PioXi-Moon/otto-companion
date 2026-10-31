@@ -1,0 +1,2128 @@
+{
+  "source": {
+    "name": "ECDICT",
+    "url": "https://github.com/skywind3000/ECDICT",
+    "license": "MIT",
+    "note": "音标与中文释义来自 ECDICT；主题分组和应用内学习流程由 Otto 整理。"
+  },
+  "builtAt": "2026-10-28T03:17:17.319Z",
+  "decks": [
+    {
+      "id": "daily",
+      "label": "日常高频",
+      "description": "每天都会遇见，先把最常用的词装进口袋",
+      "words": [
+        {
+          "word": "about",
+          "phonetic": "/ә'baut/",
+          "pos": "",
+          "meaning": "prep. 在...周围；大约；有关；关于；adv. 大约；四处；在附近；周围",
+          "definition": "s. on the move",
+          "level": "Oxford 3000",
+          "rank": 63
+        },
+        {
+          "word": "after",
+          "phonetic": "/'ɑ:ftә/",
+          "pos": "",
+          "meaning": "prep. 在...之后；由于；conj. 在...之后",
+          "definition": "s. located farther aft",
+          "level": "Oxford 3000",
+          "rank": 96
+        },
+        {
+          "word": "again",
+          "phonetic": "/ә'gein/",
+          "pos": "",
+          "meaning": "adv. 再一次；又；到原处",
+          "definition": "r. anew",
+          "level": "Oxford 3000",
+          "rank": 156
+        },
+        {
+          "word": "always",
+          "phonetic": "/'ɒ:lweiz/",
+          "pos": "",
+          "meaning": "adv. 总是；始终",
+          "definition": "r. at all times; all the time and on every occasion",
+          "level": "Oxford 3000",
+          "rank": 185
+        },
+        {
+          "word": "answer",
+          "phonetic": "/'ɑ:nsә/",
+          "pos": "",
+          "meaning": "n. 答案；回答；回报；答辩；vt. 回答；反驳；适应；响应",
+          "definition": "n. a statement (either spoken or written) that is made to reply to a question or request or criticism or accusation",
+          "level": "Oxford 3000",
+          "rank": 808
+        },
+        {
+          "word": "around",
+          "phonetic": "/ә'raund/",
+          "pos": "",
+          "meaning": "prep. 包围；在...周围；四处；adv. 兜着圈子；在附近；到处",
+          "definition": "r. by a circular or circuitous route",
+          "level": "Oxford 3000",
+          "rank": 397
+        },
+        {
+          "word": "because",
+          "phonetic": "/bi'kɒ:z/",
+          "pos": "",
+          "meaning": "conj. 因为",
+          "definition": "conj. By or for the cause that; on this account that; for the",
+          "level": "Oxford 3000",
+          "rank": 101
+        },
+        {
+          "word": "before",
+          "phonetic": "/bi'fɒ:/",
+          "pos": "",
+          "meaning": "prep. 在...之前；conj. 在...之前",
+          "definition": "r earlier in time; previously",
+          "level": "Oxford 3000",
+          "rank": 198
+        },
+        {
+          "word": "bring",
+          "phonetic": "/briŋ/",
+          "pos": "",
+          "meaning": "vt. 带来；产生；促使；提出；vi. 生产",
+          "definition": "v. take something or somebody with oneself somewhere",
+          "level": "Oxford 3000",
+          "rank": 195
+        },
+        {
+          "word": "call",
+          "phonetic": "/kɒ:l/",
+          "pos": "",
+          "meaning": "n. 呼叫；访问；打电话；号召；vt. 呼叫；召集；打电话",
+          "definition": "n. a telephone connection",
+          "level": "Oxford 3000",
+          "rank": 161
+        },
+        {
+          "word": "change",
+          "phonetic": "/tʃeindʒ/",
+          "pos": "",
+          "meaning": "n. 变化；找回的零钱；找头；更换；vt. 改变；更换；兑换",
+          "definition": "n. an event that occurs when something passes from one state or phase to another",
+          "level": "Oxford 3000",
+          "rank": 226
+        },
+        {
+          "word": "choose",
+          "phonetic": "/tʃu:z/",
+          "pos": "",
+          "meaning": "vt. 选择；宁愿；欲；vi. 作出选择；愿意",
+          "definition": "v. pick out, select, or choose from a number of alternatives",
+          "level": "Oxford 3000",
+          "rank": 594
+        },
+        {
+          "word": "during",
+          "phonetic": "/'djuәriŋ/",
+          "pos": "",
+          "meaning": "prep. 在...的时候",
+          "definition": "prep. In the time of; as long as the action or existence of;",
+          "level": "Oxford 3000",
+          "rank": 192
+        },
+        {
+          "word": "enough",
+          "phonetic": "/i'nʌf/",
+          "pos": "",
+          "meaning": "n. 充足；够；很多；a. 充足的；足够",
+          "definition": "n. an adequate quantity; a quantity that is large enough to achieve a purpose",
+          "level": "Oxford 3000",
+          "rank": 378
+        },
+        {
+          "word": "every",
+          "phonetic": "/'evri/",
+          "pos": "",
+          "meaning": "a. 每一；所有的",
+          "definition": "s. (used of count nouns) each and all of the members of a group considered singly and without exception",
+          "level": "Oxford 3000",
+          "rank": 210
+        },
+        {
+          "word": "feel",
+          "phonetic": "/fi:l/",
+          "pos": "",
+          "meaning": "vt. 感觉；觉得；触摸；以为；vi. 有知觉；摸索；同情",
+          "definition": "n. an intuitive awareness;",
+          "level": "Oxford 3000",
+          "rank": 135
+        },
+        {
+          "word": "find",
+          "phonetic": "/faind/",
+          "pos": "",
+          "meaning": "vt. 发现；感到；找到；认为；vi. 裁决",
+          "definition": "v. come upon, as if by accident; meet with",
+          "level": "Oxford 3000",
+          "rank": 92
+        },
+        {
+          "word": "follow",
+          "phonetic": "/'fɒlәu/",
+          "pos": "",
+          "meaning": "vt. 跟随；沿行；遵循；追求；vi. 跟随；接着",
+          "definition": "v. to travel behind, go after, come after",
+          "level": "Oxford 3000",
+          "rank": 186
+        },
+        {
+          "word": "friend",
+          "phonetic": "/frend/",
+          "pos": "",
+          "meaning": "n. 朋友；支持者；赞助者",
+          "definition": "n. a person you know well and regard with affection and trust",
+          "level": "Oxford 3000",
+          "rank": 281
+        },
+        {
+          "word": "help",
+          "phonetic": "/help/",
+          "pos": "",
+          "meaning": "n. 帮忙；帮助者；补救办法；有益的东西；vt. 帮助；帮忙；接济；治疗",
+          "definition": "v. give help or assistance; be of service",
+          "level": "Oxford 3000",
+          "rank": 204
+        },
+        {
+          "word": "idea",
+          "phonetic": "/ai'diә/",
+          "pos": "",
+          "meaning": "n. 主意；办法；理想；思想",
+          "definition": "n. the content of cognition; the main thing you are thinking about",
+          "level": "Oxford 3000",
+          "rank": 268
+        },
+        {
+          "word": "keep",
+          "phonetic": "/ki:p/",
+          "pos": "",
+          "meaning": "n. 生计；维持；保持；vt. 保持；保存；遵守；看守",
+          "definition": "n. the main tower within the walls of a medieval castle or fortress",
+          "level": "Oxford 3000",
+          "rank": 171
+        },
+        {
+          "word": "learn",
+          "phonetic": "/lә:n/",
+          "pos": "",
+          "meaning": "vt. 学习；认识到；得知",
+          "definition": "v. gain knowledge or skills",
+          "level": "Oxford 3000",
+          "rank": 520
+        },
+        {
+          "word": "maybe",
+          "phonetic": "/'meibi:/",
+          "pos": "",
+          "meaning": "adv. 也许；大概；n. 可能性",
+          "definition": "r by chance",
+          "level": "Oxford 3000",
+          "rank": 955
+        },
+        {
+          "word": "need",
+          "phonetic": "/ni:d/",
+          "pos": "",
+          "meaning": "n. 需要；必须；缺乏；vt. 需要；必需",
+          "definition": "n. a condition requiring relief",
+          "level": "Oxford 3000",
+          "rank": 132
+        },
+        {
+          "word": "open",
+          "phonetic": "/'әupәn/",
+          "pos": "",
+          "meaning": "n. 公开；户外；空旷；a. 开着的；开放的；开阔的；营业着的",
+          "definition": "n. a clear or unobstructed space or expanse of land or water",
+          "level": "Oxford 3000",
+          "rank": 403
+        },
+        {
+          "word": "people",
+          "phonetic": "/'pi:pl/",
+          "pos": "",
+          "meaning": "n. 人；人民；民族；平民；vt. 使住满人；居住于",
+          "definition": "n. (plural) any group of human beings (men or women or children) collectively",
+          "level": "Oxford 3000",
+          "rank": 75
+        },
+        {
+          "word": "place",
+          "phonetic": "/pleis/",
+          "pos": "",
+          "meaning": "n. 地方；地点；位置；住所；vt. 放置；寄予；认出；评定",
+          "definition": "n. any area set aside for a particular purpose",
+          "level": "Oxford 3000",
+          "rank": 162
+        },
+        {
+          "word": "right",
+          "phonetic": "/rait/",
+          "pos": "",
+          "meaning": "n. 权利；右边；正义；右派；a. 正确的；对的；恰当的；正常的",
+          "definition": "n. an abstract idea of that which is due to a person or governmental body by law or tradition or nature; it is something that nobody can take away\"",
+          "level": "Oxford 3000",
+          "rank": 244
+        },
+        {
+          "word": "start",
+          "phonetic": "/stɑ:t/",
+          "pos": "",
+          "meaning": "n. 惊起；出发；开端；起点；vi. 开始；出发；启动；跳起",
+          "definition": "n. the beginning of anything",
+          "level": "Oxford 3000",
+          "rank": 205
+        },
+        {
+          "word": "still",
+          "phonetic": "/stil/",
+          "pos": "",
+          "meaning": "n. 蒸馏室；寂静；剧照；v. 蒸馏；(使)平静；(使)静止",
+          "definition": "n. a static photograph (especially one taken from a movie and used for advertising purposes)",
+          "level": "Oxford 3000",
+          "rank": 112
+        },
+        {
+          "word": "take",
+          "phonetic": "/teik/",
+          "pos": "",
+          "meaning": "vt. 拿；取；抓；带领；vi. 吃掉对方棋子；抓住；起作用；依法获得财产",
+          "definition": "n. the act of photographing a scene or part of a scene without interruption",
+          "level": "Oxford 3000",
+          "rank": 51
+        },
+        {
+          "word": "talk",
+          "phonetic": "/tɒ:k/",
+          "pos": "",
+          "meaning": "n. 谈话；交谈；会谈；讲话；vi. 讲话；演讲；说话；谈话",
+          "definition": "n. an exchange of ideas via conversation",
+          "level": "Oxford 3000",
+          "rank": 289
+        },
+        {
+          "word": "think",
+          "phonetic": "/θiŋk/",
+          "pos": "",
+          "meaning": "vt. 想；考虑；想起；想像；vi. 思考；料想",
+          "definition": "n. an instance of deliberate thinking",
+          "level": "Oxford 3000",
+          "rank": 64
+        },
+        {
+          "word": "time",
+          "phonetic": "/taim/",
+          "pos": "",
+          "meaning": "n. 时间；时侯；时机；时期；vt. 测定...的时间；记录...的时间；计时；定时",
+          "definition": "n. an instance or single occasion for some event",
+          "level": "Oxford 3000",
+          "rank": 50
+        },
+        {
+          "word": "together",
+          "phonetic": "/tә'geðә/",
+          "pos": "",
+          "meaning": "adv. 一起；共同；彼此",
+          "definition": "s. mentally and emotionally stable",
+          "level": "Oxford 3000",
+          "rank": 288
+        },
+        {
+          "word": "try",
+          "phonetic": "/trai/",
+          "pos": "",
+          "meaning": "n. 尝试；试验；审理；审判；vt. 试；尝试；试验；考验",
+          "definition": "v. make an effort or attempt",
+          "level": "Oxford 3000",
+          "rank": 159
+        },
+        {
+          "word": "walk",
+          "phonetic": "/wɒ:k/",
+          "pos": "",
+          "meaning": "n. 走；散步；步行；行走的路程；vi. 走路；步行；处世",
+          "definition": "n. the act of traveling by foot",
+          "level": "Oxford 3000",
+          "rank": 458
+        },
+        {
+          "word": "want",
+          "phonetic": "/wɒnt/",
+          "pos": "",
+          "meaning": "n. 需要的东西；缺乏；贫困；需要；vt. 要；希望；应该；缺少",
+          "definition": "v. have need of",
+          "level": "Oxford 3000",
+          "rank": 94
+        },
+        {
+          "word": "way",
+          "phonetic": "/wei/",
+          "pos": "",
+          "meaning": "n. 路；路线；路途；方法；adv. 远远地；非常",
+          "definition": "n. the condition of things generally",
+          "level": "Oxford 3000",
+          "rank": 86
+        }
+      ]
+    },
+    {
+      "id": "campus",
+      "label": "校园学习",
+      "description": "课堂、作业、考试和那些需要慢慢弄懂的事",
+      "words": [
+        {
+          "word": "assignment",
+          "phonetic": "/ә'sainmәnt/",
+          "pos": "",
+          "meaning": "n. 作业；任务；分配",
+          "definition": "n. a duty that you are assigned to perform (especially in the armed forces)",
+          "level": "高频",
+          "rank": 3817
+        },
+        {
+          "word": "attention",
+          "phonetic": "/ә'tenʃәn/",
+          "pos": "",
+          "meaning": "n. 注意；注意力",
+          "definition": "n. the process whereby a person concentrates on some features of the environment to the (relative) exclusion of others",
+          "level": "Oxford 3000",
+          "rank": 714
+        },
+        {
+          "word": "campus",
+          "phonetic": "/'kæmpәs/",
+          "pos": "",
+          "meaning": "n. 校园；大学生活",
+          "definition": "n. a field on which the buildings of a university are situated",
+          "level": "常用",
+          "rank": 8068
+        },
+        {
+          "word": "chapter",
+          "phonetic": "/'tʃæptә/",
+          "pos": "",
+          "meaning": "n. 章；篇；重要章节",
+          "definition": "n. a subdivision of a written work; usually numbered and titled",
+          "level": "Oxford 3000",
+          "rank": 593
+        },
+        {
+          "word": "classroom",
+          "phonetic": "/'klɑ:sru:m/",
+          "pos": "",
+          "meaning": "n. 教室",
+          "definition": "n. a room in a school where lessons take place",
+          "level": "Oxford 3000",
+          "rank": 2842
+        },
+        {
+          "word": "course",
+          "phonetic": "/kɒ:s/",
+          "pos": "",
+          "meaning": "n. 课程；路线；过程；一道菜；v. 追；(使)跑",
+          "definition": "n. education imparted in a series of lessons or meetings",
+          "level": "Oxford 3000",
+          "rank": 347
+        },
+        {
+          "word": "degree",
+          "phonetic": "/di'gri:/",
+          "pos": "",
+          "meaning": "n. 程度；度数；学位；度",
+          "definition": "n. a position on a scale of intensity or amount or quality",
+          "level": "Oxford 3000",
+          "rank": 763
+        },
+        {
+          "word": "discuss",
+          "phonetic": "/dis'kʌs/",
+          "pos": "",
+          "meaning": "vt. 讨论；论述",
+          "definition": "n an athletic competition in which a disk-shaped object is thrown as far as possible",
+          "level": "Oxford 3000",
+          "rank": 661
+        },
+        {
+          "word": "essay",
+          "phonetic": "/'esei. e'sei/",
+          "pos": "",
+          "meaning": "n. 随笔；短文；评论；企图；vt. 试图",
+          "definition": "n. an analytic or interpretive literary composition",
+          "level": "Oxford 3000",
+          "rank": 3147
+        },
+        {
+          "word": "exam",
+          "phonetic": "/ig'zæm/",
+          "pos": "",
+          "meaning": "n. 考试；测验",
+          "definition": "n a set of questions or exercises evaluating skill or knowledge",
+          "level": "Oxford 3000",
+          "rank": 4174
+        },
+        {
+          "word": "explain",
+          "phonetic": "/ik'splein/",
+          "pos": "",
+          "meaning": "v. 解释；说明",
+          "definition": "v. make plain and comprehensible",
+          "level": "Oxford 3000",
+          "rank": 518
+        },
+        {
+          "word": "grade",
+          "phonetic": "/greid/",
+          "pos": "",
+          "meaning": "n. 等级；年级；阶段；成绩；vt. 分等；分级；评分",
+          "definition": "n. a relative position or degree of value in a graded group",
+          "level": "Oxford 3000",
+          "rank": 2822
+        },
+        {
+          "word": "homework",
+          "phonetic": "/'hәumwә:k/",
+          "pos": "",
+          "meaning": "n. 家庭作业；家里做的工作",
+          "definition": "n. preparatory school work done outside school (especially at home)",
+          "level": "Oxford 3000",
+          "rank": 6447
+        },
+        {
+          "word": "improve",
+          "phonetic": "/im'pru:v/",
+          "pos": "",
+          "meaning": "vt. 改良；提高...的价值；改善；利用；vi. 变得更好；增加",
+          "definition": "v to make better",
+          "level": "Oxford 3000",
+          "rank": 903
+        },
+        {
+          "word": "knowledge",
+          "phonetic": "/'nɒlidʒ/",
+          "pos": "",
+          "meaning": "n. 知识；学问；认识；知道",
+          "definition": "n the psychological result of perception and learning and reasoning",
+          "level": "Oxford 3000",
+          "rank": 689
+        },
+        {
+          "word": "language",
+          "phonetic": "/'læŋgwidʒ/",
+          "pos": "",
+          "meaning": "n. 语言；文字；措辞",
+          "definition": "n. a systematic means of communicating by the use of sounds or conventional symbols",
+          "level": "Oxford 3000",
+          "rank": 436
+        },
+        {
+          "word": "lecture",
+          "phonetic": "/'lektʃә/",
+          "pos": "",
+          "meaning": "n. 演讲；谴责；讲稿；vt. 演讲；训诫；说教",
+          "definition": "n. a speech that is open to the public",
+          "level": "Oxford 3000",
+          "rank": 2588
+        },
+        {
+          "word": "lesson",
+          "phonetic": "/'lesn/",
+          "pos": "",
+          "meaning": "n. 课；课业；教训",
+          "definition": "n. a unit of instruction",
+          "level": "Oxford 3000",
+          "rank": 1953
+        },
+        {
+          "word": "library",
+          "phonetic": "/'laibrәri/",
+          "pos": "",
+          "meaning": "n. 图书馆；藏书；库",
+          "definition": "n. a room where books are kept",
+          "level": "Oxford 3000",
+          "rank": 967
+        },
+        {
+          "word": "major",
+          "phonetic": "/'meidʒә/",
+          "pos": "",
+          "meaning": "n. 主修课；成年人；陆军少校；a. 主要的；较多的；大部分的；成年的",
+          "definition": "n. a commissioned military officer in the United States Army or Air Force or Marines; below lieutenant colonel and above captain",
+          "level": "Oxford 3000",
+          "rank": 392
+        },
+        {
+          "word": "note",
+          "phonetic": "/nәut/",
+          "pos": "",
+          "meaning": "n. 笔记；记录；注解；票据；vt. 记录；注解；注意",
+          "definition": "n. a brief written record",
+          "level": "Oxford 3000",
+          "rank": 799
+        },
+        {
+          "word": "practice",
+          "phonetic": "/'præktis/",
+          "pos": "",
+          "meaning": "n. 实践；练习；实行；惯例；v. 实践；实行；练习；实习",
+          "definition": "n. a customary way of operation or behavior",
+          "level": "Oxford 3000",
+          "rank": 453
+        },
+        {
+          "word": "project",
+          "phonetic": "/'prɒdʒekt/",
+          "pos": "",
+          "meaning": "n. 计划；设计；事业；vt. 计划；设计；投掷；发射",
+          "definition": "n. a planned undertaking",
+          "level": "Oxford 3000",
+          "rank": 509
+        },
+        {
+          "word": "question",
+          "phonetic": "/'kwestʃәn/",
+          "pos": "",
+          "meaning": "n. 问题；询问；v. 询问；审问；怀疑",
+          "definition": "n. an instance of questioning",
+          "level": "Oxford 3000",
+          "rank": 221
+        },
+        {
+          "word": "reading",
+          "phonetic": "/'ri:diŋ/",
+          "pos": "",
+          "meaning": "n. 阅读；知识；读物；a. 阅读的",
+          "definition": "n. the cognitive process of understanding a written linguistic message",
+          "level": "Oxford 3000",
+          "rank": 1701
+        },
+        {
+          "word": "research",
+          "phonetic": "/ri'sә:tʃ/",
+          "pos": "",
+          "meaning": "n. 研究；调查；考察；vi. 研究；调查",
+          "definition": "n. systematic investigation to establish facts",
+          "level": "Oxford 3000",
+          "rank": 357
+        },
+        {
+          "word": "review",
+          "phonetic": "/ri'vju:/",
+          "pos": "",
+          "meaning": "n. 检讨；复习；回顾；检阅；vt. 温习；检讨；评论；再检察",
+          "definition": "n. an essay or article that gives a critical evaluation (as of a book or play)",
+          "level": "Oxford 3000",
+          "rank": 1128
+        },
+        {
+          "word": "science",
+          "phonetic": "/'saiәns/",
+          "pos": "",
+          "meaning": "n. 科学；学科；学问；自然科学",
+          "definition": "n. a particular branch of scientific knowledge",
+          "level": "Oxford 3000",
+          "rank": 794
+        },
+        {
+          "word": "student",
+          "phonetic": "/'stju:dnt/",
+          "pos": "",
+          "meaning": "n. 学生；研究者；学者",
+          "definition": "n. a learner who is enrolled in an educational institution",
+          "level": "Oxford 3000",
+          "rank": 432
+        },
+        {
+          "word": "study",
+          "phonetic": "/'stʌdi/",
+          "pos": "",
+          "meaning": "n. 学习；研究；学科；论文；vt. 学习；读书；研究；考虑",
+          "definition": "n. applying the mind to learning and understanding a subject (especially by reading)",
+          "level": "Oxford 3000",
+          "rank": 270
+        },
+        {
+          "word": "subject",
+          "phonetic": "/'sʌbdʒekt/",
+          "pos": "",
+          "meaning": "n. 科目；主题；臣民；主语；a. 服从的；易患...的；隶属的；受支配的",
+          "definition": "n. the subject matter of a conversation or discussion",
+          "level": "Oxford 3000",
+          "rank": 358
+        },
+        {
+          "word": "teacher",
+          "phonetic": "/'ti:tʃә/",
+          "pos": "",
+          "meaning": "n. 教师；老师；导师",
+          "definition": "n. a person whose occupation is teaching",
+          "level": "Oxford 3000",
+          "rank": 486
+        },
+        {
+          "word": "test",
+          "phonetic": "/test/",
+          "pos": "",
+          "meaning": "n. 测试；试验；化验；检验；vt. 测试；试验；化验",
+          "definition": "n. any standardized procedure for measuring sensitivity or memory or intelligence or aptitude or personality etc",
+          "level": "Oxford 3000",
+          "rank": 627
+        },
+        {
+          "word": "university",
+          "phonetic": "/.ju:ni'vә:siti/",
+          "pos": "",
+          "meaning": "n. 大学",
+          "definition": "n. the body of faculty and students at a university",
+          "level": "Oxford 3000",
+          "rank": 530
+        },
+        {
+          "word": "vocabulary",
+          "phonetic": "/vә'kæbjulәri/",
+          "pos": "",
+          "meaning": "n. 词汇(量)；词汇表",
+          "definition": "n. a listing of the words used in some enterprise",
+          "level": "Oxford 3000",
+          "rank": 4802
+        },
+        {
+          "word": "writing",
+          "phonetic": "/'raitiŋ/",
+          "pos": "",
+          "meaning": "n. 书写；著作；笔迹；作品",
+          "definition": "n. the act of creating written works",
+          "level": "Oxford 3000",
+          "rank": 1484
+        }
+      ]
+    },
+    {
+      "id": "emotion",
+      "label": "情绪关系",
+      "description": "说出感受，也听懂别人没有直接说出口的部分",
+      "words": [
+        {
+          "word": "afraid",
+          "phonetic": "/ә'freid/",
+          "pos": "",
+          "meaning": "a. 害怕的；恐怕的；遗憾的",
+          "definition": "a. filled with fear or apprehension",
+          "level": "Oxford 3000",
+          "rank": 1562
+        },
+        {
+          "word": "angry",
+          "phonetic": "/'æŋgri/",
+          "pos": "",
+          "meaning": "a. 生气的；愤怒的",
+          "definition": "a. feeling or showing anger",
+          "level": "Oxford 3000",
+          "rank": 2084
+        },
+        {
+          "word": "anxious",
+          "phonetic": "/'æŋʃәs/",
+          "pos": "",
+          "meaning": "a. 忧虑的；发愁的；渴望的",
+          "definition": "s. eagerly desirous",
+          "level": "Oxford 3000",
+          "rank": 2630
+        },
+        {
+          "word": "calm",
+          "phonetic": "/kɑ:m/",
+          "pos": "",
+          "meaning": "n. 平稳；风平浪静；a. 平静的；冷静的",
+          "definition": "v. make calm or still",
+          "level": "Oxford 3000",
+          "rank": 4472
+        },
+        {
+          "word": "care",
+          "phonetic": "/kєә/",
+          "pos": "",
+          "meaning": "n. 小心；照料；忧虑；vi. 关心；介意",
+          "definition": "n. the work of providing treatment for or attending to someone or something",
+          "level": "Oxford 3000",
+          "rank": 505
+        },
+        {
+          "word": "comfortable",
+          "phonetic": "/'kʌmfәtәbl/",
+          "pos": "",
+          "meaning": "a. 舒服的；轻松的；n. 盖被",
+          "definition": "a. providing or experiencing physical well-being or relief (`comfy' is informal)",
+          "level": "Oxford 3000",
+          "rank": 2195
+        },
+        {
+          "word": "concerned",
+          "phonetic": "/kәn'sә:nd/",
+          "pos": "",
+          "meaning": "a. 关心的；有关的；参与的；担心的",
+          "definition": "a. feeling or showing worry or solicitude",
+          "level": "Oxford 3000",
+          "rank": 629
+        },
+        {
+          "word": "confident",
+          "phonetic": "/'kɒnfidәnt/",
+          "pos": "",
+          "meaning": "a. 有信心的；有把握的",
+          "definition": "a. having or marked by confidence or assurance",
+          "level": "Oxford 3000",
+          "rank": 2580
+        },
+        {
+          "word": "confused",
+          "phonetic": "/kәn'fju:zd/",
+          "pos": "",
+          "meaning": "a. 困惑的；混乱的",
+          "definition": "s. lacking orderly continuity",
+          "level": "Oxford 3000",
+          "rank": 3616
+        },
+        {
+          "word": "curious",
+          "phonetic": "/'kjuәriәs/",
+          "pos": "",
+          "meaning": "a. 好奇的；求知的；古怪的",
+          "definition": "s. beyond or deviating from the usual or expected",
+          "level": "Oxford 3000",
+          "rank": 3304
+        },
+        {
+          "word": "excited",
+          "phonetic": "/ik'saitid/",
+          "pos": "",
+          "meaning": "a. 兴奋的；已励磁的；已激发的；激昂的",
+          "definition": "a. in an aroused state",
+          "level": "Oxford 3000",
+          "rank": 4106
+        },
+        {
+          "word": "grateful",
+          "phonetic": "/'greitful/",
+          "pos": "",
+          "meaning": "a. 感谢的；感激的；令人快意的；受欢迎的",
+          "definition": "a. feeling or showing gratitude",
+          "level": "Oxford 3000",
+          "rank": 2887
+        },
+        {
+          "word": "happy",
+          "phonetic": "/'hæpi/",
+          "pos": "",
+          "meaning": "a. 快乐的；幸福的；愉快的；恰当的",
+          "definition": "a. enjoying or showing or marked by joy or pleasure",
+          "level": "Oxford 3000",
+          "rank": 777
+        },
+        {
+          "word": "hopeful",
+          "phonetic": "/'hәupful/",
+          "pos": "",
+          "meaning": "n. 有希望之人；有前途之人；a. 有希望的；怀抱希望的；保持乐观的",
+          "definition": "a. having or manifesting hope",
+          "level": "常用",
+          "rank": 6877
+        },
+        {
+          "word": "lonely",
+          "phonetic": "/'lәunli/",
+          "pos": "",
+          "meaning": "a. 孤单的；孤寂的；荒凉的",
+          "definition": "s. marked by dejection from being alone",
+          "level": "Oxford 3000",
+          "rank": 3842
+        },
+        {
+          "word": "nervous",
+          "phonetic": "/'nә:vәs/",
+          "pos": "",
+          "meaning": "a. 神经紧张的；不安的；神经的",
+          "definition": "s. easily agitated",
+          "level": "Oxford 3000",
+          "rank": 2632
+        },
+        {
+          "word": "patient",
+          "phonetic": "/'peiʃәnt/",
+          "pos": "",
+          "meaning": "n. 病人；承受者；a. 忍耐的；容忍的；有耐性的；坚忍的",
+          "definition": "n. a person who requires medical care",
+          "level": "Oxford 3000",
+          "rank": 384
+        },
+        {
+          "word": "proud",
+          "phonetic": "/praud/",
+          "pos": "",
+          "meaning": "a. 骄傲的；自大的；自豪的；辉煌的",
+          "definition": "a. feeling self-respect or pleasure in something by which you measure your self-worth; or being a reason for pride",
+          "level": "Oxford 3000",
+          "rank": 2579
+        },
+        {
+          "word": "relaxed",
+          "phonetic": "/ri'lækst/",
+          "pos": "",
+          "meaning": "a. 松懈的；不严密的；不严格的；放松的",
+          "definition": "a. without strain or anxiety",
+          "level": "Oxford 3000",
+          "rank": 4460
+        },
+        {
+          "word": "sad",
+          "phonetic": "/sæd/",
+          "pos": "",
+          "meaning": "a. 忧愁的；悲哀的",
+          "definition": "a. experiencing or showing sorrow or unhappiness",
+          "level": "Oxford 3000",
+          "rank": 2373
+        },
+        {
+          "word": "shy",
+          "phonetic": "/ʃai/",
+          "pos": "",
+          "meaning": "n. 惊跳；惊避；a. 胆怯的；畏缩的；迟疑的；羞怯的",
+          "definition": "n. a quick throw",
+          "level": "Oxford 3000",
+          "rank": 5301
+        },
+        {
+          "word": "sorry",
+          "phonetic": "/'sɒri/",
+          "pos": "",
+          "meaning": "a. 难过的；悲哀的；遗憾的",
+          "definition": "a feeling or expressing regret or sorrow or a sense of loss over something done or undone",
+          "level": "Oxford 3000",
+          "rank": 870
+        },
+        {
+          "word": "surprised",
+          "phonetic": "/sә'praizd/",
+          "pos": "",
+          "meaning": "a. 感到惊讶的",
+          "definition": "a. taken unawares or suddenly and feeling wonder or astonishment",
+          "level": "Oxford 3000",
+          "rank": 1928
+        },
+        {
+          "word": "tired",
+          "phonetic": "/taiәd/",
+          "pos": "",
+          "meaning": "a. 疲累的；疲乏的；厌倦的",
+          "definition": "a. depleted of strength or energy",
+          "level": "Oxford 3000",
+          "rank": 2210
+        },
+        {
+          "word": "trust",
+          "phonetic": "/trʌst/",
+          "pos": "",
+          "meaning": "n. 信任；信赖；相信；受托；a. 信托的；托拉斯的",
+          "definition": "n. something (as property) held by one party (the trustee) for the benefit of another (the beneficiary)",
+          "level": "Oxford 3000",
+          "rank": 1160
+        },
+        {
+          "word": "upset",
+          "phonetic": "/ʌp'set/",
+          "pos": "",
+          "meaning": "a. 弄翻的；混乱的；心烦的；vt. 弄翻；颠覆；推翻；打乱",
+          "definition": "n. the act of disturbing the mind or body",
+          "level": "Oxford 3000",
+          "rank": 3776
+        },
+        {
+          "word": "worried",
+          "phonetic": "/'wʌrid/",
+          "pos": "",
+          "meaning": "a. 担心的；闷闷不乐的",
+          "definition": "v be worried, concerned, anxious, troubled, or uneasy",
+          "level": "Oxford 3000",
+          "rank": 2284
+        },
+        {
+          "word": "wonderful",
+          "phonetic": "/'wʌndәful/",
+          "pos": "",
+          "meaning": "a. 令人惊奇的；奇妙的；极好的",
+          "definition": "s extraordinarily good or great; used especially as intensifiers",
+          "level": "Oxford 3000",
+          "rank": 1864
+        }
+      ]
+    },
+    {
+      "id": "time",
+      "label": "时间计划",
+      "description": "约会、截止日期和把一天慢慢排好",
+      "words": [
+        {
+          "word": "appointment",
+          "phonetic": "/ә'pɒintmәnt/",
+          "pos": "",
+          "meaning": "n. 预约；约会；任命",
+          "definition": "n. the act of putting a person into a non-elective position",
+          "level": "Oxford 3000",
+          "rank": 1558
+        },
+        {
+          "word": "arrive",
+          "phonetic": "/ә'raiv/",
+          "pos": "",
+          "meaning": "vi. 到达；抵达",
+          "definition": "v. reach a destination; arrive by movement or progress",
+          "level": "Oxford 3000",
+          "rank": 708
+        },
+        {
+          "word": "calendar",
+          "phonetic": "/'kælindә/",
+          "pos": "",
+          "meaning": "n. 日历；日程表",
+          "definition": "n. a system of timekeeping that defines the beginning and length and divisions of the year",
+          "level": "高频",
+          "rank": 4695
+        },
+        {
+          "word": "clock",
+          "phonetic": "/klɒk/",
+          "pos": "",
+          "meaning": "n. 时钟；计时器；(袜子上的)绣花边花；vt. 绣花样；记时；记录",
+          "definition": "n. a timepiece that shows the time of day",
+          "level": "Oxford 3000",
+          "rank": 2543
+        },
+        {
+          "word": "daily",
+          "phonetic": "/'deili/",
+          "pos": "",
+          "meaning": "a. 每日的；日常的；adv. 每日地；日常地",
+          "definition": "n. a newspaper that is published every day",
+          "level": "Oxford 3000",
+          "rank": 1702
+        },
+        {
+          "word": "deadline",
+          "phonetic": "/'dedlain/",
+          "pos": "",
+          "meaning": "n. 截止日期；最后期限",
+          "definition": "n. the point in time at which something must be completed",
+          "level": "常用",
+          "rank": 5295
+        },
+        {
+          "word": "early",
+          "phonetic": "/'ә:li/",
+          "pos": "",
+          "meaning": "a. 早的；早熟的；adv. 很早；初",
+          "definition": "a. at or near the beginning of a period of time or course of events or before the usual or expected time",
+          "level": "Oxford 3000",
+          "rank": 245
+        },
+        {
+          "word": "evening",
+          "phonetic": "/'i:vniŋ/",
+          "pos": "",
+          "meaning": "n. 傍晚；晚间；末期",
+          "definition": "n. the latter part of the day (the period of decreasing daylight from late afternoon until nightfall)",
+          "level": "Oxford 3000",
+          "rank": 651
+        },
+        {
+          "word": "finish",
+          "phonetic": "/'finiʃ/",
+          "pos": "",
+          "meaning": "n. 完成；结束；末道漆；磨光；vt. 完成；结束；用完；毁掉",
+          "definition": "n. the place designated as the end (as of a race or journey)",
+          "level": "Oxford 3000",
+          "rank": 842
+        },
+        {
+          "word": "future",
+          "phonetic": "/'fju:tʃә/",
+          "pos": "",
+          "meaning": "n. 未来；将来；a. 将来的；未来的",
+          "definition": "n. the time yet to come",
+          "level": "Oxford 3000",
+          "rank": 639
+        },
+        {
+          "word": "habit",
+          "phonetic": "/'hæbit/",
+          "pos": "",
+          "meaning": "n. 习惯；嗜好；习性；vt. 使穿衣",
+          "definition": "n. an established custom",
+          "level": "Oxford 3000",
+          "rank": 2239
+        },
+        {
+          "word": "later",
+          "phonetic": "/'leitә/",
+          "pos": "",
+          "meaning": "adv. 以后；随后",
+          "definition": "s. coming at a subsequent time or stage",
+          "level": "Oxford 3000",
+          "rank": 279
+        },
+        {
+          "word": "minute",
+          "phonetic": "/'minit. mai'nju:t/",
+          "pos": "",
+          "meaning": "n. 分；分钟；片刻；备忘录；vt. 记录；摘录；测定时间",
+          "definition": "n. a unit of time equal to 60 seconds or 1/60th of an hour",
+          "level": "Oxford 3000",
+          "rank": 348
+        },
+        {
+          "word": "month",
+          "phonetic": "/mʌnθ/",
+          "pos": "",
+          "meaning": "n. 月",
+          "definition": "n. a time unit of approximately 30 days",
+          "level": "Oxford 3000",
+          "rank": 214
+        },
+        {
+          "word": "morning",
+          "phonetic": "/'mɒ:niŋ/",
+          "pos": "",
+          "meaning": "n. 早晨；早上；初期",
+          "definition": "n. the time period between dawn and noon",
+          "level": "Oxford 3000",
+          "rank": 445
+        },
+        {
+          "word": "plan",
+          "phonetic": "/plæn/",
+          "pos": "",
+          "meaning": "n. 计划；方案；策略；方法；vt. 计划；设计；意欲",
+          "definition": "n. a series of steps to be carried out or goals to be accomplished",
+          "level": "Oxford 3000",
+          "rank": 442
+        },
+        {
+          "word": "prepare",
+          "phonetic": "/pri'pєә/",
+          "pos": "",
+          "meaning": "vt. 准备；筹备；使在思想上有准备；制造；vi. 预备",
+          "definition": "v. to prepare verbally, either for written or spoken delivery",
+          "level": "Oxford 3000",
+          "rank": 893
+        },
+        {
+          "word": "remind",
+          "phonetic": "/ri'maind/",
+          "pos": "",
+          "meaning": "vt. 提醒；使想起",
+          "definition": "v. put in the mind of someone",
+          "level": "Oxford 3000",
+          "rank": 1700
+        },
+        {
+          "word": "repeat",
+          "phonetic": "/ri'pi:t/",
+          "pos": "",
+          "meaning": "n. 重复；反复；vt. 重做；重复；复述；使再现",
+          "definition": "n. an event that repeats",
+          "level": "Oxford 3000",
+          "rank": 1398
+        },
+        {
+          "word": "schedule",
+          "phonetic": "/'skedʒuәl/",
+          "pos": "",
+          "meaning": "n. 日程；v. 安排",
+          "definition": "n. an ordered list of times at which things are planned to occur",
+          "level": "Oxford 3000",
+          "rank": 2702
+        },
+        {
+          "word": "soon",
+          "phonetic": "/su:n/",
+          "pos": "",
+          "meaning": "adv. 不久；早；快；宁可",
+          "definition": "r. in the near future",
+          "level": "Oxford 3000",
+          "rank": 615
+        },
+        {
+          "word": "usually",
+          "phonetic": "/'ju:ʒuәli/",
+          "pos": "",
+          "meaning": "adv. 通常；大抵",
+          "definition": "r under normal conditions",
+          "level": "Oxford 3000",
+          "rank": 526
+        },
+        {
+          "word": "weekly",
+          "phonetic": "/'wi:kli/",
+          "pos": "",
+          "meaning": "n. 周刊；周报；a. 每周的；一周一次的；周刊的",
+          "definition": "n. a periodical that is published every week (or 52 issues per year)",
+          "level": "Oxford 3000",
+          "rank": 3186
+        },
+        {
+          "word": "yesterday",
+          "phonetic": "/'jestәdi/",
+          "pos": "",
+          "meaning": "n. 昨天；adv. 昨天",
+          "definition": "n. the day immediately before today",
+          "level": "Oxford 3000",
+          "rank": 513
+        }
+      ]
+    },
+    {
+      "id": "work",
+      "label": "工作科技",
+      "description": "屏幕、网络与每天都会碰到的数字工具",
+      "words": [
+        {
+          "word": "account",
+          "phonetic": "/ә'kaunt/",
+          "pos": "",
+          "meaning": "n. 账户；解释；v. 说明；占比",
+          "definition": "n. a formal contractual relationship established to provide for regular banking or brokerage or business services",
+          "level": "Oxford 3000",
+          "rank": 498
+        },
+        {
+          "word": "app",
+          "phonetic": "//",
+          "pos": "",
+          "meaning": "n. 应用；应用程序",
+          "definition": "",
+          "level": "常用",
+          "rank": 27993
+        },
+        {
+          "word": "battery",
+          "phonetic": "/'bætәri/",
+          "pos": "",
+          "meaning": "n. 电池",
+          "definition": "n. group of guns or missile launchers operated together at one place",
+          "level": "Oxford 3000",
+          "rank": 3400
+        },
+        {
+          "word": "browser",
+          "phonetic": "/'brauzә/",
+          "pos": "",
+          "meaning": "n. 浏览器",
+          "definition": "n. a viewer who looks around casually without seeking anything in particular",
+          "level": "常用",
+          "rank": 25100
+        },
+        {
+          "word": "button",
+          "phonetic": "/'bʌtәn/",
+          "pos": "",
+          "meaning": "n. 按钮；纽扣",
+          "definition": "n. a round fastener sewn to shirts and coats etc to fit through buttonholes",
+          "level": "Oxford 3000",
+          "rank": 2977
+        },
+        {
+          "word": "camera",
+          "phonetic": "/'kæmәrә/",
+          "pos": "",
+          "meaning": "n. 相机；摄像头",
+          "definition": "n. equipment for taking photographs (usually consisting of a lightproof box with a lens at one end and light-sensitive film at the other)",
+          "level": "Oxford 3000",
+          "rank": 2246
+        },
+        {
+          "word": "computer",
+          "phonetic": "/kәm'pju:tә/",
+          "pos": "",
+          "meaning": "n. 电脑；计算机",
+          "definition": "n. a machine for performing calculations automatically",
+          "level": "Oxford 3000",
+          "rank": 580
+        },
+        {
+          "word": "connect",
+          "phonetic": "/kә'nekt/",
+          "pos": "",
+          "meaning": "v. 连接；联络",
+          "definition": "v. connect, fasten, or put together two or more pieces",
+          "level": "Oxford 3000",
+          "rank": 2042
+        },
+        {
+          "word": "device",
+          "phonetic": "/di'vais/",
+          "pos": "",
+          "meaning": "n. 设备；装置",
+          "definition": "n. an instrumentality invented for a particular purpose",
+          "level": "Oxford 3000",
+          "rank": 1825
+        },
+        {
+          "word": "download",
+          "phonetic": "//",
+          "pos": "",
+          "meaning": "v. 下载",
+          "definition": "v. transfer a file or program from a central computer to a smaller computer or to a computer at a remote location",
+          "level": "常用",
+          "rank": 27269
+        },
+        {
+          "word": "email",
+          "phonetic": "/'i:'meil/",
+          "pos": "",
+          "meaning": "n. 电子邮件；v. 发电子邮件",
+          "definition": "n (computer science) a system of world-wide electronic communication in which a computer user can compose a message at one terminal that can be regenerated at the recipient's termi",
+          "level": "Oxford 3000",
+          "rank": null
+        },
+        {
+          "word": "file",
+          "phonetic": "/fail/",
+          "pos": "",
+          "meaning": "n. 文件；档案",
+          "definition": "n. a set of related records (either written or electronic) kept together",
+          "level": "Oxford 3000",
+          "rank": 1170
+        },
+        {
+          "word": "internet",
+          "phonetic": "/'intәnet/",
+          "pos": "",
+          "meaning": "n. 互联网",
+          "definition": "n. a computer network consisting of a worldwide network of computer networks that use the TCP/IP network protocols to facilitate data transmission and exchange",
+          "level": "Oxford 3000",
+          "rank": 31055
+        },
+        {
+          "word": "keyboard",
+          "phonetic": "/'ki:bɒ:d/",
+          "pos": "",
+          "meaning": "n. 键盘",
+          "definition": "n. device consisting of a set of keys on a piano or organ or typewriter or typesetting machine or computer or the like",
+          "level": "Oxford 3000",
+          "rank": 5374
+        },
+        {
+          "word": "laptop",
+          "phonetic": "//",
+          "pos": "",
+          "meaning": "n. 笔记本电脑",
+          "definition": "n. a portable computer small enough to use in your lap",
+          "level": "常用",
+          "rank": 25826
+        },
+        {
+          "word": "message",
+          "phonetic": "/'mesidʒ/",
+          "pos": "",
+          "meaning": "n. 消息；信息",
+          "definition": "n. a communication (usually brief) that is written or spoken or signaled",
+          "level": "Oxford 3000",
+          "rank": 1120
+        },
+        {
+          "word": "network",
+          "phonetic": "/'netwә:k/",
+          "pos": "",
+          "meaning": "n. 网络；关系网",
+          "definition": "n. an interconnected system of things or people",
+          "level": "Oxford 3000",
+          "rank": 1102
+        },
+        {
+          "word": "online",
+          "phonetic": "//",
+          "pos": "",
+          "meaning": "adj./adv. 在线的；联网地",
+          "definition": "a on a regular route of a railroad or bus or airline system",
+          "level": "常用",
+          "rank": 9396
+        },
+        {
+          "word": "password",
+          "phonetic": "/'pæswә:d/",
+          "pos": "",
+          "meaning": "n. 密码",
+          "definition": "n. a secret word or phrase known only to a restricted group",
+          "level": "常用",
+          "rank": 10802
+        },
+        {
+          "word": "phone",
+          "phonetic": "/fәun/",
+          "pos": "",
+          "meaning": "n. 电话；手机",
+          "definition": "n. (phonetics) an individual sound unit of speech without concern as to whether or not it is a phoneme of some language",
+          "level": "Oxford 3000",
+          "rank": 1346
+        },
+        {
+          "word": "screen",
+          "phonetic": "/skri:n/",
+          "pos": "",
+          "meaning": "n. 屏幕；帘；v. 筛选",
+          "definition": "n. a white or silvered surface where pictures can be projected for viewing",
+          "level": "Oxford 3000",
+          "rank": 1648
+        },
+        {
+          "word": "search",
+          "phonetic": "/sә:tʃ/",
+          "pos": "",
+          "meaning": "v./n. 搜索；寻找",
+          "definition": "n. the activity of looking thoroughly in order to find something or someone",
+          "level": "Oxford 3000",
+          "rank": 1690
+        },
+        {
+          "word": "software",
+          "phonetic": "/'sɒftwєә/",
+          "pos": "",
+          "meaning": "n. 软件",
+          "definition": "n. (computer science) written programs or procedures or rules and associated documentation pertaining to the operation of a computer system and that are stored in read/write memory",
+          "level": "Oxford 3000",
+          "rank": 1064
+        },
+        {
+          "word": "update",
+          "phonetic": "/ʌp'deit/",
+          "pos": "",
+          "meaning": "v./n. 更新",
+          "definition": "n. news that updates your information",
+          "level": "高频",
+          "rank": 3884
+        },
+        {
+          "word": "upload",
+          "phonetic": "/'ʌp,lәud/",
+          "pos": "",
+          "meaning": "v. 上传",
+          "definition": "v. transfer a file or program to a central computer from a smaller computer or a computer at a remote location",
+          "level": "高频",
+          "rank": null
+        },
+        {
+          "word": "video",
+          "phonetic": "/'vidiәu/",
+          "pos": "",
+          "meaning": "n. 视频",
+          "definition": "n. the visible part of a television transmission",
+          "level": "Oxford 3000",
+          "rank": 1271
+        },
+        {
+          "word": "website",
+          "phonetic": "//",
+          "pos": "",
+          "meaning": "n. 网站",
+          "definition": "n a computer connected to the internet that maintains a series of web pages on the World Wide Web",
+          "level": "Oxford 3000",
+          "rank": null
+        },
+        {
+          "word": "wireless",
+          "phonetic": "/'waiәlis/",
+          "pos": "",
+          "meaning": "adj. 无线的",
+          "definition": "n. transmission by radio waves",
+          "level": "常用",
+          "rank": 8824
+        }
+      ]
+    },
+    {
+      "id": "travel",
+      "label": "出行自然",
+      "description": "从街角到远山，路上会看到和问到的词",
+      "words": [
+        {
+          "word": "airport",
+          "phonetic": "/'єәpɒ:t/",
+          "pos": "",
+          "meaning": "n. 飞机场",
+          "definition": "n. an airfield equipped with control tower and hangars as well as accommodations for passengers and cargo",
+          "level": "Oxford 3000",
+          "rank": 2541
+        },
+        {
+          "word": "beach",
+          "phonetic": "/bi:tʃ/",
+          "pos": "",
+          "meaning": "n. 海滩",
+          "definition": "n. an area of sand sloping down to the water of a sea or lake",
+          "level": "Oxford 3000",
+          "rank": 1900
+        },
+        {
+          "word": "bridge",
+          "phonetic": "/bridʒ/",
+          "pos": "",
+          "meaning": "n. 桥；桥梁；v. 架桥；连接",
+          "definition": "n. a structure that allows people or vehicles to cross an obstacle such as a river or canal or railway etc.",
+          "level": "Oxford 3000",
+          "rank": 1434
+        },
+        {
+          "word": "bus",
+          "phonetic": "/bʌs/",
+          "pos": "",
+          "meaning": "n. 公共汽车",
+          "definition": "n. a vehicle carrying many passengers; used for public transport",
+          "level": "Oxford 3000",
+          "rank": 1399
+        },
+        {
+          "word": "city",
+          "phonetic": "/'siti/",
+          "pos": "",
+          "meaning": "n. 城市；市",
+          "definition": "n. a large and densely populated urban area; may include several independent administrative districts",
+          "level": "Oxford 3000",
+          "rank": 331
+        },
+        {
+          "word": "country",
+          "phonetic": "/'kʌntri/",
+          "pos": "",
+          "meaning": "n. 国家；乡村；地区；故乡；a. 乡下的；农村的",
+          "definition": "n. the territory occupied by a nation",
+          "level": "Oxford 3000",
+          "rank": 175
+        },
+        {
+          "word": "direction",
+          "phonetic": "/di'rekʃәn/",
+          "pos": "",
+          "meaning": "n. 方向；指导；趋势",
+          "definition": "n. a line leading to a place or point",
+          "level": "Oxford 3000",
+          "rank": 910
+        },
+        {
+          "word": "forest",
+          "phonetic": "/'fɒrist/",
+          "pos": "",
+          "meaning": "n. 森林；林区；vt. 植树于",
+          "definition": "n. the trees and other plants in a large densely wooded area",
+          "level": "Oxford 3000",
+          "rank": 1108
+        },
+        {
+          "word": "garden",
+          "phonetic": "/'gɑ:dn/",
+          "pos": "",
+          "meaning": "n. 花园；果园；菜园；vi. 栽培花木",
+          "definition": "n. a plot of ground where plants are cultivated",
+          "level": "Oxford 3000",
+          "rank": 700
+        },
+        {
+          "word": "hill",
+          "phonetic": "/hil/",
+          "pos": "",
+          "meaning": "n. 小山；丘陵；小土堆；vt. 作成土堆；堆成小丘",
+          "definition": "n. a local and well-defined elevation of the land",
+          "level": "Oxford 3000",
+          "rank": 1134
+        },
+        {
+          "word": "hotel",
+          "phonetic": "/hәu'tel/",
+          "pos": "",
+          "meaning": "n. 旅馆；客栈",
+          "definition": "n. a building where travelers can pay for lodging and meals and other services",
+          "level": "Oxford 3000",
+          "rank": 731
+        },
+        {
+          "word": "journey",
+          "phonetic": "/'dʒә:ni/",
+          "pos": "",
+          "meaning": "n. 旅程；旅行；行程；vi. 旅行",
+          "definition": "n. the act of traveling from one place to another",
+          "level": "Oxford 3000",
+          "rank": 1662
+        },
+        {
+          "word": "lake",
+          "phonetic": "/leik/",
+          "pos": "",
+          "meaning": "n. 湖；池；色淀；v. (使)血球溶解",
+          "definition": "n. a body of (usually fresh) water surrounded by land",
+          "level": "Oxford 3000",
+          "rank": 1812
+        },
+        {
+          "word": "map",
+          "phonetic": "/mæp/",
+          "pos": "",
+          "meaning": "n. 地图；天体图；映像；vt. 映射；绘制...地图；计划",
+          "definition": "n. a diagrammatic representation of the earth's surface (or part of it)",
+          "level": "Oxford 3000",
+          "rank": 1681
+        },
+        {
+          "word": "mountain",
+          "phonetic": "/'mauntin/",
+          "pos": "",
+          "meaning": "n. 山；山脉；大堆",
+          "definition": "n. a land mass that projects well above its surroundings; higher than a hill",
+          "level": "Oxford 3000",
+          "rank": 1402
+        },
+        {
+          "word": "ocean",
+          "phonetic": "/'әuʃәn/",
+          "pos": "",
+          "meaning": "n. 海洋；广阔；许多；一大片",
+          "definition": "n. a large body of water constituting a principal part of the hydrosphere",
+          "level": "Oxford 3000",
+          "rank": 3015
+        },
+        {
+          "word": "park",
+          "phonetic": "/pɑ:k/",
+          "pos": "",
+          "meaning": "n. 公园；停车处；vt. 停车；置于",
+          "definition": "n. a large area of land preserved in its natural state as public property",
+          "level": "Oxford 3000",
+          "rank": 853
+        },
+        {
+          "word": "path",
+          "phonetic": "/pɑ:θ/",
+          "pos": "",
+          "meaning": "n. 路径；小路；道路；途径",
+          "definition": "n. a way especially designed for a particular use",
+          "level": "Oxford 3000",
+          "rank": 1266
+        },
+        {
+          "word": "plane",
+          "phonetic": "/plein/",
+          "pos": "",
+          "meaning": "n. 平面；扁平物；机翼；飞机；a. 平的；平面的",
+          "definition": "n. (mathematics) an unbounded two-dimensional shape",
+          "level": "Oxford 3000",
+          "rank": 2000
+        },
+        {
+          "word": "river",
+          "phonetic": "/'rivә/",
+          "pos": "",
+          "meaning": "n. 河；江",
+          "definition": "n. a large natural stream of water (larger than a creek)",
+          "level": "Oxford 3000",
+          "rank": 876
+        },
+        {
+          "word": "road",
+          "phonetic": "/rәud/",
+          "pos": "",
+          "meaning": "n. 路；道路；公路；途径",
+          "definition": "n. an open way (generally public) for travel or transportation",
+          "level": "Oxford 3000",
+          "rank": 284
+        },
+        {
+          "word": "station",
+          "phonetic": "/'steiʃәn/",
+          "pos": "",
+          "meaning": "n. 车站；站；局；驻地；vt. 安置；配置；驻扎",
+          "definition": "n. a facility equipped with special equipment and personnel for a particular purpose",
+          "level": "Oxford 3000",
+          "rank": 736
+        },
+        {
+          "word": "ticket",
+          "phonetic": "/'tikit/",
+          "pos": "",
+          "meaning": "n. 票；券；车票；标签；vt. 加标签于；为...购票",
+          "definition": "n. a commercial document showing that the holder is entitled to something (as to ride on public transportation or to enter a public entertainment)",
+          "level": "Oxford 3000",
+          "rank": 1884
+        },
+        {
+          "word": "train",
+          "phonetic": "/trein/",
+          "pos": "",
+          "meaning": "n. 火车；列车；行列；长队；vt. 训练；教育；对准",
+          "definition": "n. public transport provided by a line of railway cars coupled together and drawn by a locomotive",
+          "level": "Oxford 3000",
+          "rank": 1186
+        },
+        {
+          "word": "travel",
+          "phonetic": "/'trævl/",
+          "pos": "",
+          "meaning": "n. 旅行；游历；行进；vi. 旅行；行进；移动；被传播",
+          "definition": "n. the act of going from one place to another",
+          "level": "Oxford 3000",
+          "rank": 1132
+        },
+        {
+          "word": "weather",
+          "phonetic": "/'weðә/",
+          "pos": "",
+          "meaning": "n. 天气；气象；处境；a. 迎风的",
+          "definition": "n. the atmospheric conditions that comprise the state of the atmosphere in terms of temperature and wind and clouds and precipitation",
+          "level": "Oxford 3000",
+          "rank": 1610
+        },
+        {
+          "word": "wind",
+          "phonetic": "/wind/",
+          "pos": "",
+          "meaning": "n. 风；气息；气味；呼吸；vt. 使通风；嗅出；使喘气；吹号角",
+          "definition": "n. air moving (sometimes with considerable force) from an area of high pressure to an area of low pressure",
+          "level": "Oxford 3000",
+          "rank": 1179
+        },
+        {
+          "word": "world",
+          "phonetic": "/wә:ld/",
+          "pos": "",
+          "meaning": "n. 世界；地球；宇宙；万物",
+          "definition": "n. people in general; especially a distinctive group of people with some shared interest",
+          "level": "Oxford 3000",
+          "rank": 146
+        }
+      ]
+    },
+    {
+      "id": "life",
+      "label": "生活健康",
+      "description": "吃饭、睡觉、运动，照顾好自己用的词",
+      "words": [
+        {
+          "word": "breakfast",
+          "phonetic": "/'brekfәst/",
+          "pos": "",
+          "meaning": "n. 早餐",
+          "definition": "n. the first meal of the day (usually in the morning)",
+          "level": "Oxford 3000",
+          "rank": 2019
+        },
+        {
+          "word": "dinner",
+          "phonetic": "/'dinә/",
+          "pos": "",
+          "meaning": "n. 晚餐；正餐；宴会",
+          "definition": "n. the main meal of the day served in the evening or at midday",
+          "level": "Oxford 3000",
+          "rank": 1422
+        },
+        {
+          "word": "doctor",
+          "phonetic": "/'dɒktә/",
+          "pos": "",
+          "meaning": "n. 医生；博士",
+          "definition": "n. a licensed medical practitioner",
+          "level": "Oxford 3000",
+          "rank": 665
+        },
+        {
+          "word": "drink",
+          "phonetic": "/driŋk/",
+          "pos": "",
+          "meaning": "n. 饮料；酒；v. 喝；喝酒",
+          "definition": "n. a single serving of a beverage",
+          "level": "Oxford 3000",
+          "rank": 1284
+        },
+        {
+          "word": "exercise",
+          "phonetic": "/'eksәsaiz/",
+          "pos": "",
+          "meaning": "n. 行使；执行；运动；练习；vt. 运用；练习；运动",
+          "definition": "n. the activity of exerting your muscles in various ways to keep fit",
+          "level": "Oxford 3000",
+          "rank": 1233
+        },
+        {
+          "word": "food",
+          "phonetic": "/fu:d/",
+          "pos": "",
+          "meaning": "n. 食物；养料",
+          "definition": "n. any substance that can be metabolized by an animal to give energy and build tissue",
+          "level": "Oxford 3000",
+          "rank": 466
+        },
+        {
+          "word": "fruit",
+          "phonetic": "/fru:t/",
+          "pos": "",
+          "meaning": "n. 水果；果类；结果",
+          "definition": "n. the ripened reproductive body of a seed plant",
+          "level": "Oxford 3000",
+          "rank": 1809
+        },
+        {
+          "word": "health",
+          "phonetic": "/'helθ/",
+          "pos": "",
+          "meaning": "n. 健康；卫生；蓬勃；健康状态",
+          "definition": "n. a healthy state of wellbeing free from disease",
+          "level": "Oxford 3000",
+          "rank": 373
+        },
+        {
+          "word": "hospital",
+          "phonetic": "/'hɒspitәl/",
+          "pos": "",
+          "meaning": "n. 医院",
+          "definition": "n. a health facility where patients receive treatment",
+          "level": "Oxford 3000",
+          "rank": 562
+        },
+        {
+          "word": "hungry",
+          "phonetic": "/'hʌŋgi/",
+          "pos": "",
+          "meaning": "a. 饥饿的；荒年的；渴望的；不毛的",
+          "definition": "a. feeling hunger; feeling a need or desire to eat food",
+          "level": "Oxford 3000",
+          "rank": 3683
+        },
+        {
+          "word": "kitchen",
+          "phonetic": "/'kitʃin/",
+          "pos": "",
+          "meaning": "n. 厨房；全套炊具",
+          "definition": "n. a room equipped for preparing meals",
+          "level": "Oxford 3000",
+          "rank": 1124
+        },
+        {
+          "word": "lunch",
+          "phonetic": "/lʌntʃ/",
+          "pos": "",
+          "meaning": "n. 午餐",
+          "definition": "n. a midday meal",
+          "level": "Oxford 3000",
+          "rank": 1615
+        },
+        {
+          "word": "meal",
+          "phonetic": "/mi:l/",
+          "pos": "",
+          "meaning": "n. 一餐；膳食；粗粉；vi. 进餐",
+          "definition": "n. the food served and eaten at one time",
+          "level": "Oxford 3000",
+          "rank": 1415
+        },
+        {
+          "word": "medicine",
+          "phonetic": "/'medisin/",
+          "pos": "",
+          "meaning": "n. 药；医学；内科；vt. 给...用药",
+          "definition": "n. the branches of medical science that deal with nonsurgical techniques",
+          "level": "Oxford 3000",
+          "rank": 2476
+        },
+        {
+          "word": "rest",
+          "phonetic": "/rest/",
+          "pos": "",
+          "meaning": "n. 休息；睡眠；安息；稍息；vi. 休息；睡；长眠；安心",
+          "definition": "n. freedom from activity (work or strain or responsibility)",
+          "level": "Oxford 3000",
+          "rank": 703
+        },
+        {
+          "word": "run",
+          "phonetic": "/rʌn/",
+          "pos": "",
+          "meaning": "n. 跑；赛跑；奔跑；奔跑的路程；vi. 跑；奔跑；跑步；赛跑",
+          "definition": "n. a score in baseball made by a runner touching all four bases safely",
+          "level": "Oxford 3000",
+          "rank": 208
+        },
+        {
+          "word": "shower",
+          "phonetic": "/'ʃauә/",
+          "pos": "",
+          "meaning": "n. 阵雨；淋浴；一阵；展出者；vi. 淋浴；下阵雨",
+          "definition": "n. a plumbing fixture that sprays water over you",
+          "level": "Oxford 3000",
+          "rank": 3712
+        },
+        {
+          "word": "sleep",
+          "phonetic": "/sli:p/",
+          "pos": "",
+          "meaning": "n. 睡眠；静止；昏迷；麻木；vi. 睡觉；睡眠；静止",
+          "definition": "n. a natural and periodic state of rest during which consciousness of the world is suspended",
+          "level": "Oxford 3000",
+          "rank": 1408
+        },
+        {
+          "word": "snack",
+          "phonetic": "/snæk/",
+          "pos": "",
+          "meaning": "n. 小吃；点心；快餐；vi. 吃零食；吃快餐",
+          "definition": "n a light informal meal",
+          "level": "常用",
+          "rank": 7131
+        },
+        {
+          "word": "sport",
+          "phonetic": "/spɒ:t/",
+          "pos": "",
+          "meaning": "n. 运动；游戏；娱乐；消遣；a. 运动的；户外穿戴的",
+          "definition": "n. an active diversion requiring physical exertion and competition",
+          "level": "Oxford 3000",
+          "rank": 1122
+        },
+        {
+          "word": "tea",
+          "phonetic": "/ti:/",
+          "pos": "",
+          "meaning": "n. 茶；茶叶",
+          "definition": "n. a beverage made by steeping tea leaves in water",
+          "level": "Oxford 3000",
+          "rank": 1140
+        },
+        {
+          "word": "vegetable",
+          "phonetic": "/'vedʒәtәbl/",
+          "pos": "",
+          "meaning": "n. 蔬菜；植物；无精打采之人；a. 蔬菜的；植物的",
+          "definition": "n. edible seeds or roots or stems or leaves or bulbs or tubers or nonsweet fruits of any of numerous herbaceous plant",
+          "level": "Oxford 3000",
+          "rank": 2818
+        },
+        {
+          "word": "water",
+          "phonetic": "/'wɒ:tә/",
+          "pos": "",
+          "meaning": "n. 水；雨水；海水；水位；vt. 给...浇水；供以水；注入水；使湿",
+          "definition": "n. binary compound that occurs at room temperature as a clear colorless odorless tasteless liquid; freezes into ice below 0 degrees centigrade and boils above 100 degrees centigrad",
+          "level": "Oxford 3000",
+          "rank": 236
+        }
+      ]
+    },
+    {
+      "id": "expression",
+      "label": "表达交流",
+      "description": "把想法说明白，也让对话继续往前走",
+      "words": [
+        {
+          "word": "agree",
+          "phonetic": "/ә'gri:/",
+          "pos": "",
+          "meaning": "vi. 同意；赞成；应允；适合；vt. 承认；认定；同意",
+          "definition": "v. be in accord; be in agreement",
+          "level": "Oxford 3000",
+          "rank": 401
+        },
+        {
+          "word": "ask",
+          "phonetic": "/ɑ:sk/",
+          "pos": "",
+          "meaning": "vi. 问；要求；vt. 问；要求；邀请；需要",
+          "definition": "v. inquire about",
+          "level": "Oxford 3000",
+          "rank": 141
+        },
+        {
+          "word": "believe",
+          "phonetic": "/bi'li:v/",
+          "pos": "",
+          "meaning": "v. 相信",
+          "definition": "v. accept as true; take to be true",
+          "level": "Oxford 3000",
+          "rank": 252
+        },
+        {
+          "word": "describe",
+          "phonetic": "/di'skraib/",
+          "pos": "",
+          "meaning": "vt. 描述；描绘；画",
+          "definition": "v. give a description of",
+          "level": "Oxford 3000",
+          "rank": 398
+        },
+        {
+          "word": "decide",
+          "phonetic": "/di'said/",
+          "pos": "",
+          "meaning": "v. 决定；判决",
+          "definition": "v. reach, make, or come to a decision about something",
+          "level": "Oxford 3000",
+          "rank": 375
+        },
+        {
+          "word": "disagree",
+          "phonetic": "/.disә'gri:/",
+          "pos": "",
+          "meaning": "vi. 不一致；不适宜",
+          "definition": "v. be of different opinions",
+          "level": "Oxford 3000",
+          "rank": 4677
+        },
+        {
+          "word": "example",
+          "phonetic": "/ig'zæmpl/",
+          "pos": "",
+          "meaning": "n. 例子；样本；实例",
+          "definition": "n. an item of information that is typical of a class or group",
+          "level": "Oxford 3000",
+          "rank": 511
+        },
+        {
+          "word": "express",
+          "phonetic": "/ik'spres/",
+          "pos": "",
+          "meaning": "n. 快车；快递；专使；a. 明确的；丝毫不差的；专门的；快的",
+          "definition": "n. mail that is distributed by a rapid and efficient system",
+          "level": "Oxford 3000",
+          "rank": 839
+        },
+        {
+          "word": "guess",
+          "phonetic": "/ges/",
+          "pos": "",
+          "meaning": "n. 猜测；臆测；v. 猜测；臆测",
+          "definition": "n. a message expressing an opinion based on incomplete evidence",
+          "level": "Oxford 3000",
+          "rank": 2218
+        },
+        {
+          "word": "hear",
+          "phonetic": "/hiә/",
+          "pos": "",
+          "meaning": "vt. 听到；倾听；听说；审理；vi. 听见；听",
+          "definition": "v. perceive (sound) via the auditory sense",
+          "level": "Oxford 3000",
+          "rank": 238
+        },
+        {
+          "word": "introduce",
+          "phonetic": "/.intrә'dju:s/",
+          "pos": "",
+          "meaning": "vt. 介绍；引入；采用；输入",
+          "definition": "v. cause to come to know personally",
+          "level": "Oxford 3000",
+          "rank": 698
+        },
+        {
+          "word": "listen",
+          "phonetic": "/'lisn/",
+          "pos": "",
+          "meaning": "vi. 听；倾听；听从；n. 听；倾听",
+          "definition": "v. hear with intention",
+          "level": "Oxford 3000",
+          "rank": 850
+        },
+        {
+          "word": "mean",
+          "phonetic": "/mi:n/",
+          "pos": "",
+          "meaning": "a. 低劣的；卑贱的；简陋的；吝啬的；vt. 意谓；想要；意欲；预定",
+          "definition": "n. an average of n numbers computed by adding some function of the numbers and dividing by some function of n",
+          "level": "Oxford 3000",
+          "rank": 121
+        },
+        {
+          "word": "mention",
+          "phonetic": "/'menʃәn/",
+          "pos": "",
+          "meaning": "n. 提到；言及；陈述；vt. 提到；提及",
+          "definition": "n. a remark that calls attention to something or someone",
+          "level": "Oxford 3000",
+          "rank": 902
+        },
+        {
+          "word": "opinion",
+          "phonetic": "/ә'pinjәn/",
+          "pos": "",
+          "meaning": "n. 意见；评价；主张",
+          "definition": "n. a personal belief or judgment that is not founded on proof or certainty",
+          "level": "Oxford 3000",
+          "rank": 1067
+        },
+        {
+          "word": "promise",
+          "phonetic": "/'prɒmis/",
+          "pos": "",
+          "meaning": "n. 诺言；约定的事情；有指望；vt. 允诺；约定；预示",
+          "definition": "n. a verbal commitment by one person to another agreeing to do (or not to do) something in the future",
+          "level": "Oxford 3000",
+          "rank": 1478
+        },
+        {
+          "word": "reply",
+          "phonetic": "/ri'plai/",
+          "pos": "",
+          "meaning": "n. 答复；回答；答辩；vi. 答复；回答；回击；反响",
+          "definition": "n. the speech act of continuing a conversational exchange",
+          "level": "Oxford 3000",
+          "rank": 1286
+        },
+        {
+          "word": "say",
+          "phonetic": "/sei/",
+          "pos": "",
+          "meaning": "vt. 说；讲；念；说明；vi. 说；讲",
+          "definition": "n. the chance to speak",
+          "level": "Oxford 3000",
+          "rank": 32
+        },
+        {
+          "word": "speak",
+          "phonetic": "/spi:k/",
+          "pos": "",
+          "meaning": "vi. 说；说话；演说；发言；vt. 说；讲；说出",
+          "definition": "v. use language",
+          "level": "Oxford 3000",
+          "rank": 352
+        },
+        {
+          "word": "story",
+          "phonetic": "/'stɒ:ri/",
+          "pos": "",
+          "meaning": "n. 故事；小说；传奇；描述",
+          "definition": "n. a piece of fiction that narrates a chain of related events",
+          "level": "Oxford 3000",
+          "rank": 542
+        },
+        {
+          "word": "suggest",
+          "phonetic": "/sәg'dʒest/",
+          "pos": "",
+          "meaning": "vt. 提议；建议；促成；暗示",
+          "definition": "v. imply as a possibility",
+          "level": "Oxford 3000",
+          "rank": 314
+        },
+        {
+          "word": "understand",
+          "phonetic": "/.ʌndә'stænd/",
+          "pos": "",
+          "meaning": "vt. 理解；了解；领会；听说；vi. 懂得；认为",
+          "definition": "v. know and comprehend the nature or meaning of",
+          "level": "Oxford 3000",
+          "rank": 391
+        }
+      ]
+    }
+  ]
+}

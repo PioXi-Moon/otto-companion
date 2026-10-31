@@ -231,6 +231,24 @@ function checkActSplitter() {
   return bad;
 }
 
+function checkWordbook() {
+  const file = path.join(ROOT, "server", "wordbook.json");
+  if (!fs.existsSync(file)) return { decks: 0, words: 0, bad: "wordbook.json 不存在" };
+  try {
+    const data = JSON.parse(fs.readFileSync(file, "utf8"));
+    const words = data.decks.flatMap((deck) => deck.words ?? []);
+    const bad = words.find((word) => !word.word || !word.phonetic || !word.meaning);
+    return {
+      decks: data.decks.length,
+      words: words.length,
+      bad: bad ? `${bad.word || "?"} 字段不完整` : "",
+      license: data.source?.license,
+    };
+  } catch (error) {
+    return { decks: 0, words: 0, bad: error.message };
+  }
+}
+
 async function main() {
   console.log(`\nOtto 冒烟测试 → ${BASE}\n`);
   const actionNames = checkActionNames();
@@ -252,6 +270,13 @@ async function main() {
   const actBad = checkActSplitter();
   check("动作标签的解析（先做动作，再说话）", actBad.length === 0, actBad.join(" / "));
 
+  const wordbook = checkWordbook();
+  check(
+    `离线词库有 ${wordbook.decks} 个主题、${wordbook.words} 个完整词条`,
+    wordbook.decks >= 8 && wordbook.words >= 200 && !wordbook.bad,
+    wordbook.bad || `来源许可：${wordbook.license}`
+  );
+
   if (STATIC_ONLY) {
     console.log(`\n结果：${pass} 项通过，${fail} 项失败（只跑了静态那几条）\n`);
     process.exit(fail ? 1 : 0);
@@ -263,6 +288,97 @@ async function main() {
   const state0 = await api("/api/state", undefined, "GET");
   console.log(`模型模式：${state0.llm.mode}` + (state0.llm.mode === "mock" ? "（假模型，链路验证足够）" : ""));
   console.log(`记忆开关：${state0.memoryEnabled ? "开" : "关（对照组）"}\n`);
+
+  console.log("0.4 音乐、词卡与语音工具");
+  const modules0 = await api("/api/modules", undefined, "GET");
+  check(
+    "模块目录一次返回音乐、词库和专注状态",
+    modules0.music?.tracks?.length === 6 &&
+      modules0.words?.decks?.length === 8 &&
+      modules0.words?.stats?.total >= 200 &&
+      !!modules0.focus
+  );
+  const musicOut = await api("/api/tools/run", {
+    action: "music_play",
+    args: { query: "夜晚" },
+    source: "voice",
+  });
+  check(
+    "语音点歌命中本地曲目并广播播放状态",
+    musicOut.ok === true && musicOut.track?.id === "night-train" && musicOut.state?.status === "playing",
+    musicOut.spoken
+  );
+  const wordStart = await api("/api/tools/run", {
+    action: "word_start",
+    args: { deck: "campus" },
+    source: "voice",
+  });
+  check(
+    "语音开始词卡会选中主题并返回可朗读释义",
+    wordStart.ok === true && wordStart.word?.deckId === "campus" && !!wordStart.word?.meaning,
+    wordStart.spoken
+  );
+  const wordMark = await api("/api/tools/run", {
+    action: "word_mark",
+    args: { result: "known" },
+    source: "voice",
+  });
+  check(
+    "单词学习结果会写入进度",
+    wordMark.ok === true && wordMark.stats?.known >= 1 && wordMark.stats?.today >= 1
+  );
+  const quizOut = await api("/api/tools/run", {
+    action: "word_quiz",
+    source: "voice",
+  });
+  check(
+    "单词小测返回四个选项",
+    quizOut.ok === true && quizOut.quiz?.options?.length === 4 && !!quizOut.quiz?.word
+  );
+  const focusStatus = await api("/api/tools/run", {
+    action: "focus_status",
+    source: "voice",
+  });
+  check("语音工具能读取专注状态", focusStatus.ok === true && !!focusStatus.spoken);
+  const toolState = await api("/api/modules", undefined, "GET");
+  check("语音工具调用进入最近工具记录", toolState.recentTools?.length >= 5);
+
+  console.log("0.5 沉浸模式");
+  const immOn = await api("/api/immersion", {
+    enabled: true,
+    module: "quiet",
+  });
+  check(
+    "能进入静默陪坐",
+    immOn.state?.enabled === true && immOn.state?.module === "quiet",
+    `${immOn.event} · ${immOn.state?.module}`
+  );
+  const immFoot = await api("/api/immersion", { footAngles: [8.4, 8.1] });
+  check(
+    "两脚同向时任一只到位即可选模块",
+    immFoot.state?.module === "eyes20",
+    `${immFoot.state?.moduleInfo?.label} · ${immFoot.state?.moduleInfo?.footAngle}°`
+  );
+  await api("/api/immersion", { module: "focus25" });
+  const immStart = await api("/api/immersion", { command: "start" });
+  check(
+    "模块开始计时",
+    immStart.state?.running === true && immStart.state?.durationMs === 25 * 60 * 1000
+  );
+  const immPause = await api("/api/immersion", { command: "pause" });
+  const immResume = await api("/api/immersion", { command: "resume" });
+  check(
+    "计时可以暂停并继续",
+    immPause.state?.running === false &&
+      immPause.state?.remainingMs > 0 &&
+      immResume.state?.running === true
+  );
+  const immMurmur = await api("/api/dev/murmur-check", {});
+  check("沉浸模式下不发碎碎念", immMurmur.said === false);
+  const immNext = await api("/api/immersion", { command: "next" });
+  check("可以跳到休息阶段", immNext.event === "break" && immNext.state?.phase === "break");
+  const immOff = await api("/api/immersion", { enabled: false });
+  check("能退出并恢复普通陪伴", immOff.event === "exited" && immOff.state?.running === false);
 
   console.log("1. 人格初始化");
   const named0 = await api("/api/pet/name", undefined, "GET");

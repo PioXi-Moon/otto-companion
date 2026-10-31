@@ -20,7 +20,7 @@ export function status() {
 async function post(body, { timeoutMs = 60000, signal } = {}) {
   if (ENV.mock) return null;
   if (!ENV.hasKey()) {
-    throw new LLMError("还没配置 DeepSeek API Key（把 .env 里的 DEEPSEEK_API_KEY 填上）", "no_key");
+    throw new LLMError("还没配置 DeepSeek API Key（请在 Otto 的 API Key 设置窗口里填写）", "no_key");
   }
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), timeoutMs);

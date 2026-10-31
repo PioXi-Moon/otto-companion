@@ -1,5 +1,6 @@
 import { propSvg } from "/props.js";
 import { ACTIONS } from "/actions.js";
+import { createModulesUI } from "/modules.js";
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
@@ -13,6 +14,14 @@ let extraDays = [];
 
 /** 名字可以改，所以文案里一律写 {{pet}}，渲染之后统一替换 */
 const petName = () => state?.petName || "小月汐";
+
+const modulesUI = createModulesUI({
+  post: (url, body) => post(url, body),
+  toast: (text) => toast(text),
+  goto: (tab) => goto(tab),
+  petAction: (name) => petAction(name),
+  getPetName: () => petName(),
+});
 
 function fillPetNames(root = document.body) {
   const name = petName();
@@ -104,12 +113,12 @@ async function init() {
   bindComposer();
   bindTestPanel();
   bindHome();
+  bindImmersion();
   bindContextMenu();
   bindNaming();
   bindQuit();
   bindHints();
   bindRecbar();
-  renderTools();
   renderActGrid();
   await refresh();
   // 硬件帧要等模块走完（SERVOS 在上面那段 const 里，提前碰会撞上暂时性死区）
@@ -117,6 +126,7 @@ async function init() {
   await loadMessages();
   connectStream();
   setInterval(tickClockChip, 5000);
+  setInterval(tickImmersionUI, 1000);
   fillPetNames();
   maybeAskName();
   post("/api/presence", {});
@@ -126,25 +136,61 @@ async function init() {
 }
 
 function renderTools() {
-  /* 工具：都是通道，不是陪伴本身。
-     硬件语音到位之后，这一页全都能用嘴开 */
+  /* 工具：都是通道，不是陪伴本身。入口和语音工具共用同一份状态 */
   const TOOLS = [
-    ["听英语单词", "每天早上念几个，硬件语音直接开"],
-    ["播一首歌", "说歌名就行，通过硬件语音"],
-    ["呼叫 AI Agent", "把重活丢给它，Otto 只负责转达"],
-    ["专注计时", "它陪你坐一段时间，中途不打扰"],
-    ["喝水提醒", "它自己看你多久没动了，主动说一句"],
+    {
+      title: "听点声音",
+      desc: "六首离线环境音乐。点卡片，或者对小智说「放一首雨天的歌」。",
+      tag: "已接通",
+      run: () => goto("music"),
+    },
+    {
+      title: "背几个词",
+      desc: "主题词卡、英文发音、学习进度和一分钟小测。",
+      tag: "已接通",
+      run: () => goto("words"),
+    },
+    {
+      title: "专注计时",
+      desc: "番茄钟、深度工作、护眼和久坐提醒都收在首页工作牌里。",
+      tag: "已接通",
+      run: () => {
+        goto("home");
+        setTimeout(() => $("#immersionPanel")?.scrollIntoView({ behavior: "smooth", block: "center" }), 80);
+      },
+    },
+    {
+      title: "暂停音乐",
+      desc: "让小智把正在播放的环境音乐停下来。",
+      tag: "语音",
+      run: () => modulesUI.run("music_pause"),
+    },
+    {
+      title: "继续上一个词",
+      desc: "直接回到当前词卡，不用从第一页重新翻。",
+      tag: "语音",
+      run: () => goto("words"),
+    },
+    {
+      title: "问问它现在在做什么",
+      desc: "汇总音乐、词卡和专注状态。也可以直接问小智。",
+      tag: "状态",
+      run: async () => {
+        const out = await modulesUI.run("status");
+        setHomeSay(out.spoken);
+      },
+    },
   ];
   const box = $("#toolGrid");
   box.innerHTML = "";
-  for (const [t, d] of TOOLS) {
-    const el = document.createElement("div");
+  for (const item of TOOLS) {
+    const el = document.createElement("button");
     el.className = "tool";
     el.innerHTML = `<div class="t"></div><div class="d"></div><span class="tag"></span>`;
-    el.querySelector(".t").textContent = t;
-    el.querySelector(".d").textContent = d;
-    el.querySelector(".tag").textContent = "待接";
-    el.onclick = () => toast("这一块还没做——它要等硬件语音");
+    el.querySelector(".t").textContent = item.title;
+    el.querySelector(".d").textContent = item.desc;
+    el.querySelector(".tag").textContent = item.tag;
+    el.onclick = item.run;
     box.appendChild(el);
   }
 }
@@ -156,6 +202,7 @@ async function refresh() {
   if (!sessionId) sessionId = state.currentSessionId ?? null;
   renderHeader();
   renderHome();
+  renderTools();
   renderDims();
   renderLoops();
   renderTestToggles();
@@ -173,6 +220,7 @@ async function refresh() {
   renderHomeRecent(tl.items?.[0]);
   const ev = await fetch("/api/events").then((r) => r.json());
   renderEvents(ev);
+  await modulesUI.refresh();
   fillPetNames();
 }
 
@@ -317,7 +365,22 @@ function renderActGrid() {
     b.onclick = () => {
       window.ottoPet?.action?.(key);
       showFrame(key);
+      post("/api/pet/hardware", { name: key }).catch(() => {});
       toast(window.ottoPet?.action ? `演一遍：${a.label ?? key}` : "桌宠窗口没开着，先看下面的硬件帧");
+    };
+    box.appendChild(b);
+  }
+  const moves = [["前进", "walk"], ["后退", "back"], ["左转", "left"],
+                 ["右转", "right"], ["弹跳", "bounce"], ["扭动", "wiggle"]];
+  for (const [label, key] of moves) {
+    const b = document.createElement("button");
+    b.className = "actbtn";
+    b.innerHTML = `<span class="ab-label"></span><span class="ab-key"></span>`;
+    b.querySelector(".ab-label").textContent = "机器人" + label;
+    b.querySelector(".ab-key").textContent = "hw:" + key;
+    b.onclick = () => {
+      post("/api/pet/hardware", { name: key }).catch(() => {});
+      toast("机器人：" + label);
     };
     box.appendChild(b);
   }
@@ -432,6 +495,13 @@ function bindHome() {
 }
 
 function homeStateText() {
+  const im = state.immersion;
+  if (im?.enabled) {
+    if (im.phase === "complete") return "{{pet}}陪你做完了这一段，正在安静等你。";
+    if (im.running && im.phase === "break") return "{{pet}}提醒你离开屏幕一会儿。";
+    if (im.running) return "{{pet}}倒过来坐着，不催你，也不表演。";
+    return "{{pet}}已经安静下来，等你选一段工作节奏。";
+  }
   const loops = state.openLoops ?? [];
   const since = (state.clock.now - (state.relation.updatedAt ?? state.clock.now)) / 60000;
   if (loops.some((l) => l.due_at <= state.clock.now)) return "{{pet}}好像一直记着一件事，还没找到机会问你。";
@@ -442,6 +512,7 @@ function homeStateText() {
 }
 
 function homeFallbackSay() {
+  if (state.immersion?.enabled) return "它把想说的话先收起来了。需要的时候，你还在这里找得到它。";
   const loops = state.openLoops ?? [];
   if (loops.length) return `{{pet}}记着「${loops[0].event}」。`;
   if (state.memoryCount > 0) return `{{pet}}记着 ${state.memoryCount} 件事。`;
@@ -459,6 +530,103 @@ function renderHome() {
     r.stageLabel + (created ? ` · 认识 ${days} 天` : "") + ` · 共同经历 ${r.sharedCount} 条`;
   $("#homeState").textContent = homeStateText();
   if (!homeSayText) $("#homeSay").textContent = homeFallbackSay();
+  renderImmersion();
+}
+
+/* ---------------- 沉浸模式 ---------------- */
+
+function immTime(ms) {
+  if (ms == null || !Number.isFinite(ms)) return "∞";
+  const total = Math.max(0, Math.ceil(ms / 1000));
+  const m = Math.floor(total / 60);
+  const s = total % 60;
+  return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+}
+
+function renderImmersion() {
+  const im = state?.immersion;
+  const panel = $("#immersionPanel");
+  if (!im || !panel) return;
+  const active = !!im.enabled;
+  panel.classList.toggle("on", active);
+  panel.classList.toggle("off", !active);
+  $("#immersionToggle").checked = active;
+  $("#immersionToggleText").textContent = active ? "开启" : "关闭";
+  $("#immersionLead").textContent = active
+    ? "自由动作已经停下。它只保留工作计时、阶段提醒和你主动发起的互动。"
+    : "打开后，它不再自己碎碎念、做彩蛋或主动找你，只留必要的提醒。";
+
+  const moduleBox = $("#immersionModules");
+  moduleBox.innerHTML = "";
+  for (const mod of im.modules ?? []) {
+    const b = document.createElement("button");
+    b.className = "imm-module" + (mod.id === im.module ? " active" : "");
+    b.innerHTML = "<b></b><span></span><em></em>";
+    b.querySelector("b").textContent = mod.label;
+    b.querySelector("span").textContent = mod.hint;
+    b.querySelector("em").textContent = `脚位 ${mod.footAngle > 0 ? "+" : ""}${mod.footAngle}°`;
+    b.onclick = async () => {
+      if (im.running && !confirm("换模块会结束当前计时，继续吗？")) return;
+      await changeImmersion({ module: mod.id });
+    };
+    moduleBox.appendChild(b);
+  }
+
+  const mod = im.moduleInfo;
+  $("#immersionModuleHint").textContent = mod?.hint ?? "";
+  $("#immersionFootRule").textContent = im.footRule ?? "";
+  const isQuiet = im.module === "quiet";
+  const pause = $("#immersionPause");
+  pause.classList.toggle("hidden", isQuiet || im.phase === "complete");
+  pause.textContent = im.running ? "暂停计时" : "继续计时";
+  $("#immersionNext").classList.toggle("hidden", isQuiet);
+  $("#immersionStart").textContent =
+    im.phase === "complete" ? "再来一段" : isQuiet && im.running ? "重新开始陪坐" : "开始这一段";
+  tickImmersionUI();
+}
+
+function tickImmersionUI() {
+  const im = state?.immersion;
+  if (!im) return;
+  const quiet = im.module === "quiet";
+  $("#immersionPhase").textContent = quiet
+    ? im.running ? "陪坐中" : "静默陪坐"
+    : im.phaseLabel;
+  $("#immersionClock").textContent =
+    im.phase === "complete" ? "00:00" : immTime(im.remainingMs);
+  $("#immersionProgress").style.width = `${Math.round((im.progress ?? 0) * 100)}%`;
+}
+
+async function changeImmersion(body) {
+  const out = await post("/api/immersion", body);
+  if (out?.error) {
+    toast(out.error);
+    return out;
+  }
+  if (out?.state) {
+    state.immersion = out.state;
+    renderHome();
+  }
+  if (out?.notice) {
+    setHomeSay(out.notice);
+    toast(out.notice);
+  }
+  return out;
+}
+
+function bindImmersion() {
+  $("#immersionToggle").addEventListener("change", async (e) => {
+    await changeImmersion({ enabled: e.target.checked });
+  });
+  $("#immersionStart").addEventListener("click", async () => {
+    if (!state?.immersion?.enabled) await changeImmersion({ enabled: true });
+    await changeImmersion({ command: "start" });
+  });
+  $("#immersionPause").addEventListener("click", async () => {
+    await changeImmersion({ command: state?.immersion?.running ? "pause" : "resume" });
+  });
+  $("#immersionNext").addEventListener("click", () => changeImmersion({ command: "next" }));
+  $("#immersionReset").addEventListener("click", () => changeImmersion({ command: "reset" }));
 }
 
 /**
@@ -1532,6 +1700,10 @@ function connectStream() {
       return;
     }
     if (ev.type === "hello") return;
+    if (ev.type === "music" || ev.type === "module" || ev.type === "navigate") {
+      modulesUI.handleEvent(ev).catch(() => {});
+      if (ev.type === "navigate") return;
+    }
     if (ev.type === "proactive") {
       sessionId = ev.sessionId;
       appendMessage({
@@ -1553,6 +1725,15 @@ function connectStream() {
       window.ottoPet?.action?.(ev.action ?? "idle");
       showFrame(ev.action ?? "idle");
       toast(ev.text);
+      return;
+    }
+    if (ev.type === "immersion") {
+      if (ev.state) state.immersion = ev.state;
+      renderHome();
+      if (ev.notice) {
+        setHomeSay(ev.notice);
+        toast(ev.notice);
+      }
       return;
     }
     if (ev.type === "pet") {

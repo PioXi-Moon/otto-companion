@@ -1,6 +1,7 @@
 {
   "name": "otto-companion",
-  "version": "0.1.0",
+  "productName": "Otto",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "description": "Otto AI Companion - 第一阶段软件 Demo",
@@ -10,8 +11,11 @@
     "smoke": "node scripts/smoke.mjs",
     "electron": "electron .",
     "mock": "node --disable-warning=ExperimentalWarning --env-file=.env server/index.mjs",
+    "vocab:build": "node scripts/build-vocabulary.mjs",
     "shot": "electron scripts/shot.mjs",
-    "dist": "electron-builder --win portable"
+    "dist": "electron-builder --win portable",
+    "icon": "node scripts/make-icon.mjs",
+    "package:zip": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/package-portable.ps1"
   },
   "devDependencies": {
     "electron": "^44.7.0"

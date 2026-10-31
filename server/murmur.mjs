@@ -19,6 +19,7 @@ import { now } from "./clock.mjs";
 import { getPersona, getRelation } from "./persona.mjs";
 import { listLoops } from "./openloop.mjs";
 import { track } from "./events.mjs";
+import { immersionEnabled } from "./immersion.mjs";
 
 /* ---------------- 语料库 ---------------- */
 /* 先写成语料库，不要每条都调模型：频率天生比对话高，成本会失控；
@@ -146,6 +147,8 @@ function murmurBookkeeping() {
 
 /** 挑一条，返回 { category, text, key } 或 null */
 export function pickMurmur() {
+  // 沉浸模式不是"降低碎碎念频率"，而是完全退出自由表达。
+  if (immersionEnabled()) return null;
   const s = murmurState();
   const persona = s.persona;
   if (!persona?.locked) return null;

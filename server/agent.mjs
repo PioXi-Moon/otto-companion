@@ -23,6 +23,7 @@ import { getSetting, setSetting, one } from "./db.mjs";
 import { log } from "./util.mjs";
 import { initState, pushAnswer, inferPersona, startInit } from "./initflow.mjs";
 import { syncDay, dayKey } from "./diary.mjs";
+import { immersionEnabled, immersionAction } from "./immersion.mjs";
 
 const FALLBACK = {
   no_key: { text: "我还没接上大脑——API Key 没配置。这会儿我只能陪你待着。", action: "lie_down" },
@@ -273,6 +274,9 @@ export async function handleChat({ sessionId, text, mode = "chat", emit }) {
   const system = [
     baseLayer({ memories, dueLoops: due, relation: getRelation() }),
     chatLayer(),
+    immersionEnabled()
+      ? "【沉浸模式】用户正在工作。保持安静、简短、不催促；不要做庆祝、移动或大幅度动作，需要动作时只使用安静姿态。"
+      : "",
   ].join("\n\n");
   const history = sessionMessages(session.id, 40)
     .slice(-12)
@@ -300,8 +304,9 @@ export async function handleChat({ sessionId, text, mode = "chat", emit }) {
     const word = String(raw).trim();
     const key = ACTION_ALIAS[word] ?? word;
     actName = key;
-    broadcast("pet", { action: key, mood: "active" });
-    emit({ type: "act", action: key, label: word });
+    const quietKey = immersionAction(key);
+    broadcast("pet", { action: quietKey, mood: "active" });
+    emit({ type: "act", action: quietKey, label: word });
   });
 
   try {
@@ -331,9 +336,15 @@ export async function handleChat({ sessionId, text, mode = "chat", emit }) {
       meta: { degraded: code },
     });
     // 出错的时候它自己也该知道：换成"困惑"，而不是继续演刚才那个表情
-    broadcast("pet", { action: "confused", ms: 3000 });
+    broadcast("pet", { action: immersionAction("confused"), ms: 3000 });
     emit({ type: "delta", text: fb.text });
-    emit({ type: "done", messageId: msg.id, text: fb.text, action: "confused", degraded: code });
+    emit({
+      type: "done",
+      messageId: msg.id,
+      text: fb.text,
+      action: immersionAction("confused"),
+      degraded: code,
+    });
     return { sessionId: session.id, degraded: code };
   }
 
@@ -354,8 +365,15 @@ export async function handleChat({ sessionId, text, mode = "chat", emit }) {
     interactionType,
     meta: { raw: full, action, emotion: emoKey, mind: mindText },
   });
-  emit({ type: "done", messageId: msg.id, text: clean, action, emotion: emoKey, mind: mindText });
-  broadcast("pet", { action, mood: "active" });
+  emit({
+    type: "done",
+    messageId: msg.id,
+    text: clean,
+    action: immersionAction(action),
+    emotion: emoKey,
+    mind: mindText,
+  });
+  broadcast("pet", { action: immersionAction(action), mood: "active" });
 
   // 异步抽取，不打断对话
   void postProcess({ sessionId: session.id, messageId: msg.id });
@@ -440,6 +458,8 @@ function proactiveStats(sinceTs) {
 }
 
 export async function proactiveTick() {
+  // 沉浸模式下主动发起不抢占工作注意力；到期的线头留着，退出后再处理。
+  if (immersionEnabled()) return null;
   if (!ENV.proactive || !memoryEnabled()) return null;
   const quietUntil = getSetting("quietUntil", null);
   if (quietUntil && now() < quietUntil) return null;

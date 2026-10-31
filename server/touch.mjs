@@ -15,6 +15,7 @@ import { getSetting, setSetting } from "./db.mjs";
 import { now } from "./clock.mjs";
 import { getRelation, getPersona, updateRelation } from "./persona.mjs";
 import { track } from "./events.mjs";
+import { immersionEnabled } from "./immersion.mjs";
 
 const STAGE_ORDER = ["stranger", "familiar", "habit", "grown"];
 
@@ -111,7 +112,10 @@ export function touchResponse({ kind = "tap", sleeping = false } = {}) {
 
   let base;
   let flavor;
-  if (kind === "drag") {
+  if (immersionEnabled()) {
+    base = { t: "（安静地看了你一眼）", a: "immersed" };
+    flavor = "immersed";
+  } else if (kind === "drag") {
     base = pick(LIFTED);
     flavor = "lifted";
   } else if (kind === "drop") {

@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; style-src 'unsafe-inline'; script-src 'unsafe-inline'"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>设置 Otto 的 API Key</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #20242a;
+        --muted: #6f7680;
+        --line: #dfe3e8;
+        --paper: #f6f7f9;
+        --white: #fff;
+        --accent: #2d6555;
+        --accent-hover: #244f43;
+        --danger: #a23932;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        padding: 34px;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at 90% 5%, rgba(98, 147, 129, 0.13), transparent 35%),
+          var(--paper);
+        font-family: "Microsoft YaHei UI", "Microsoft YaHei", system-ui, sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      main {
+        margin: 0 auto;
+        max-width: 470px;
+      }
+
+      .eyebrow {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 24px;
+        color: var(--accent);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.15em;
+      }
+
+      .mark {
+        display: grid;
+        width: 32px;
+        height: 32px;
+        place-items: center;
+        border-radius: 11px 11px 14px 9px;
+        color: #fff;
+        background: var(--accent);
+        font-family: Georgia, serif;
+        font-size: 20px;
+        letter-spacing: 0;
+        transform: rotate(-4deg);
+      }
+
+      h1 {
+        margin: 0 0 12px;
+        font-family: "STSong", "SimSun", Georgia, serif;
+        font-size: 34px;
+        font-weight: 500;
+        letter-spacing: 0.02em;
+      }
+
+      .intro {
+        margin: 0 0 26px;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.8;
+      }
+
+      .card {
+        padding: 22px;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.92);
+        box-shadow: 0 16px 40px rgba(34, 43, 50, 0.06);
+      }
+
+      label {
+        display: block;
+        margin-bottom: 9px;
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .field {
+        position: relative;
+      }
+
+      input {
+        width: 100%;
+        height: 48px;
+        padding: 0 74px 0 14px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        outline: none;
+        color: var(--ink);
+        background: var(--white);
+        font: 14px/1.2 Consolas, "SFMono-Regular", monospace;
+        transition:
+          border-color 150ms ease,
+          box-shadow 150ms ease;
+      }
+
+      input:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(45, 101, 85, 0.12);
+      }
+
+      .reveal {
+        position: absolute;
+        top: 7px;
+        right: 7px;
+        height: 34px;
+        padding: 0 11px;
+        border: 0;
+        border-radius: 7px;
+        color: var(--muted);
+        background: #f0f2f4;
+        cursor: pointer;
+        font: inherit;
+        font-size: 12px;
+      }
+
+      .hint {
+        margin: 9px 0 0;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.6;
+      }
+
+      .hint a {
+        color: var(--accent);
+        text-underline-offset: 3px;
+      }
+
+      .status {
+        min-height: 22px;
+        margin: 12px 0 0;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.6;
+      }
+
+      .status.error {
+        color: var(--danger);
+      }
+
+      .status.good {
+        color: var(--accent);
+      }
+
+      .actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-top: 18px;
+      }
+
+      .primary,
+      .secondary {
+        height: 44px;
+        border-radius: 10px;
+        cursor: pointer;
+        font: inherit;
+        font-size: 14px;
+        font-weight: 700;
+      }
+
+      .primary {
+        flex: 1;
+        border: 1px solid var(--accent);
+        color: #fff;
+        background: var(--accent);
+      }
+
+      .primary:hover:not(:disabled) {
+        border-color: var(--accent-hover);
+        background: var(--accent-hover);
+      }
+
+      .secondary {
+        padding: 0 16px;
+        border: 1px solid var(--line);
+        color: var(--muted);
+        background: transparent;
+      }
+
+      button:disabled {
+        cursor: wait;
+        opacity: 0.58;
+      }
+
+      .privacy {
+        margin: 18px 4px 0;
+        color: var(--muted);
+        font-size: 11px;
+        line-height: 1.75;
+      }
+
+      .privacy strong {
+        color: var(--ink);
+      }
+
+      .server-warning {
+        display: none;
+        margin-top: 12px;
+        padding: 10px 12px;
+        border-radius: 9px;
+        color: var(--danger);
+        background: rgba(162, 57, 50, 0.08);
+        font-size: 12px;
+        line-height: 1.6;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="eyebrow"><span class="mark">O</span> OTTO / LOCAL FIRST</div>
+      <h1>给它一把自己的钥匙</h1>
+      <p class="intro">
+        Otto 需要一个 DeepSeek API Key 才能说话。这个 Key 只保存在这台电脑上，
+        不会出现在源码或分享压缩包里。
+      </p>
+
+      <section class="card">
+        <form id="key-form" novalidate>
+          <label for="api-key">DeepSeek API Key</label>
+          <div class="field">
+            <input
+              id="api-key"
+              name="api-key"
+              type="password"
+              placeholder="sk-..."
+              autocomplete="off"
+              autocapitalize="off"
+              spellcheck="false"
+              autofocus
+              required
+            />
+            <button class="reveal" id="reveal" type="button" aria-label="显示 API Key">显示</button>
+          </div>
+          <p class="hint">
+            没有 Key？可以到
+            <a href="https://platform.deepseek.com/api_keys" target="_blank" rel="noreferrer"
+              >DeepSeek 开放平台</a
+            >
+            创建。
+          </p>
+          <div class="server-warning" id="server-warning">
+            当前系统无法使用安全存储。为避免明文泄露，Otto 不会保存 Key；请先确认系统登录状态，或改用 `.env` 作为开发配置。
+          </div>
+          <p class="status" id="status" aria-live="polite"></p>
+          <div class="actions">
+            <button class="primary" id="save" type="submit">安全保存并启动</button>
+            <button class="secondary" id="skip" type="button">稍后设置</button>
+          </div>
+        </form>
+      </section>
+
+      <p class="privacy">
+        <strong>只在本机使用。</strong> Key 通过 Windows 安全存储加密，之后只交给本机运行的 Otto 服务；
+        设置窗口和网页界面都无法再次读回明文。
+      </p>
+    </main>
+
+    <script>
+      const form = document.querySelector("#key-form");
+      const input = document.querySelector("#api-key");
+      const save = document.querySelector("#save");
+      const skip = document.querySelector("#skip");
+      const reveal = document.querySelector("#reveal");
+      const status = document.querySelector("#status");
+      const serverWarning = document.querySelector("#server-warning");
+      const firstRun = new URLSearchParams(location.search).get("firstRun") === "1";
+      const apiKey = window.ottoPet?.apiKey;
+
+      function setStatus(text, kind = "") {
+        status.textContent = text;
+        status.className = `status ${kind}`;
+      }
+
+      function setBusy(busy) {
+        input.disabled = busy;
+        save.disabled = busy;
+        skip.disabled = busy;
+        reveal.disabled = busy;
+      }
+
+      async function loadStatus() {
+        if (!apiKey) {
+          setStatus("设置通道没有加载，请重新打开 Otto。", "error");
+          setBusy(true);
+          return;
+        }
+        try {
+          const state = await apiKey.status();
+          if (!state.encryptedStorage) serverWarning.style.display = "block";
+          if (state.configured && !firstRun) {
+            setStatus("已配置 API Key。输入一个新的 Key 可以替换它。", "good");
+          }
+          if (!firstRun) skip.style.display = "none";
+        } catch (e) {
+          setStatus(`读取设置状态失败：${e.message}`, "error");
+        }
+      }
+
+      reveal.addEventListener("click", () => {
+        const visible = input.type === "text";
+        input.type = visible ? "password" : "text";
+        reveal.textContent = visible ? "显示" : "隐藏";
+        input.focus();
+      });
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const key = input.value.trim();
+        if (!key.startsWith("sk-") || key.length < 20) {
+          setStatus("请输入完整的 DeepSeek API Key（通常以 sk- 开头）。", "error");
+          input.focus();
+          return;
+        }
+
+        setBusy(true);
+        setStatus(runtimeMessage());
+        try {
+          const result = await apiKey.save(key);
+          if (!result?.ok) {
+            setStatus(result?.error || "保存失败，请稍后重试。", "error");
+            setBusy(false);
+            return;
+          }
+          input.value = "";
+          setStatus("已保存，Otto 正在启动。", "good");
+        } catch (e) {
+          setStatus(`保存失败：${e.message}`, "error");
+          setBusy(false);
+        }
+      });
+
+      skip.addEventListener("click", async () => {
+        setBusy(true);
+        setStatus("正在打开 Otto…");
+        try {
+          const result = await apiKey.skip();
+          if (!result?.ok) {
+            setStatus(result?.error || "Otto 启动失败。", "error");
+            setBusy(false);
+          }
+        } catch (e) {
+          setStatus(`Otto 启动失败：${e.message}`, "error");
+          setBusy(false);
+        }
+      });
+
+      function runtimeMessage() {
+        return firstRun ? "正在安全保存并启动 Otto…" : "正在安全保存新的 API Key…";
+      }
+
+      loadStatus();
+    </script>
+  </body>
+</html>

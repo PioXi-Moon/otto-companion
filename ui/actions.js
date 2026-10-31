@@ -25,6 +25,10 @@ export const ACTIONS = {
      ========================================================== */
   idle:        { label: "默认 / 待机", kind: "state", pose: P({}) },
 
+  /* 沉浸模式里的常驻姿势：不睡过去，也不做小动作。
+     它要表达的是“我在，但不打扰”，所以只把眼睛放松下来 */
+  immersed:    { label: "沉浸陪坐",  kind: "state", pose: P({ lidL: 0.28, lidR: 0.28, pupilY: 0.2, lift: 2, squash: 0.99, hipL: 3, hipR: -3, head: -1 }), anim: null },
+
   /* 留一个"纯的"开心，不加符号 */
 happy:       { label: "开心",       kind: "once",  pose: P({ eyeShape: 1, mouthShape: 1, lift: -4, squash: 1.05 }), blush: true, ms: 2600 },
 

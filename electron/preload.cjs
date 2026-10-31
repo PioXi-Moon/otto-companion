@@ -8,13 +8,20 @@ const { contextBridge, ipcRenderer } = require("electron");
 
 contextBridge.exposeInMainWorld("ottoPet", {
   isElectron: true,
-  dragStart: () => ipcRenderer.send("pet:drag-start"),
+  dragStart: (box) => ipcRenderer.send("pet:drag-start", box),
   dragMove: (dx, dy) => ipcRenderer.send("pet:drag-move", { dx, dy }),
   dragEnd: () => ipcRenderer.send("pet:drag-end"),
+  box: (r) => ipcRenderer.send("pet:box", r),
   openPanel: () => ipcRenderer.send("panel:open"),
   quit: () => ipcRenderer.send("app:quit"),
   menu: () => ipcRenderer.send("pet:menu"),
   action: (name) => ipcRenderer.send("pet:action", name),
   resize: (scale) => ipcRenderer.send("pet:resize", scale),
   setIgnoreMouse: (v) => ipcRenderer.send("pet:ignore-mouse", v),
+  apiKey: {
+    status: () => ipcRenderer.invoke("api-key:status"),
+    save: (key) => ipcRenderer.invoke("api-key:save", key),
+    skip: () => ipcRenderer.invoke("api-key:skip"),
+    close: () => ipcRenderer.send("api-key:close"),
+  },
 });

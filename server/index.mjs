@@ -50,6 +50,12 @@ import { daysWithContent, diaryDay, syncDay, dayKey, diaryGate, blockedLine } fr
 import { murmurTick, murmurStats, markFocused } from "./murmur.mjs";
 import { touchResponse } from "./touch.mjs";
 import {
+  immersionState,
+  immersionEnabled,
+  updateImmersion,
+  tickImmersion,
+} from "./immersion.mjs";
+import {
   getPersona,
   getRelation,
   updateRelation,
@@ -69,6 +75,11 @@ import {
   resetPersona,
 } from "./initflow.mjs";
 import { allMessages, ensureSession, recentMessages } from "./messages.mjs";
+import {
+  executeModuleTool,
+  modulesSnapshot,
+  wordCatalog,
+} from "./modules.mjs";
 import { log, uid } from "./util.mjs";
 
 const MIME = {
@@ -143,15 +154,30 @@ function overview() {
     diaryGate: diaryGate(),
     devUnlockDiary: !!getSetting("devUnlockDiary", false),
     murmur: murmurStats(),
+    immersion: immersionState(),
     quietUntil: getSetting("quietUntil", null),
     devUnlockCards: getSetting("devUnlockCards", false) === true,
     petScale: getSetting("petScale", 1),
     clients: clientCount(),
+    modules: modulesSnapshot(),
   };
 }
 
 const routes = {
   "GET /api/state": (req, res) => sendJson(res, overview()),
+
+  "GET /api/modules": (req, res) => sendJson(res, modulesSnapshot()),
+
+  "GET /api/words": (req, res) => {
+    const u = new URL(req.url, "http://x");
+    sendJson(res, {
+      items: wordCatalog({
+        deck: u.searchParams.get("deck") || undefined,
+        q: u.searchParams.get("q") || undefined,
+        limit: Number(u.searchParams.get("limit") || 240),
+      }),
+    });
+  },
 
   "GET /api/stream": (req, res) => {
     res.writeHead(200, {
@@ -307,7 +333,7 @@ const routes = {
     if (coldStart) action = "welcome";
     else if (awayMs !== null && awayMs > 3 * 3600000) action = "welcome_back";
     else if (awayMs !== null && awayMs > 10 * 60000) action = "peek";
-    if (action) broadcast("pet", { action });
+    if (action && !immersionEnabled()) broadcast("pet", { action });
     sendJson(res, { ok: true, visible: true, action, awayMs });
   },
 
@@ -324,6 +350,29 @@ const routes = {
     const name = String(body.name ?? "").trim();
     if (!name) return sendJson(res, { error: "缺动作名" }, 400);
     broadcast("pet", { action: name, ms: Number(body.ms) || undefined });
+    sendJson(res, { ok: true, name });
+  },
+
+  "POST /api/immersion": async (req, res) => {
+    const body = await readBody(req);
+    let out;
+    try {
+      out = updateImmersion(body);
+    } catch (e) {
+      return sendJson(res, { error: e.message }, 400);
+    }
+    broadcast("immersion", out);
+    if (out.event === "entered") broadcast("pet", { action: "immersed", ms: 2200 });
+    if (out.event === "exited") broadcast("pet", { action: "happy", ms: 2200 });
+    sendJson(res, out);
+  },
+
+  // 动作调试台专用：只广播给硬件桥，不写事件、不进记忆
+  "POST /api/pet/hardware": async (req, res) => {
+    const body = await readBody(req);
+    const name = String(body.name ?? "").trim();
+    if (!name) return sendJson(res, { error: "缺动作名" }, 400);
+    broadcast("hw", { action: name });
     sendJson(res, { ok: true, name });
   },
 
@@ -442,10 +491,26 @@ const routes = {
     sendJson(res, overview());
   },
 
+  // 面板按钮、语音工具和外部自动化都走同一个执行器，避免三套状态各说各话
+  "POST /api/tools/run": async (req, res) => {
+    const body = await readBody(req);
+    const out = executeModuleTool(body.action ?? body.tool, body.args ?? body, {
+      source: body.source === "voice" ? "voice" : "api",
+    });
+    broadcast("state", { modulesChanged: true });
+    sendJson(res, out, out.ok === false && out.error === "unknown_tool" ? 400 : 200);
+  },
+
+  "POST /api/words/mark": async (req, res) => {
+    const body = await readBody(req);
+    const out = executeModuleTool("word_mark", body, { source: "ui" });
+    sendJson(res, out);
+  },
+
   "POST /api/dev/reset": async (req, res) => {
     const body = await readBody(req);
     const keepPersona = !!body.keepPersona;
-    for (const t of ["message", "session", "memory", "open_loop", "timeline", "event_log", "diary"]) {
+    for (const t of ["message", "session", "memory", "open_loop", "timeline", "event_log", "diary", "word_progress", "tool_run"]) {
       run(`delete from ${t}`);
     }
     run("update relation set stage='stranger', intimacy=0, shared_count=0, mood='平稳', updated_at=? where id=1", now());
@@ -458,9 +523,12 @@ const routes = {
     setSetting("petNamed", false);
     setSetting("petName", DEFAULT_PET_NAME);
     setSetting("touchState", null);
+    setSetting("immersion", null);
     setSetting("panelHiddenSince", null);
     setSetting("serverStartedAt", null);
     setSetting("sitDone", false);
+    setSetting("musicState", null);
+    setSetting("wordSession", null);
     resetClock();
     if (!keepPersona) {
       run("delete from persona");
@@ -588,12 +656,22 @@ export function startServer({ port = ENV.port } = {}) {
         }
       }, 45000);
       murmurTimer.unref?.();
+      const immersionTimer = setInterval(() => {
+        try {
+          const out = tickImmersion();
+          if (out) broadcast("immersion", out);
+        } catch (e) {
+          log("沉浸模式计时失败：", e.message);
+        }
+      }, 1000);
+      immersionTimer.unref?.();
       resolve({
         port,
         url,
         stop: () => {
           stop();
           clearInterval(murmurTimer);
+          clearInterval(immersionTimer);
           server.close();
         },
       });

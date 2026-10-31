@@ -26,9 +26,9 @@
 <!-- 这一条要说的是"记录"，不是参数。
      真机上的对话和交互，回来都会落在这里——这是软件存在的理由 -->
 <div class="recbar">
-  <span class="rec-chip">它现在住在电脑里</span>
-  <span class="rec-text">等把它接上之后，<b>你在它那边说过的话、碰过它的每一次，回来都会记在这里</b>——
-    说过的进对话和记忆，做过的动作进今天这一页。</span>
+  <span class="rec-chip">小智语音已接入</span>
+  <span class="rec-text">现在可以对着小智说<b>「来首歌」「播放中秋月」「开始背单词」「二十五分钟专注」</b>；
+    普通点歌由小智自己唱，其他功能会打开对应模块。</span>
   <button class="rec-go" id="recGo">看看现在记了什么</button>
 </div>
 
@@ -45,6 +45,8 @@
   <nav class="rail" aria-label="页签">
     <button class="tab active" data-tab="home">它今天</button>
     <button class="tab" data-tab="tools">使唤它</button>
+    <button class="tab" data-tab="music">听点声音</button>
+    <button class="tab" data-tab="words">背几个词</button>
     <button class="tab" data-tab="memory">它的本子</button>
     <button class="tab" data-tab="timeline">你们之间</button>
     <button class="tab" data-tab="test">测试面板</button>
@@ -62,6 +64,46 @@
         <div class="desk-right">
           <div class="home-state" id="homeState">{{pet}}趴着，看起来在打瞌睡</div>
           <div class="home-sub" id="homeSub">刚认识</div>
+          <section class="immersion" id="immersionPanel" aria-label="沉浸模式">
+            <div class="imm-head">
+              <div>
+                <div class="imm-kicker">工作时的 Otto</div>
+                <div class="imm-title">沉浸模式</div>
+              </div>
+              <label class="imm-switch">
+                <input type="checkbox" id="immersionToggle">
+                <span class="imm-switch-ui" aria-hidden="true"></span>
+                <span id="immersionToggleText">关闭</span>
+              </label>
+            </div>
+            <p class="imm-lead" id="immersionLead">
+              打开后，它不再自己碎碎念、做彩蛋或主动找你，只留必要的提醒。
+            </p>
+            <div class="imm-body" id="immersionBody">
+              <div class="imm-flip">
+                <b>可以把 Otto 轻轻倒过来</b>
+                <span>脚朝上，放在桌边。电脑里的它会从活泼陪伴切到安静陪坐。</span>
+              </div>
+              <div class="imm-modules" id="immersionModules"></div>
+              <div class="imm-session">
+                <div class="imm-session-top">
+                  <span id="immersionPhase">工作</span>
+                  <strong id="immersionClock">--:--</strong>
+                </div>
+                <div class="imm-progress"><i id="immersionProgress"></i></div>
+                <div class="imm-session-foot">
+                  <span id="immersionModuleHint">选择一段适合现在的工作节奏</span>
+                  <span id="immersionFootRule"></span>
+                </div>
+              </div>
+              <div class="imm-actions">
+                <button class="primary" id="immersionStart">开始这一段</button>
+                <button id="immersionPause" class="hidden">暂停计时</button>
+                <button id="immersionNext">跳到下一段</button>
+                <button id="immersionReset">重新计时</button>
+              </div>
+            </div>
+          </section>
           <div class="home-say" id="homeSay"></div>
           <div class="desk-items">
             <div class="ditem note" id="homeToday"></div>
@@ -84,7 +126,7 @@
     <div class="pane-head">
       <h2>使唤它</h2>
       <p class="muted">这些是<b>通道</b>，不是陪伴本身——它不是因为你使唤它才存在的。
-        硬件语音到位之后，这一页都能用嘴开。</p>
+        现在除了点按钮，也能直接对小智说。</p>
       <!-- 硬件的两条通道。软件这边干的活，就是围着这两条转 -->
       <div class="hwchannels">
         <div class="hwch">
@@ -93,7 +135,7 @@
         </div>
         <div class="hwch">
           <b>通道二 · 语音</b>
-          <span>你和它在硬件上说了什么 → 聊天的内容、语气、以及从中长出来的记忆。<b>等硬件</b>，现在只能从这里打字。</span>
+          <span>你和它在小智上说了什么 → 对话、语气、记忆，以及音乐、词卡和专注计时。<b>语音工具已接通</b>。</span>
         </div>
       </div>
     </div>
@@ -109,6 +151,112 @@
       <textarea id="input" rows="1" placeholder="说点什么…（Enter 发送，Shift+Enter 换行）"></textarea>
       <button class="primary" id="send">发送</button>
     </div>
+  </section>
+
+  <!-- 音乐：内置实时合成，离线也能放。语音点歌和面板控制共用同一个状态 -->
+  <section class="pane" id="pane-music">
+    <div class="pane-head module-head">
+      <div>
+        <h2>听点声音</h2>
+        <p class="muted">六首内置环境音乐，不联网也能听。对小智说歌名或一种心情，面板会跟着切换。</p>
+      </div>
+      <span class="module-live"><i></i> 语音可点播</span>
+    </div>
+
+    <div class="music-player" id="musicPlayer">
+      <div class="music-cover" id="musicCover">
+        <span class="music-symbol" id="musicSymbol">雨</span>
+        <span class="music-orbit orbit-a"></span>
+        <span class="music-orbit orbit-b"></span>
+        <div class="music-eq" aria-hidden="true">
+          <i></i><i></i><i></i><i></i><i></i>
+        </div>
+      </div>
+      <div class="music-main">
+        <span class="music-now">现在听着</span>
+        <h3 id="musicTitle">还没有播放</h3>
+        <p id="musicSubtitle">选一首，让房间里有一点声音。</p>
+        <div class="music-time">
+          <span id="musicElapsed">00:00</span>
+          <div class="music-progress"><i id="musicProgress"></i></div>
+          <span id="musicDuration">--:--</span>
+        </div>
+        <div class="music-controls">
+          <button id="musicPrev" title="上一首">上一首</button>
+          <button class="music-play" id="musicPlay" aria-label="播放或暂停">▶</button>
+          <button id="musicNext" title="下一首">下一首</button>
+          <label class="music-volume">
+            <span>音量</span>
+            <input id="musicVolume" type="range" min="0" max="100" value="72">
+          </label>
+          <button class="music-stop" id="musicStop">停止</button>
+        </div>
+        <p class="music-error hidden" id="musicError">浏览器拦截了自动播放。点一下播放键就能继续。</p>
+      </div>
+    </div>
+
+    <div class="music-filters" id="musicFilters"></div>
+    <div class="music-grid" id="musicTracks"></div>
+    <p class="module-foot">音频由 Otto 在本机实时合成，不包含第三方录音。</p>
+  </section>
+
+  <!-- 英语词卡：主题词库、发音、学习状态、小测和搜索都在这一页 -->
+  <section class="pane" id="pane-words">
+    <div class="pane-head module-head">
+      <div>
+        <h2>背几个词</h2>
+        <p class="muted">从 ECDICT 抽出的常用词，共 <b id="wordTotal">--</b> 个。认识、模糊、小测都会记进度。</p>
+      </div>
+      <span class="module-live"><i></i> 语音可带读</span>
+    </div>
+
+    <div class="word-stats" id="wordStats">
+      <div class="word-stat"><span>今天</span><strong id="wordToday">0</strong><em>/ 10</em></div>
+      <div class="word-stat"><span>认识</span><strong id="wordKnown">0</strong><em>个</em></div>
+      <div class="word-stat"><span>掌握</span><strong id="wordMastery">0%</strong><em id="wordSeen">看过 0 个</em></div>
+    </div>
+
+    <div class="deck-strip" id="wordDecks"></div>
+
+    <div class="word-workspace">
+      <section class="flashcard" id="flashcard">
+        <div class="flash-top">
+          <span class="flash-deck" id="flashDeck">日常高频</span>
+          <span class="flash-level" id="flashLevel">常用</span>
+        </div>
+        <div class="flash-word" id="flashWord">word</div>
+        <div class="flash-phonetic" id="flashPhonetic">/wɜːd/</div>
+        <button class="speak-word" id="speakWord" title="朗读单词">听发音</button>
+        <div class="flash-meaning" id="flashMeaning">单词</div>
+        <div class="flash-pos" id="flashPos"></div>
+        <p class="flash-definition" id="flashDefinition"></p>
+        <div class="flash-actions">
+          <button class="again" id="wordAgain">还不熟</button>
+          <button id="wordRepeat">再读一遍</button>
+          <button class="primary" id="wordKnownBtn">记住了</button>
+          <button id="wordNext">下一个</button>
+        </div>
+      </section>
+
+      <aside class="word-side">
+        <section class="quiz-card">
+          <span class="word-side-kicker">一分钟小测</span>
+          <p id="quizPrompt">用当前单词做一道选择题。</p>
+          <div class="quiz-options" id="quizOptions"></div>
+          <button id="startQuiz">出题</button>
+        </section>
+        <section class="word-tip">
+          <span class="word-side-kicker">怎么用</span>
+          <p>对小智说「背单词」，它会念出当前词和释义；说「下一个」「再来一遍」就能继续。</p>
+        </section>
+      </aside>
+    </div>
+
+    <div class="word-library-head">
+      <h3>词库</h3>
+      <input id="wordSearch" type="search" placeholder="搜英文、中文释义…" autocomplete="off">
+    </div>
+    <div class="word-library" id="wordLibrary"></div>
   </section>
 
   <!-- 日记 -->

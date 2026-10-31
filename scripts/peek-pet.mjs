@@ -5,6 +5,7 @@
  *
  * 用法：electron scripts/peek-pet.mjs happy "speaking"
  */
+import "../electron/quiet-stdio.mjs"; // 管子被掐断时别让 EPIPE 变成弹窗，见 quiet-stdio.mjs 顶部注释
 import { app, BrowserWindow } from "electron";
 import path from "node:path";
 import url from "node:url";
