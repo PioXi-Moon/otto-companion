@@ -13,6 +13,7 @@
 import { getSetting, setSetting } from "./db.mjs";
 import { getPersona, getRelation } from "./persona.mjs";
 import { now } from "./clock.mjs";
+import { track } from "./events.mjs";
 
 /* ---------------- 六个状态维度 ---------------- */
 
@@ -156,6 +157,14 @@ export function correct(text) {
     stats[bias].corrected = (stats[bias].corrected ?? 0) + 1;
     setSetting("ontologyBias", stats);
     learnedNow = stats[bias].corrected;
+    track("ontology_corrected", {
+      key,
+      from: last.speech.act,
+      to,
+      bias,
+      learned: learnedNow,
+      why: last.misread?.why ?? null,
+    });
   }
 
   setSetting("ontologyLast", { ...last, corrected: true, correctedTo: to });
@@ -330,6 +339,15 @@ export function observe(text, { stage, rng = Math.random } = {}) {
     at: now(),
     reason: `${conflict.label}（张力 ${conflict.t.toFixed(2)}）→ ${intent} → ${action}`,
   };
+  if (mis) {
+    track("ontology_misread", {
+      text: decision.text,
+      from: mis.from,
+      to: mis.to,
+      bias: mis.bias,
+      why: mis.why,
+    });
+  }
   setSetting("ontologyLast", decision);
   return { state, decision };
 }

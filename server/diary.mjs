@@ -180,6 +180,27 @@ async function writeDiary(day, memories, messages, { last = {}, feedback = "" } 
         .join("\n")
     : "（这一天没有记下什么）";
 
+  /* 这一天它自己的"心理事件"：误读和纠正。日记最值钱的材料之一。 */
+  const [dayStartAt, dayEndAt] = dayRange(day);
+  const ontoEvents = q(
+    `select name, params from event_log
+      where ts >= ? and ts < ? and name in ('ontology_misread','ontology_corrected')
+      order by ts`,
+    dayStartAt,
+    dayEndAt
+  );
+  const ontoList = ontoEvents.length
+    ? ontoEvents
+        .map((e) => {
+          const p = parseJson(e.params, {}) ?? {};
+          if (e.name === "ontology_misread") {
+            return `- 它把「${p.text}」听成了「${p.to}」（${p.why ?? ""}）`;
+          }
+          return `- 他后来纠正了：不是「${p.from}」，是「${p.to}」。这类偏见第 ${p.learned ?? 1} 次被纠正`;
+        })
+        .join("\n")
+    : "（这一天没有误读，也没有纠正）";
+
   try {
     const text = await chatStream({
       messages: [
@@ -210,6 +231,9 @@ ${transcript}
 
 这一天 ${name} 记下的事：
 ${memList}
+
+这一天它自己的误读与纠正：
+${ontoList}
 
 人称：正文里的他是"他"，"我"是你自己；卡片是写给他的，用"你"。
 
