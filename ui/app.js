@@ -219,6 +219,8 @@ async function refresh() {
   renderKeepsakes(ks.items ?? []);
   const tl = await fetch("/api/timeline").then((r) => r.json());
   renderTimeline(tl.items ?? [], diary.items ?? []);
+  const onto = await fetch("/api/ontology").then((r) => r.json()).catch(() => null);
+  renderGrowth(tl.items ?? [], onto?.growth);
   renderHomeRecent(tl.items?.[0]);
   const ev = await fetch("/api/events").then((r) => r.json());
   renderEvents(ev);
@@ -1541,7 +1543,7 @@ function renderTimeline(items, days) {
       <div class="rawlist"></div>
       <div class="cardwrap"></div>`;
     el.querySelector(".head .d").textContent = d.label;
-    el.querySelector(".head .m").textContent = d.date;
+    el.querySelector(".head .m").textContent = REL_DAYS.includes(d.label) ? d.date : "";
     el.querySelector(".head .meta").textContent = meta.join(" · ");
 
     // 这一天真正发生过什么：说过的话 + 做过的动作，没加工过的那一份
@@ -1601,6 +1603,49 @@ function cardFor(d) {
     el.querySelector(".text").textContent = d.card;
   };
   return el;
+}
+
+/**
+ * "它变了"：关系记录顶部的一条变化线。
+ * 只放真正跨过阈值的性格漂移，不放日常情绪——不然就不是"变了"，是流水账。
+ */
+const GROWTH_DIM_LABEL = {
+  activity: "活跃",
+  sociability: "社交",
+  expressiveness: "表达",
+  amplitude: "情绪",
+  curiosity: "好奇",
+  attachment: "关系期待",
+};
+
+function renderGrowth(items, growth) {
+  const box = $("#growthTimeline");
+  if (!box) return;
+  const list = (items ?? []).filter((t) => t.kind === "growth").sort((a, b) => b.ts - a.ts);
+  const deltas = Object.entries(growth?.deltas ?? {});
+  if (!list.length && !deltas.length) {
+    box.classList.add("hidden");
+    return;
+  }
+  box.classList.remove("hidden");
+  box.innerHTML = `
+    <div class="g-head"><b>它变了</b><span>认识以来，性格上的几处变化</span></div>
+    <div class="g-now"></div>
+    <div class="g-list"></div>`;
+  box.querySelector(".g-now").textContent = deltas.length
+    ? "现在的它：" + deltas.map(([k, v]) => `${GROWTH_DIM_LABEL[k] ?? k} ${v > 0 ? "+" : ""}${v}`).join(" · ")
+    : "还没有累积出明显变化。";
+  const listEl = box.querySelector(".g-list");
+  for (const t of list.slice(0, 6)) {
+    const when = new Date(t.ts).toLocaleDateString("zh-CN", { month: "numeric", day: "numeric" });
+    const el = document.createElement("div");
+    el.className = "g-item";
+    el.innerHTML = `<span class="g-dot"></span><div class="g-date"></div><div class="g-main"><b></b><div class="g-detail"></div></div>`;
+    el.querySelector(".g-date").textContent = when;
+    el.querySelector(".g-main b").textContent = t.title;
+    el.querySelector(".g-detail").textContent = t.detail ?? "";
+    listEl.appendChild(el);
+  }
 }
 
 /* ---------------- 测试面板 ---------------- */
