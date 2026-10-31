@@ -437,8 +437,8 @@ export async function handleChat({ sessionId, text, mode = "chat", emit }) {
   /* 回访的身体版：先转开（嘴硬），过一会儿再转回来（其实没走）。
      屏幕和实体走同一套：实体那边由桥执行 growth_callback。 */
   if (growthHint.growth) {
-    setTimeout(() => broadcast("pet", { action: "turn_away" }), 400);
-    setTimeout(() => broadcast("pet", { action: "happy" }), 2000);
+    setTimeout(() => broadcast("pet", { action: "growth_callback" }), 400);
+    setTimeout(() => broadcast("pet", { action: "happy" }), 2200);
     fetch("http://127.0.0.1:7790/otto", {
       method: "POST",
       headers: { "content-type": "application/json" },

@@ -91,6 +91,8 @@ happy:       { label: "开心",       kind: "once",  pose: P({ eyeShape: 1, mout
   fidget:      { label: "自己玩",     kind: "once",  pose: P({}), anim: "m-jiggle", ms: 2400 },
   tsundere:    { label: "傲娇",       kind: "once",  pose: P({ lean: 11, ankleL: -16, ankleR: -16, mouthShape: 2 }), anim: "m-wobble", ms: 2400 },
 nuzzle:      { label: "撒娇蹭",     kind: "once",  pose: P({ eyeShape: 1, mouthShape: 1, lift: -2, squash: 1.04 }), anim: "m-step", blush: true, ms: 2400 },
+  // 回访：先别过脸（嘴硬），过一会儿自己转回来。和实体桥的 growth_callback 同一个语义
+  growth_callback: { label: "嘴硬回访", kind: "once", pose: P({ head: -9, lean: -3, lidL: 0.18, lidR: 0.18 }), anim: "m-wobble", ms: 2600 },
   guilty:      { label: "心虚",       kind: "once",  pose: P({ lift: 8, squash: 0.93, hipL: 7, hipR: -7, head: 4, pupilY: 0.5, lidL: 0.3, lidR: 0.3 }), ms: 2400 },
   sulk:        { label: "闹脾气",     kind: "once",  pose: P({ lean: 9, ankleL: -14, ankleR: -14, lidL: 0.72, lidR: 0.72, pupilX: 0.7, mouthShape: 2 }), anim: "m-stomp", ms: 2200 },
   alert:       { label: "记挂",       kind: "once",  pose: P({ lift: -8, squash: 1.05, mouthShape: 3 }), ms: 2400 },
