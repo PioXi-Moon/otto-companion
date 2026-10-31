@@ -336,12 +336,20 @@ class BleRobot:
             if not wait_ok:
                 return {"ok": True, "command": command, "ack": None}
             timeout = 14 if base in MOTION else 3
-            ack = await self._read_until(
-                lambda line: line.startswith(f"OK {base}")
-                or line.startswith("ERR ")
-                or line.startswith("READY"),
-                timeout,
-            )
+            if base == "PING":
+                ack = await self._read_until(
+                    lambda line: line.startswith("PONG")
+                    or line.startswith("ERR ")
+                    or line.startswith("READY"),
+                    timeout,
+                )
+            else:
+                ack = await self._read_until(
+                    lambda line: line.startswith(f"OK {base}")
+                    or line.startswith("ERR ")
+                    or line.startswith("READY"),
+                    timeout,
+                )
             if ack is None:
                 raise RuntimeError(f"acknowledgement timeout: {command}")
             if ack.startswith("READY"):
