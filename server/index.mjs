@@ -81,6 +81,7 @@ import {
   modulesSnapshot,
   wordCatalog,
 } from "./modules.mjs";
+import { recordVoiceTurn } from "./voice.mjs";
 import { log, uid } from "./util.mjs";
 
 const MIME = {
@@ -226,6 +227,25 @@ const routes = {
       emit({ type: "error", message: e.message });
     }
     res.end();
+  },
+
+  /* 小智语音回合：说由硬件负责，动作与记录由软件统一接管。 */
+  "POST /api/voice/turn": async (req, res) => {
+    const body = await readBody(req);
+    try {
+      sendJson(
+        res,
+        recordVoiceTurn({
+          text: body.text,
+          reply: body.reply,
+          proposedAction: body.action ?? body.proposedAction,
+          move: body.move,
+          sessionId: body.sessionId,
+        })
+      );
+    } catch (error) {
+      sendJson(res, { ok: false, error: error.message }, 400);
+    }
   },
 
   "POST /api/init/start": (req, res) => sendJson(res, beginInit()),

@@ -1554,7 +1554,9 @@ function renderTimeline(items, days) {
       for (const r of d.records) {
         const line = document.createElement("div");
         line.className = "rl" + (r.role === "user" ? " me" : r.role === "event" ? " ev" : "");
-        line.textContent = (r.role === "user" ? "你：" : r.role === "event" ? "" : "它：") + r.text;
+        const source = r.source === "voice" ? "（语音）" : "";
+        line.textContent =
+          (r.role === "user" ? `你${source}：` : r.role === "event" ? "" : `它${source}：`) + r.text;
         list.appendChild(line);
       }
     }

@@ -386,6 +386,7 @@ export function diaryDay(day) {
         role: m.role === "user" ? "user" : "otto",
         text: m.content,
         proactive: !!m.proactive,
+        source: m.source ?? "app",
       })),
       ...q(
         "select name, params, ts from event_log where ts >= ? and ts < ? and name in ('pet_touched','murmur_shown','proactive_sent','open_loop_closed') order by ts",

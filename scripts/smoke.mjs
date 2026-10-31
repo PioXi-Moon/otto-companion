@@ -325,6 +325,29 @@ async function main() {
       modules0.words?.stats?.total >= 200 &&
       !!modules0.focus
   );
+  await api("/api/settings", { memoryEnabled: false });
+  const voiceTurn = await api("/api/voice/turn", {
+    text: "今天有点累，你陪我待一会儿吧",
+    reply: "那我坐这儿，不吵你。",
+    action: "celebrate",
+    move: "none",
+    sessionId: "sess_smoke_voice",
+  });
+  check(
+    "语音动作冲突时由本体接管",
+    voiceTurn.ok === true &&
+      voiceTurn.overridden === true &&
+      voiceTurn.ontology?.speech?.act === "示弱" &&
+      voiceTurn.action !== "celebrate",
+    `${voiceTurn.proposedAction} → ${voiceTurn.action}（${voiceTurn.ontology?.intent}）`
+  );
+  const voiceMessages = await api("/api/messages", undefined, "GET");
+  check(
+    "语音原话与回应进入关系记录",
+    voiceMessages.items?.filter((m) => m.source === "voice").length >= 2,
+    `voice=${voiceMessages.items?.filter((m) => m.source === "voice").length ?? 0}`
+  );
+  await api("/api/settings", { memoryEnabled: true });
   const musicOut = await api("/api/tools/run", {
     action: "music_play",
     args: { query: "夜晚" },
