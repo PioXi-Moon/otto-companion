@@ -59,6 +59,36 @@ const MOVE_ACTIONS = {
   bounce: "bounce",
   wiggle: "wiggle",
 };
+const SHOWCASE_CUES = [
+  [/星光|亮个?相/, "sparkle_hello"],
+  [/爱心招?手|爱心招呼/, "heart_wave"],
+  [/躲猫猫/, "peekaboo"],
+  [/小小欢呼/, "tiny_cheer"],
+  [/灵光一现|想到办法/, "eureka"],
+  [/得意展示|展示.*多厉害/, "proud_parade"],
+  [/害羞.*躲/, "shy_hide"],
+  [/安心.*点?头/, "cozy_nod"],
+  [/开机伸展|伸个?懒腰|刚睡醒/, "morning_stretch"],
+  [/困困贴贴|困了.*贴/, "sleepy_cuddle"],
+  [/好奇.*凑近|探身.*看看/, "curious_tilt"],
+  [/小故障|卡机/, "tiny_glitch"],
+  [/小声赌气/, "tiny_tantrum"],
+  [/偷看和好/, "forgive_peek"],
+  [/星星跳/, "star_jump"],
+  [/认真听我|点头听我/, "listening_nod"],
+  [/惊喜.*跳|被惊喜/, "surprise_hop"],
+  [/晚安.*缩|慢慢缩起来/, "soft_goodnight"],
+  [/心跳信号/, "heartbeat_signal"],
+  [/开心环绕|环绕一圈/, "happy_spin"],
+  [/礼貌.*摆/, "polite_sway"],
+  [/偷偷.*分享|分享.*秘密/, "secret_share"],
+  [/戳你|戳一下/, "boop_react"],
+  [/胜利姿势/, "victory_pose"],
+  [/彩色串灯|串灯.*打开/, "rainbow_sequence"],
+  [/温柔.*摇/, "cozy_sway"],
+  [/俏皮.*眨眼/, "sassy_wink"],
+  [/庆祝|全部本领|完整展示/, "big_celebrate"],
+];
 
 function clean(value, max = 1200) {
   return String(value ?? "").trim().slice(0, max);
@@ -129,6 +159,19 @@ export function resolveVoiceAction(text, proposedAction) {
       proposedAction: proposed,
       overridden: false,
       inferredFromState: false,
+      decision,
+    };
+  }
+
+  const showcase = SHOWCASE_CUES.find(([pattern]) => pattern.test(String(text ?? "")));
+  if (showcase) {
+    return {
+      action: showcase[1],
+      beat: "showcase",
+      proposedAction: proposed || null,
+      overridden: proposed !== showcase[1],
+      inferredFromState: false,
+      showcaseCue: true,
       decision,
     };
   }
@@ -275,6 +318,7 @@ export function recordVoiceTurn({
       actionInferredFromState: resolved.inferredFromState,
       actionPolicy: "guaranteed_voice_beat",
       beat: resolved.beat,
+      showcaseCue: resolved.showcaseCue === true,
       move: finalMove === "none" ? null : finalMove,
       moveAction,
       ontology: {
@@ -294,6 +338,7 @@ export function recordVoiceTurn({
     overridden: resolved.overridden,
     inferredFromState: resolved.inferredFromState,
     beat: resolved.beat,
+    showcaseCue: resolved.showcaseCue === true,
     move: finalMove,
     moveAction,
     intent: resolved.decision.intent,
@@ -344,6 +389,7 @@ export function recordVoiceTurn({
     overridden: resolved.overridden,
     inferredFromState: resolved.inferredFromState,
     beat: resolved.beat,
+    showcaseCue: resolved.showcaseCue === true,
     proposedAction: resolved.proposedAction,
     sequence: moveAction
       ? [{ action: moveAction, atMs: 0 }]

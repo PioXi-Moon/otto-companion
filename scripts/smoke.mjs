@@ -475,6 +475,20 @@ async function main() {
       moveVoice.sequence?.[0]?.action === "walk",
     moveVoice.sequence?.map((step) => step.action).join(" → ")
   );
+  const showcaseVoice = await api("/api/voice/turn", {
+    text: "我说庆祝！",
+    reply: "那就热闹一点。",
+    action: "none",
+    sessionId: "sess_smoke_voice_showcase",
+  });
+  check(
+    "明确展示口令会直达指定动作",
+    showcaseVoice.action === "big_celebrate" &&
+      showcaseVoice.beat === "showcase" &&
+      showcaseVoice.showcaseCue === true &&
+      showcaseVoice.sequence?.[0]?.action === "big_celebrate",
+    `${showcaseVoice.beat} → ${showcaseVoice.action}`
+  );
   await api("/api/settings", { memoryEnabled: true });
   const musicOut = await api("/api/tools/run", {
     action: "music_play",
