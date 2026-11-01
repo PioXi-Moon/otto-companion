@@ -44,10 +44,24 @@ export function resolveVoiceAction(text, proposedAction) {
   }
 
   if (!proposed || proposed === "none") {
+    const expressive =
+      decision.speech.act !== "陈述" ||
+      (decision.conflict?.tension ?? 0) >= 0.03 ||
+      !!decision.combo;
+    if (expressive) {
+      return {
+        action: decision.action,
+        proposedAction: proposed || null,
+        overridden: true,
+        inferredFromState: true,
+        decision,
+      };
+    }
     return {
       action: null,
       proposedAction: proposed || null,
       overridden: false,
+      inferredFromState: false,
       decision,
     };
   }
@@ -57,6 +71,7 @@ export function resolveVoiceAction(text, proposedAction) {
       action: proposed,
       proposedAction: proposed,
       overridden: false,
+      inferredFromState: false,
       decision,
     };
   }
@@ -66,6 +81,7 @@ export function resolveVoiceAction(text, proposedAction) {
     action: decision.action,
     proposedAction: proposed,
     overridden: true,
+    inferredFromState: false,
     decision,
   };
 }
@@ -158,6 +174,7 @@ export function recordVoiceTurn({
       proposedAction: resolved.proposedAction,
       action: resolved.action,
       actionOverridden: resolved.overridden,
+      actionInferredFromState: resolved.inferredFromState,
       move: finalMove === "none" ? null : finalMove,
       ontology: {
         speech: resolved.decision.speech,
@@ -174,6 +191,7 @@ export function recordVoiceTurn({
     action: resolved.action,
     proposedAction: resolved.proposedAction,
     overridden: resolved.overridden,
+    inferredFromState: resolved.inferredFromState,
     move: finalMove,
     intent: resolved.decision.intent,
   });
