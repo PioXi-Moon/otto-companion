@@ -371,6 +371,18 @@ async function main() {
       modules0.words?.stats?.total >= 200 &&
       !!modules0.focus
   );
+  const voiceContext = await api(
+    `/api/voice/context?text=${encodeURIComponent("还记得答辩吗")}`,
+    undefined,
+    "GET"
+  );
+  check(
+    "小智语音会读取桌面 Otto 的实时人格上下文",
+    voiceContext.context?.length > 500 &&
+      voiceContext.context.includes("实体身体") &&
+      voiceContext.petName === state0.petName,
+    `context=${voiceContext.context?.length ?? 0}`
+  );
   await api("/api/settings", { memoryEnabled: false });
   const voiceTurn = await api("/api/voice/turn", {
     text: "今天有点累，你陪我待一会儿吧",

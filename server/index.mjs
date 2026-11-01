@@ -82,6 +82,7 @@ import {
   wordCatalog,
 } from "./modules.mjs";
 import { recordVoiceTurn } from "./voice.mjs";
+import { buildVoiceContext } from "./voice-context.mjs";
 import { log, uid } from "./util.mjs";
 
 const MIME = {
@@ -230,6 +231,11 @@ const routes = {
   },
 
   /* 小智语音回合：说由硬件负责，动作与记录由软件统一接管。 */
+  "GET /api/voice/context": (req, res) => {
+    const u = new URL(req.url, "http://x");
+    sendJson(res, buildVoiceContext(u.searchParams.get("text") || ""));
+  },
+
   "POST /api/voice/turn": async (req, res) => {
     const body = await readBody(req);
     try {
