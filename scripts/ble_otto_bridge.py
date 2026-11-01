@@ -826,6 +826,8 @@ class OttoHandler(BaseHTTPRequestHandler):
                 return
             if normalized == "VOICE SPEAKING":
                 self.robot.voice_active.set()
+                # 固件收到 SPEAKING 会取消正在执行的肢体动作，并回到未归中状态。
+                self.robot.armed = False
             elif normalized == "VOICE IDLE":
                 self.robot.voice_active.clear()
             self._reply(200, result)
