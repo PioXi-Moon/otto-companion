@@ -441,6 +441,20 @@ async function main() {
       neutralVoice.beat !== "system",
     `${neutralVoice.beat} → ${neutralVoice.action}`
   );
+  const moveVoice = await api("/api/voice/turn", {
+    text: "前进。",
+    reply: "往前挪了。",
+    action: "none",
+    move: "forward",
+    sessionId: "sess_smoke_voice_move",
+  });
+  check(
+    "物理移动会等语音结束后进入同一动作序列",
+    moveVoice.moveAction === "walk" &&
+      moveVoice.sequence?.some((step) => step.action === "walk") &&
+      moveVoice.sequence?.[0]?.action === moveVoice.action,
+    moveVoice.sequence?.map((step) => step.action).join(" → ")
+  );
   await api("/api/settings", { memoryEnabled: true });
   const musicOut = await api("/api/tools/run", {
     action: "music_play",

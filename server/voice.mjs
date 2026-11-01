@@ -39,6 +39,14 @@ const VISIBLE_ACTION_BY_INTENT = {
   settle: "confirm",
   silent: "confirm",
 };
+const MOVE_ACTIONS = {
+  forward: "walk",
+  backward: "back",
+  left: "left",
+  right: "right",
+  bounce: "bounce",
+  wiggle: "wiggle",
+};
 
 function clean(value, max = 1200) {
   return String(value ?? "").trim().slice(0, max);
@@ -189,6 +197,7 @@ export function recordVoiceTurn({
   const interactionType = guessInteractionType(heard);
   const resolved = resolveVoiceAction(heard, proposedAction);
   const finalMove = clean(move, 30).toLowerCase() || "none";
+  const moveAction = MOVE_ACTIONS[finalMove] ?? null;
 
   const userMessage = insertMessage({
     sessionId: session.id,
@@ -214,6 +223,7 @@ export function recordVoiceTurn({
       actionPolicy: "guaranteed_voice_beat",
       beat: resolved.beat,
       move: finalMove === "none" ? null : finalMove,
+      moveAction,
       ontology: {
         speech: resolved.decision.speech,
         conflict: resolved.decision.conflict,
@@ -232,6 +242,7 @@ export function recordVoiceTurn({
     inferredFromState: resolved.inferredFromState,
     beat: resolved.beat,
     move: finalMove,
+    moveAction,
     intent: resolved.decision.intent,
   });
 
@@ -239,7 +250,9 @@ export function recordVoiceTurn({
     broadcast("pet", { action: resolved.action, mood: "active", source: "voice" });
   }
   const combo =
-    resolved.beat === "semantic" ? resolved.decision.combo : null;
+    resolved.beat === "semantic" && !moveAction
+      ? resolved.decision.combo
+      : null;
   if (combo) {
     scheduleCombo(
       combo,
@@ -274,14 +287,20 @@ export function recordVoiceTurn({
     sessionId: session.id,
     action: resolved.action ?? "none",
     move: finalMove,
+    moveAction,
     overridden: resolved.overridden,
     inferredFromState: resolved.inferredFromState,
     beat: resolved.beat,
     proposedAction: resolved.proposedAction,
-    sequence: [
-      { action: resolved.action, atMs: 0 },
-      ...(combo?.steps ?? []),
-    ],
+    sequence: moveAction
+      ? [
+          { action: resolved.action, atMs: 0 },
+          { action: moveAction, atMs: 900 },
+        ]
+      : [
+          { action: resolved.action, atMs: 0 },
+          ...(combo?.steps ?? []),
+        ],
     ontology: {
       speech: resolved.decision.speech,
       conflict: resolved.decision.conflict,
