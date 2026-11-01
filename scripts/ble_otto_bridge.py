@@ -244,6 +244,7 @@ class BleRobot:
         self.loop: asyncio.AbstractEventLoop | None = None
         self.client: BleakClient | None = None
         self.connected = threading.Event()
+        self.voice_active = threading.Event()
         self.ready = threading.Event()
         self.device_address: str | None = None
         self.last_error: str | None = None
@@ -414,6 +415,12 @@ class BleRobot:
         command = command.strip().upper()
         if not command:
             raise ValueError("empty command")
+        base = command.split(" ", 1)[0]
+        if (
+            base not in {"FACE", "VOICE"}
+            and self.voice_active.is_set()
+        ):
+            self.wait_for_voice_idle(command)
         if not self.ready.wait(10):
             raise RuntimeError("BLE worker did not initialize")
         if not self.connected.wait(12):
@@ -440,6 +447,8 @@ class BleRobot:
                     continue
                 if command.startswith("FACE "):
                     wait_face_dwell(face_at)
+                elif not command.startswith("WAIT "):
+                    self.wait_for_voice_idle(command)
                 try:
                     self.command(command)
                     if command.startswith("FACE "):
@@ -452,6 +461,17 @@ class BleRobot:
                         continue
                     raise
 
+    def wait_for_voice_idle(self, command: str, timeout: float = 45) -> None:
+        """Do not let the firmware drop body motion during TTS playback."""
+        if not self.voice_active.is_set():
+            return
+        log(f"VOICE_ACTIVE hold: {command}")
+        deadline = time.monotonic() + timeout
+        while self.voice_active.is_set():
+            if time.monotonic() >= deadline:
+                raise RuntimeError(f"VOICE_ACTIVE timeout before {command}")
+            time.sleep(0.05)
+
 
 class SerialRobot:
     """Same bridge interface, backed by the Nano's USB serial port."""
@@ -463,6 +483,7 @@ class SerialRobot:
             raise RuntimeError("CH340 USB serial port not found")
         self.device_address = self.port_name
         self.connected = threading.Event()
+        self.voice_active = threading.Event()
         self.ready = threading.Event()
         self.last_error: str | None = None
         self.armed = False
@@ -611,6 +632,12 @@ class SerialRobot:
         command = command.strip().upper()
         if not command:
             raise ValueError("empty command")
+        base = command.split(" ", 1)[0]
+        if (
+            base not in {"FACE", "VOICE"}
+            and self.voice_active.is_set()
+        ):
+            self.wait_for_voice_idle(command)
         try:
             return self._execute(command)
         except serial.SerialException as exc:
@@ -627,6 +654,8 @@ class SerialRobot:
                     continue
                 if command.startswith("FACE "):
                     wait_face_dwell(face_at)
+                elif not command.startswith("WAIT "):
+                    self.wait_for_voice_idle(command)
                 try:
                     self.command(command)
                     if command.startswith("FACE "):
@@ -638,6 +667,17 @@ class SerialRobot:
                         log(f"optional sound skipped: {command} ({exc})")
                         continue
                     raise
+
+    def wait_for_voice_idle(self, command: str, timeout: float = 45) -> None:
+        """Do not let the firmware drop body motion during TTS playback."""
+        if not self.voice_active.is_set():
+            return
+        log(f"VOICE_ACTIVE hold: {command}")
+        deadline = time.monotonic() + timeout
+        while self.voice_active.is_set():
+            if time.monotonic() >= deadline:
+                raise RuntimeError(f"VOICE_ACTIVE timeout before {command}")
+            time.sleep(0.05)
 
 
 class OttoHandler(BaseHTTPRequestHandler):
@@ -685,6 +725,11 @@ class OttoHandler(BaseHTTPRequestHandler):
             except Exception as exc:
                 self._reply(503, {"ok": False, "error": str(exc)})
                 return
+            normalized = command.upper()
+            if normalized == "VOICE SPEAKING":
+                self.robot.voice_active.set()
+            elif normalized == "VOICE IDLE":
+                self.robot.voice_active.clear()
             self._reply(200, result)
             return
 

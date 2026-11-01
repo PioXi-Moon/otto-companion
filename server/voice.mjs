@@ -234,6 +234,7 @@ export function recordVoiceTurn({
     action: resolved.action ?? "none",
     move: finalMove,
     overridden: resolved.overridden,
+    inferredFromState: resolved.inferredFromState,
     proposedAction: resolved.proposedAction,
     sequence: [
       ...(resolved.action ? [{ action: resolved.action, atMs: 0 }] : []),

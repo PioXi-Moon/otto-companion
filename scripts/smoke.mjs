@@ -406,6 +406,17 @@ async function main() {
     voiceMessages.items?.filter((m) => m.source === "voice").length >= 2,
     `voice=${voiceMessages.items?.filter((m) => m.source === "voice").length ?? 0}`
   );
+  const inferredVoice = await api("/api/voice/turn", {
+    text: "你是不是傻，怎么又发呆了？",
+    reply: "我才没有。",
+    action: "none",
+    sessionId: "sess_smoke_voice_inferred",
+  });
+  check(
+    "模型返回 none 时，情绪输入仍由本体补动作",
+    inferredVoice.inferredFromState === true && inferredVoice.action !== "none",
+    `${inferredVoice.ontology?.speech?.act} → ${inferredVoice.action}`
+  );
   await api("/api/settings", { memoryEnabled: true });
   const musicOut = await api("/api/tools/run", {
     action: "music_play",
