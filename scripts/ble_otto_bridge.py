@@ -184,6 +184,36 @@ ACTION_COMMANDS.update({
     "offline": ["FACE OFF", "MATRIX STOP", "SIT"],
 })
 
+# 固件动作本身是确定的时长。语音动作链按这个节拍推进，不把 HM-10 的
+# 通知回执当成“动作是否继续”的唯一依据，避免一次漏报把整段动作卡死。
+COMMAND_DURATION_MS = {
+    "HOME": 1200,
+    "SWING": 3200,
+    "WAVE": 3360,
+    "TWIST": 1800,
+    "STOMP": 1040,
+    "BOW": 1000,
+    "SHAKE": 600,
+    "SIT": 600,
+    "DANCE": 3360,
+    "HAPPY": 3200,
+    "GREET": 3360,
+    "WALK": 5390,
+    "BACK": 5390,
+    "LEFT": 5390,
+    "RIGHT": 5390,
+    "BOUNCE": 1280,
+    "WIGGLE": 1400,
+    "FACE": 60,
+    "MATRIX": 80,
+    "SFX": 60,
+}
+
+
+def command_duration_ms(command: str) -> int:
+    base = command.split(" ", 1)[0]
+    return COMMAND_DURATION_MS.get(base, 80)
+
 
 def build_gait(action: str, cycles: int = 1) -> list[str]:
     """用固件公开的 SERVO 指令发一遍 OttoDIY 的 16 帧步态。
@@ -282,7 +312,13 @@ class BleRobot:
                     self.connected.set()
                     self.last_error = None
                     log(f"BLE connected: {device.address}")
-                    if not await self._link_handshake():
+                    if await self._link_handshake():
+                        try:
+                            await self._execute("SOUND OFF")
+                            log("Firmware local sound actions disabled")
+                        except Exception as exc:
+                            log(f"Firmware sound-action setup skipped: {exc}")
+                    else:
                         log("BLE warning: UART handshake did not return PONG")
                     while client.is_connected:
                         await asyncio.sleep(1)
@@ -364,18 +400,23 @@ class BleRobot:
             base = command.split(" ", 1)[0]
             if base in MOTION and base not in {"HOME"} and not self.armed:
                 await self._write("HOME")
-                home = await self._read_until(
-                    lambda line: line.startswith("OK HOME")
-                    or line.startswith("ERR ")
-                    or line.startswith("READY"),
-                    12,
-                )
-                if home is not None and home.startswith("READY"):
-                    raise RuntimeError("firmware rebooted before motion")
-                if home is None or not home.startswith("OK HOME"):
-                    raise RuntimeError(home or "HOME acknowledgement timeout")
+                if wait_ok:
+                    home = await self._read_until(
+                        lambda line: line.startswith("OK HOME")
+                        or line.startswith("ERR ")
+                        or line.startswith("READY"),
+                        12,
+                    )
+                    if home is not None and home.startswith("READY"):
+                        raise RuntimeError("firmware rebooted before motion")
+                    if home is None or not home.startswith("OK HOME"):
+                        raise RuntimeError(home or "HOME acknowledgement timeout")
+                else:
+                    await asyncio.sleep(COMMAND_DURATION_MS["HOME"] / 1000)
+                self.armed = True
             await self._write(command)
             if not wait_ok:
+                await asyncio.sleep(0.04)
                 return {"ok": True, "command": command, "ack": None}
             timeout = 14 if base in MOTION else 3
             if base == "PING":
@@ -435,6 +476,45 @@ class BleRobot:
         except FutureTimeoutError as exc:
             future.cancel()
             raise RuntimeError("BLE command timeout") from exc
+        except RuntimeError as exc:
+            if "acknowledgement timeout" in str(exc):
+                self.reconnect()
+            raise
+
+    def reconnect(self) -> None:
+        """Recover the HM-10 notification channel after a lost UART reply."""
+        client = self.client
+        if client is None or self.loop is None:
+            return
+
+        async def disconnect() -> None:
+            try:
+                await client.disconnect()
+            except Exception as exc:
+                log(f"BLE reconnect request failed: {exc}")
+
+        log("BLE notification stalled; reconnecting")
+        asyncio.run_coroutine_threadsafe(disconnect(), self.loop)
+
+    def control(self, command: str, timeout: float = 3) -> dict:
+        """Send state-only commands without depending on a UART reply."""
+        command = command.strip().upper()
+        if not command:
+            raise ValueError("empty command")
+        if not self.ready.wait(10):
+            raise RuntimeError("BLE worker did not initialize")
+        if not self.connected.wait(12):
+            raise RuntimeError(self.last_error or "Otto BLE is offline")
+        if self.loop is None:
+            raise RuntimeError("BLE worker is not running")
+        future = asyncio.run_coroutine_threadsafe(
+            self._execute(command, wait_ok=False), self.loop
+        )
+        try:
+            return future.result(timeout=timeout)
+        except FutureTimeoutError as exc:
+            future.cancel()
+            raise RuntimeError("BLE control timeout") from exc
 
     def play(self, commands: list[str]) -> None:
         # 动作组合必须整体串行，但不阻塞 HTTP 请求。否则一段 3–6 秒的动作
@@ -450,9 +530,10 @@ class BleRobot:
                 elif not command.startswith("WAIT "):
                     self.wait_for_voice_idle(command)
                 try:
-                    self.command(command)
+                    self.control(command)
                     if command.startswith("FACE "):
                         face_at = time.monotonic()
+                    time.sleep(command_duration_ms(command) / 1000)
                 except RuntimeError as exc:
                     if command.startswith("SFX ") and (
                         "SFX_NAME" in str(exc) or "SFX_DISABLED" in str(exc)
@@ -588,21 +669,26 @@ class SerialRobot:
             base = command.split(" ", 1)[0]
             if base in MOTION and base != "HOME" and not self.armed:
                 self._write("HOME")
-                home = self._read_until(
-                    lambda line: line.startswith("OK HOME")
-                    or line.startswith("ERR ")
-                    or line.startswith("READY"),
-                    12,
-                )
-                if home is None:
-                    raise RuntimeError("HOME acknowledgement timeout")
-                if home.startswith("READY"):
-                    raise RuntimeError("firmware rebooted before motion")
-                if home.startswith("ERR "):
-                    raise RuntimeError(home)
+                if wait_ok:
+                    home = self._read_until(
+                        lambda line: line.startswith("OK HOME")
+                        or line.startswith("ERR ")
+                        or line.startswith("READY"),
+                        12,
+                    )
+                    if home is None:
+                        raise RuntimeError("HOME acknowledgement timeout")
+                    if home.startswith("READY"):
+                        raise RuntimeError("firmware rebooted before motion")
+                    if home.startswith("ERR "):
+                        raise RuntimeError(home)
+                else:
+                    time.sleep(COMMAND_DURATION_MS["HOME"] / 1000)
+                self.armed = True
 
             self._write(command)
             if not wait_ok:
+                time.sleep(0.04)
                 return {"ok": True, "command": command, "ack": None}
             timeout = 14 if base in MOTION else 3
             if base == "PING":
@@ -645,6 +731,13 @@ class SerialRobot:
             self.last_error = str(exc)
             raise RuntimeError(f"Otto USB serial disconnected: {exc}") from exc
 
+    def control(self, command: str, timeout: float = 3) -> dict:
+        """Send state-only commands without depending on a UART reply."""
+        command = command.strip().upper()
+        if not command:
+            raise ValueError("empty command")
+        return self._execute(command, wait_ok=False)
+
     def play(self, commands: list[str]) -> None:
         with self._play_lock:
             face_at = 0.0
@@ -657,9 +750,10 @@ class SerialRobot:
                 elif not command.startswith("WAIT "):
                     self.wait_for_voice_idle(command)
                 try:
-                    self.command(command)
+                    self.control(command)
                     if command.startswith("FACE "):
                         face_at = time.monotonic()
+                    time.sleep(command_duration_ms(command) / 1000)
                 except RuntimeError as exc:
                     if command.startswith("SFX ") and (
                         "SFX_NAME" in str(exc) or "SFX_DISABLED" in str(exc)
@@ -720,12 +814,16 @@ class OttoHandler(BaseHTTPRequestHandler):
             if not command:
                 self._reply(400, {"error": "empty command"})
                 return
+            normalized = command.upper()
             try:
-                result = self.robot.command(command)
+                result = (
+                    self.robot.control(command)
+                    if normalized in {"VOICE SPEAKING", "VOICE IDLE"}
+                    else self.robot.command(command)
+                )
             except Exception as exc:
                 self._reply(503, {"ok": False, "error": str(exc)})
                 return
-            normalized = command.upper()
             if normalized == "VOICE SPEAKING":
                 self.robot.voice_active.set()
             elif normalized == "VOICE IDLE":
