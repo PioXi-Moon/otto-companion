@@ -103,6 +103,37 @@ nuzzle:      { label: "撒娇蹭",     kind: "once",  pose: P({ eyeShape: 1, mou
   shake:       { label: "抖",         kind: "once",  pose: P({}), anim: "m-shiver", ms: 1200 },
   doze:        { label: "打盹",       kind: "state", pose: P({ lift: 18, squash: 0.8, hipL: 21, hipR: -21, head: 5, lidL: 1, lidR: 1 }), extra: "z" },
   offline:     { label: "离线",       kind: "state", pose: P({ lift: 11, squash: 0.9, lidL: 1, lidR: 1 }), anim: null },
+
+  /* ---- 展示型组合动作：不增加自由度，只把已有的表情、重心和脚部动作
+     组织成更适合宣传片与现场演示的完整节拍 ---- */
+  sparkle_hello:   { label: "星光开场", kind: "once", pose: P({ eyeShape: 1, mouthShape: 1, lift: -7, squash: 1.08, head: -4 }), extra: "✦♪", anim: "m-hop", ms: 2800, blush: true },
+  heart_wave:      { label: "爱心招手", kind: "once", pose: P({ eyeShape: 1, mouthShape: 1, lean: -5, lift: -3 }), extra: "❤»", anim: "m-wobble", ms: 2800, blush: true },
+  peekaboo:        { label: "躲猫猫互动", kind: "once", pose: P({ lidL: 0.25, lidR: 0.25, pupilX: -0.55, head: 6, lift: 5, squash: 0.96 }), extra: "…", anim: "m-jiggle", ms: 2800 },
+  tiny_cheer:      { label: "小小欢呼", kind: "once", pose: P({ eyeShape: 1, mouthShape: 1, lift: -11, squash: 1.1, ankleL: -9, ankleR: -9 }), extra: "✧✧", anim: "m-hop", ms: 2400 },
+  eureka:          { label: "灵光一现", kind: "once", pose: P({ pupilY: -0.65, mouthShape: 3, lift: -7, squash: 1.08 }), extra: "!!", anim: "m-shiver", ms: 2200 },
+  proud_parade:    { label: "得意展示", kind: "once", pose: P({ eyeShape: 1, mouthShape: 1, lift: -7, head: 7, lean: -3 }), extra: "✦✦", anim: "m-wobble", ms: 3000, blush: true },
+  shy_hide:        { label: "害羞躲躲", kind: "once", pose: P({ lidL: 0.4, lidR: 0.4, pupilY: 0.7, lift: 10, squash: 0.92, lean: -5 }), extra: "///", ms: 2800, blush: true },
+  cozy_nod:        { label: "安心点头", kind: "once", pose: P({ lidL: 0.25, lidR: 0.25, mouthShape: 1, lift: 8, squash: 0.9 }), extra: "☁", anim: "m-bob", ms: 2400 },
+  morning_stretch: { label: "开机伸展", kind: "once", pose: P({ eyeShape: 1, mouthShape: 3, lift: -14, squash: 1.11, ankleL: -12, ankleR: -12 }), extra: "伸", anim: "m-hop", ms: 2800 },
+  sleepy_cuddle:   { label: "困困贴贴", kind: "once", pose: P({ lidL: 0.85, lidR: 0.85, pupilY: 0.55, lift: 13, squash: 0.88, lean: -4 }), extra: "z❤", ms: 3000, blush: true },
+  curious_tilt:    { label: "好奇探身", kind: "once", pose: P({ lidL: 0.15, lidR: 0.35, head: 8, pupilX: -0.35, pupilY: -0.4, lift: 1 }), extra: "?", anim: "m-bob", ms: 2400 },
+  tiny_glitch:     { label: "小故障", kind: "once", pose: P({ lidL: 0.1, lidR: 0.65, pupilX: 0.7, mouthShape: 2, lean: 4 }), extra: "##", anim: "m-shiver", ms: 2000 },
+  tiny_tantrum:    { label: "小声赌气", kind: "once", pose: P({ lidL: 0.7, lidR: 0.7, mouthShape: 2, lean: 9, ankleL: -12, ankleR: -12 }), extra: "哼", anim: "m-stomp", ms: 2600 },
+  forgive_peek:    { label: "偷看和好", kind: "once", pose: P({ lidL: 0.5, lidR: 0.5, pupilX: -0.7, lift: 10, squash: 0.92 }), extra: "…❤", anim: "m-step", ms: 3000, blush: true },
+  star_jump:       { label: "星星跳", kind: "once", pose: P({ eyeShape: 1, mouthShape: 1, lift: -22, squash: 1.14, hipL: 20, hipR: -20 }), extra: "✦✦", anim: "m-jump", ms: 2200 },
+  listening_nod:   { label: "认真听", kind: "once", pose: P({ mouthShape: 1, lift: -2, squash: 1.02, pupilY: -0.15 }), extra: "◡", anim: "m-bob", ms: 2200 },
+  surprise_hop:    { label: "惊喜跳", kind: "once", pose: P({ eyeShape: 1, mouthShape: 4, lift: -14, squash: 1.12 }), extra: "!✦", anim: "m-hop", ms: 2200 },
+  soft_goodnight:  { label: "晚安蜷缩", kind: "state", pose: P({ lidL: 1, lidR: 1, pupilY: 0.5, lift: 17, squash: 0.84, hipL: 18, hipR: -18 }), extra: "z♥", blush: true },
+  heartbeat_signal:{ label: "心跳信号", kind: "once", pose: P({ eyeShape: 1, mouthShape: 1, lift: -2, squash: 1.04 }), extra: "♥", anim: "m-bob", ms: 2600, blush: true },
+  happy_spin:      { label: "开心环绕", kind: "once", pose: P({ eyeShape: 1, mouthShape: 1, lean: 7, lift: -4, squash: 1.06 }), extra: "↻", anim: "m-wobble", ms: 2800 },
+  polite_sway:     { label: "礼貌摆摆", kind: "once", pose: P({ eyeShape: 1, mouthShape: 1, lift: 5, squash: 0.94 }), extra: "请", anim: "m-wobble", ms: 2400 },
+  secret_share:    { label: "偷偷分享", kind: "once", pose: P({ lidL: 0.2, lidR: 0.2, pupilX: -0.6, lean: -3, lift: 4 }), extra: "…✦", anim: "m-jiggle", ms: 2600 },
+  boop_react:      { label: "被戳反应", kind: "once", pose: P({ mouthShape: 4, lift: -10, squash: 1.09, lean: -4 }), extra: "!", anim: "m-shiver", ms: 1800 },
+  victory_pose:    { label: "胜利姿势", kind: "once", pose: P({ eyeShape: 1, mouthShape: 1, lift: -9, squash: 1.09, hipL: 12, hipR: -12 }), extra: "✓✦", anim: "m-hop", ms: 2600 },
+  rainbow_sequence:{ label: "彩色串灯", kind: "once", pose: P({ eyeShape: 1, mouthShape: 1, lift: -3, squash: 1.05 }), extra: "✧♥✦", anim: "m-wobble", ms: 3200, blush: true },
+  cozy_sway:       { label: "温柔摇摆", kind: "once", pose: P({ eyeShape: 1, mouthShape: 1, lean: -4, lift: 3, squash: 0.98 }), extra: "♪", anim: "m-wobble", ms: 3000, blush: true },
+  sassy_wink:      { label: "俏皮眨眼", kind: "once", pose: P({ lidL: 0.8, lidR: 0.1, mouthShape: 1, lean: 7, head: 4 }), extra: "~", anim: "m-wobble", ms: 2200 },
+  big_celebrate:   { label: "大庆祝", kind: "once", pose: P({ eyeShape: 1, mouthShape: 1, lift: -24, squash: 1.16, hipL: 23, hipR: -23, ankleL: 18, ankleR: -18 }), extra: "✦♥✦", anim: "m-jump", ms: 3200, blush: true },
 };
 
 /* 恢复中性用 */

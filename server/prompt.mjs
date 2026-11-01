@@ -164,7 +164,12 @@ ${loopBlock(dueLoops)}
  * 名字必须和 ui/actions.js 里的键一一对应，对不上就是静默失败。
  */
 export const ACTION_VOCAB = `开心 / 好奇 / 惊讶 / 委屈 / 生气 / 得意 / 撒娇蹭 / 心虚 / 闹脾气 /
-  害羞 / 探头观察 / 靠近 / 蔫下去 / 发呆 / 不想理你`;
+  害羞 / 探头观察 / 靠近 / 蔫下去 / 发呆 / 不想理你 /
+  星光开场 / 爱心招手 / 躲猫猫互动 / 小小欢呼 / 灵光一现 / 得意展示 /
+  害羞躲躲 / 安心点头 / 开机伸展 / 困困贴贴 / 好奇探身 / 小故障 /
+  小声赌气 / 偷看和好 / 星星跳 / 认真听 / 惊喜跳 / 晚安蜷缩 /
+  心跳信号 / 开心环绕 / 礼貌摆摆 / 偷偷分享 / 被戳反应 / 胜利姿势 /
+  彩色串灯 / 温柔摇摆 / 俏皮眨眼 / 大庆祝`;
 
 /**
  * 「正在听 / 正在回答 / 思考中 / 学习中 / 完成任务 / 等待确认 / 欢迎回来 / 出错困惑」
@@ -182,6 +187,16 @@ export const ACTION_ALIAS = {
   开心一点: "happy", 有点好奇: "lean_in", 不想理你: "turn_away", 困了: "sleepy",
   高兴起来: "celebrate", 坐下了: "sit", 躲起来: "hide", 抖了一下: "shake",
   记挂: "alert", 伸个懒腰: "stretch", 自己玩: "fidget", 歪头: "lean_in",
+  星光开场: "sparkle_hello", 爱心招手: "heart_wave", 躲猫猫互动: "peekaboo",
+  小小欢呼: "tiny_cheer", 灵光一现: "eureka", 得意展示: "proud_parade",
+  害羞躲躲: "shy_hide", 安心点头: "cozy_nod", 开机伸展: "morning_stretch",
+  困困贴贴: "sleepy_cuddle", 好奇探身: "curious_tilt", 小故障: "tiny_glitch",
+  小声赌气: "tiny_tantrum", 偷看和好: "forgive_peek", 星星跳: "star_jump",
+  认真听: "listening_nod", 惊喜跳: "surprise_hop", 晚安蜷缩: "soft_goodnight",
+  心跳信号: "heartbeat_signal", 开心环绕: "happy_spin", 礼貌摆摆: "polite_sway",
+  偷偷分享: "secret_share", 被戳反应: "boop_react", 胜利姿势: "victory_pose",
+  彩色串灯: "rainbow_sequence", 温柔摇摆: "cozy_sway", 俏皮眨眼: "sassy_wink",
+  大庆祝: "big_celebrate",
 };
 
 /** 模型偶尔还是会写这些。剥掉，但不当成动作——那是程序的事，不是它的 */
