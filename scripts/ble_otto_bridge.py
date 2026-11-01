@@ -229,6 +229,15 @@ def log(message: str) -> None:
     print(f"{time.strftime('%H:%M:%S')} {message}", flush=True)
 
 
+def wait_face_dwell(face_at: float, minimum: float = 0.42) -> None:
+    """Keep a matrix expression visible before the next one replaces it."""
+    if face_at <= 0:
+        return
+    remaining = minimum - (time.monotonic() - face_at)
+    if remaining > 0:
+        time.sleep(remaining)
+
+
 class BleRobot:
     def __init__(self) -> None:
         self.transport = "ble"
@@ -424,12 +433,17 @@ class BleRobot:
         # 动作组合必须整体串行，但不阻塞 HTTP 请求。否则一段 3–6 秒的动作
         # 会让语音工具超时，用户听到“没连上”，机器人其实已经走完了。
         with self._play_lock:
+            face_at = 0.0
             for command in commands:
                 if command.startswith("WAIT "):
                     time.sleep(max(0, int(command.split(" ", 1)[1])) / 1000)
                     continue
+                if command.startswith("FACE "):
+                    wait_face_dwell(face_at)
                 try:
                     self.command(command)
+                    if command.startswith("FACE "):
+                        face_at = time.monotonic()
                 except RuntimeError as exc:
                     if command.startswith("SFX ") and (
                         "SFX_NAME" in str(exc) or "SFX_DISABLED" in str(exc)
@@ -606,12 +620,17 @@ class SerialRobot:
 
     def play(self, commands: list[str]) -> None:
         with self._play_lock:
+            face_at = 0.0
             for command in commands:
                 if command.startswith("WAIT "):
                     time.sleep(max(0, int(command.split(" ", 1)[1])) / 1000)
                     continue
+                if command.startswith("FACE "):
+                    wait_face_dwell(face_at)
                 try:
                     self.command(command)
+                    if command.startswith("FACE "):
+                        face_at = time.monotonic()
                 except RuntimeError as exc:
                     if command.startswith("SFX ") and (
                         "SFX_NAME" in str(exc) or "SFX_DISABLED" in str(exc)
