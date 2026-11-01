@@ -11,6 +11,7 @@ import asyncio
 import json
 import math
 import os
+import sys
 import threading
 import time
 from concurrent.futures import TimeoutError as FutureTimeoutError
@@ -21,6 +22,8 @@ from bleak import BleakClient, BleakScanner
 import serial
 from serial.tools import list_ports
 
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 BLE_NAME = os.getenv("OTTO_BLE_NAME", "OTTO")
 BLE_UART = os.getenv(
@@ -208,6 +211,7 @@ COMMAND_DURATION_MS = {
     "MATRIX": 80,
     "SFX": 60,
 }
+ACKED_TRAVEL_ACTIONS = {"WALK", "BACK", "LEFT", "RIGHT"}
 
 
 def command_duration_ms(command: str) -> int:
@@ -530,10 +534,15 @@ class BleRobot:
                 elif not command.startswith("WAIT "):
                     self.wait_for_voice_idle(command)
                 try:
-                    self.control(command)
+                    travel = command.split(" ", 1)[0] in ACKED_TRAVEL_ACTIONS
+                    if travel:
+                        self.command(command)
+                    else:
+                        self.control(command)
                     if command.startswith("FACE "):
                         face_at = time.monotonic()
-                    time.sleep(command_duration_ms(command) / 1000)
+                    if not travel:
+                        time.sleep(command_duration_ms(command) / 1000)
                 except RuntimeError as exc:
                     if command.startswith("SFX ") and (
                         "SFX_NAME" in str(exc) or "SFX_DISABLED" in str(exc)
@@ -750,10 +759,15 @@ class SerialRobot:
                 elif not command.startswith("WAIT "):
                     self.wait_for_voice_idle(command)
                 try:
-                    self.control(command)
+                    travel = command.split(" ", 1)[0] in ACKED_TRAVEL_ACTIONS
+                    if travel:
+                        self.command(command)
+                    else:
+                        self.control(command)
                     if command.startswith("FACE "):
                         face_at = time.monotonic()
-                    time.sleep(command_duration_ms(command) / 1000)
+                    if not travel:
+                        time.sleep(command_duration_ms(command) / 1000)
                 except RuntimeError as exc:
                     if command.startswith("SFX ") and (
                         "SFX_NAME" in str(exc) or "SFX_DISABLED" in str(exc)

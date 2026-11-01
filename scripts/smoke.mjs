@@ -452,7 +452,7 @@ async function main() {
     "物理移动会等语音结束后进入同一动作序列",
     moveVoice.moveAction === "walk" &&
       moveVoice.sequence?.some((step) => step.action === "walk") &&
-      moveVoice.sequence?.[0]?.action === moveVoice.action,
+      moveVoice.sequence?.[0]?.action === "walk",
     moveVoice.sequence?.map((step) => step.action).join(" → ")
   );
   await api("/api/settings", { memoryEnabled: true });

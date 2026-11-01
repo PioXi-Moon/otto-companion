@@ -29,6 +29,14 @@ if (-not $env:DEEPSEEK_API_KEY) {
   throw ".env 中缺少 DEEPSEEK_API_KEY"
 }
 
+$env:PATH = @(
+  (Join-Path $OttoRoot "vendor\xiaozhi-runtime\Library\bin"),
+  (Join-Path $OttoRoot "vendor\xiaozhi-bin"),
+  $env:PATH
+) -join ";"
+$env:PYTHONIOENCODING = "utf-8"
+$env:PYTHONUTF8 = "1"
+
 function Test-OttoBridge {
   try {
     $response = Invoke-WebRequest -UseBasicParsing "http://127.0.0.1:7790/health" -TimeoutSec 2
@@ -55,14 +63,6 @@ if (-not (Test-OttoBridge)) {
     Write-Warning "BLE 桥还没就绪；小智软件工具仍可用，但实体动作可能离线。日志：$bridgeErr"
   }
 }
-
-$env:PATH = @(
-  (Join-Path $OttoRoot "vendor\xiaozhi-runtime\Library\bin"),
-  (Join-Path $OttoRoot "vendor\xiaozhi-bin"),
-  $env:PATH
-) -join ";"
-$env:PYTHONIOENCODING = "utf-8"
-$env:PYTHONUTF8 = "1"
 
 Set-Location $ServerRoot
 & $Python -u app.py

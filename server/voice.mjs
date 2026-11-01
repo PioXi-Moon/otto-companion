@@ -293,10 +293,7 @@ export function recordVoiceTurn({
     beat: resolved.beat,
     proposedAction: resolved.proposedAction,
     sequence: moveAction
-      ? [
-          { action: resolved.action, atMs: 0 },
-          { action: moveAction, atMs: 900 },
-        ]
+      ? [{ action: moveAction, atMs: 0 }]
       : [
           { action: resolved.action, atMs: 0 },
           ...(combo?.steps ?? []),
