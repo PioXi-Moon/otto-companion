@@ -416,7 +416,15 @@ class BleRobot:
                 if command.startswith("WAIT "):
                     time.sleep(max(0, int(command.split(" ", 1)[1])) / 1000)
                     continue
-                self.command(command)
+                try:
+                    self.command(command)
+                except RuntimeError as exc:
+                    if command.startswith("SFX ") and (
+                        "SFX_NAME" in str(exc) or "SFX_DISABLED" in str(exc)
+                    ):
+                        log(f"optional sound skipped: {command} ({exc})")
+                        continue
+                    raise
 
 
 class SerialRobot:
@@ -590,7 +598,15 @@ class SerialRobot:
                 if command.startswith("WAIT "):
                     time.sleep(max(0, int(command.split(" ", 1)[1])) / 1000)
                     continue
-                self.command(command)
+                try:
+                    self.command(command)
+                except RuntimeError as exc:
+                    if command.startswith("SFX ") and (
+                        "SFX_NAME" in str(exc) or "SFX_DISABLED" in str(exc)
+                    ):
+                        log(f"optional sound skipped: {command} ({exc})")
+                        continue
+                    raise
 
 
 class OttoHandler(BaseHTTPRequestHandler):
