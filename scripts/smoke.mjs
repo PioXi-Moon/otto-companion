@@ -393,11 +393,11 @@ async function main() {
     sessionId: "sess_smoke_voice",
   });
   check(
-    "语音动作冲突时由本体接管",
+    "模型选择的合法动作会保留",
     voiceTurn.ok === true &&
-      voiceTurn.overridden === true &&
+      voiceTurn.overridden === false &&
       voiceTurn.ontology?.speech?.act === "示弱" &&
-      voiceTurn.action !== "celebrate" &&
+      voiceTurn.action === "celebrate" &&
       voiceTurn.sequence?.length >= 1,
     `${voiceTurn.proposedAction} → ${voiceTurn.action}（${voiceTurn.ontology?.intent}）`
   );
@@ -420,13 +420,33 @@ async function main() {
   );
   const passiveBeat = ensureVisibleVoiceAction("listening", "settle");
   const activeBeat = ensureVisibleVoiceAction("nuzzle", "approach");
+  const proposedBeat = ensureVisibleVoiceAction("annoyed", "settle", {
+    speechAct: "陈述",
+    seed: "你是不是又摸鱼了",
+  });
   check(
-    "静止类结果会换成可见动作，明确动作保持原样",
-    passiveBeat.action === "confirm" &&
+    "静止类结果会换成可见动作，模型明确动作保持原样",
+    passiveBeat.action !== "listening" &&
       passiveBeat.beat === "neutral" &&
       activeBeat.action === "nuzzle" &&
-      activeBeat.beat === "semantic",
-    `${passiveBeat.action} / ${activeBeat.action}`
+      activeBeat.beat === "semantic" &&
+      proposedBeat.action === "annoyed" &&
+      proposedBeat.beat === "semantic",
+    `${passiveBeat.action} / ${activeBeat.action} / ${proposedBeat.action}`
+  );
+  const neutralVariants = new Set(
+    ["今天周二", "我在写代码", "外面下雨了", "晚饭吃了面"].map(
+      (seed) =>
+        ensureVisibleVoiceAction("listening", "settle", {
+          speechAct: "陈述",
+          seed,
+        }).action
+    )
+  );
+  check(
+    "普通陈述的保底动作会稳定轮换，不固定成同一个",
+    neutralVariants.size >= 2,
+    [...neutralVariants].join(" / ")
   );
   const neutralVoice = await api("/api/voice/turn", {
     text: "今天周二",

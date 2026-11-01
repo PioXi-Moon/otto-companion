@@ -14,7 +14,7 @@ import {
   guessInteractionType,
   insertMessage,
 } from "./messages.mjs";
-import { observe, actionFitsDecision } from "./ontology.mjs";
+import { observe } from "./ontology.mjs";
 import { getRelation, updateRelation } from "./persona.mjs";
 import { log } from "./util.mjs";
 import { scheduleCombo } from "./gesture-combo.mjs";
@@ -39,6 +39,18 @@ const VISIBLE_ACTION_BY_INTENT = {
   settle: "confirm",
   silent: "confirm",
 };
+const VISIBLE_ACTION_BY_SPEECH = {
+  评价: "proud",
+  关心: "happy",
+  玩笑: "tsundere",
+  示弱: "approach",
+  自嘲: "approach",
+  拒绝: "sulk",
+  命令: "sulk",
+  试探: "lean_in",
+  请求: "confirm",
+};
+const NEUTRAL_ACTION_POOL = ["confirm", "fidget", "lean_in", "expect"];
 const MOVE_ACTIONS = {
   forward: "walk",
   backward: "back",
@@ -52,11 +64,24 @@ function clean(value, max = 1200) {
   return String(value ?? "").trim().slice(0, max);
 }
 
+function stableBucket(text, size) {
+  let hash = 2166136261;
+  for (const char of String(text ?? "")) {
+    hash ^= char.codePointAt(0);
+    hash = Math.imul(hash, 16777619);
+  }
+  return (hash >>> 0) % size;
+}
+
 /**
  * 语义决定动作类型，但不能决定这一轮"有没有反馈"。
  * 静止类结果统一换成可见的轻动作，确保每个语音回合都有表情和身体反应。
  */
-export function ensureVisibleVoiceAction(action, intent) {
+export function ensureVisibleVoiceAction(
+  action,
+  intent,
+  { speechAct = "", seed = "" } = {}
+) {
   const normalized = clean(action, 40).toLowerCase();
   if (SYSTEM_ACTIONS.has(normalized)) {
     return { action: normalized, beat: "system", replaced: false };
@@ -64,8 +89,25 @@ export function ensureVisibleVoiceAction(action, intent) {
   if (normalized && normalized !== "none" && !PASSIVE_ACTIONS.has(normalized)) {
     return { action: normalized, beat: "semantic", replaced: false };
   }
+  if (VISIBLE_ACTION_BY_SPEECH[speechAct]) {
+    return {
+      action: VISIBLE_ACTION_BY_SPEECH[speechAct],
+      beat: "neutral",
+      replaced: true,
+    };
+  }
+  if (VISIBLE_ACTION_BY_INTENT[intent] && intent !== "settle" && intent !== "silent") {
+    return {
+      action: VISIBLE_ACTION_BY_INTENT[intent],
+      beat: "neutral",
+      replaced: true,
+    };
+  }
   return {
-    action: VISIBLE_ACTION_BY_INTENT[intent] ?? "confirm",
+    action:
+      NEUTRAL_ACTION_POOL[
+        stableBucket(seed || `${speechAct}:${intent}`, NEUTRAL_ACTION_POOL.length)
+      ],
     beat: "neutral",
     replaced: true,
   };
@@ -92,7 +134,10 @@ export function resolveVoiceAction(text, proposedAction) {
   }
 
   if (!proposed || proposed === "none") {
-    const visible = ensureVisibleVoiceAction(decision.action, decision.intent);
+    const visible = ensureVisibleVoiceAction(decision.action, decision.intent, {
+      speechAct: decision.speech.act,
+      seed: text,
+    });
     return {
       action: visible.action,
       beat: visible.beat,
@@ -104,27 +149,35 @@ export function resolveVoiceAction(text, proposedAction) {
     };
   }
 
-  if (actionFitsDecision(decision, proposed)) {
-    const visible = ensureVisibleVoiceAction(proposed, decision.intent);
+  if (!PASSIVE_ACTIONS.has(proposed)) {
+    const visible = ensureVisibleVoiceAction(proposed, decision.intent, {
+      speechAct: decision.speech.act,
+      seed: text,
+    });
     return {
       action: visible.action,
       beat: visible.beat,
       proposedAction: proposed,
-      overridden: visible.replaced,
-      inferredFromState: visible.replaced,
+      overridden: false,
+      inferredFromState: false,
       actionReplaced: visible.replaced,
       decision,
     };
   }
 
-  log(`语音本体接管：${proposed} → ${decision.action}（意图 ${decision.intent}）`);
-  const visible = ensureVisibleVoiceAction(decision.action, decision.intent);
+  const visible = ensureVisibleVoiceAction(proposed, decision.intent, {
+    speechAct: decision.speech.act,
+    seed: text,
+  });
+  log(
+    `静止动作替换：${proposed} → ${visible.action}（意图 ${decision.intent}，语义 ${decision.speech.act}）`
+  );
   return {
     action: visible.action,
     beat: visible.beat,
     proposedAction: proposed,
     overridden: true,
-    inferredFromState: visible.replaced,
+    inferredFromState: true,
     actionReplaced: visible.replaced,
     decision,
   };
