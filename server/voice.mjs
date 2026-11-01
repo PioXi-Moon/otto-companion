@@ -20,9 +20,47 @@ import { log } from "./util.mjs";
 import { scheduleCombo } from "./gesture-combo.mjs";
 
 const SYSTEM_ACTIONS = new Set(["stop", "home", "quiet", "normal"]);
+const PASSIVE_ACTIONS = new Set([
+  "idle",
+  "immersed",
+  "listening",
+  "peek",
+  "sit",
+  "doze",
+  "sleepy",
+  "speaking",
+]);
+const VISIBLE_ACTION_BY_INTENT = {
+  approach: "approach",
+  withdraw: "sulk",
+  deflect: "tsundere",
+  freeze: "confused",
+  show: "proud",
+  settle: "confirm",
+  silent: "confirm",
+};
 
 function clean(value, max = 1200) {
   return String(value ?? "").trim().slice(0, max);
+}
+
+/**
+ * 语义决定动作类型，但不能决定这一轮"有没有反馈"。
+ * 静止类结果统一换成可见的轻动作，确保每个语音回合都有表情和身体反应。
+ */
+export function ensureVisibleVoiceAction(action, intent) {
+  const normalized = clean(action, 40).toLowerCase();
+  if (SYSTEM_ACTIONS.has(normalized)) {
+    return { action: normalized, beat: "system", replaced: false };
+  }
+  if (normalized && normalized !== "none" && !PASSIVE_ACTIONS.has(normalized)) {
+    return { action: normalized, beat: "semantic", replaced: false };
+  }
+  return {
+    action: VISIBLE_ACTION_BY_INTENT[intent] ?? "confirm",
+    beat: "neutral",
+    replaced: true,
+  };
 }
 
 /**
@@ -37,51 +75,49 @@ export function resolveVoiceAction(text, proposedAction) {
   if (SYSTEM_ACTIONS.has(proposed)) {
     return {
       action: proposed,
+      beat: "system",
       proposedAction: proposed,
       overridden: false,
+      inferredFromState: false,
       decision,
     };
   }
 
   if (!proposed || proposed === "none") {
-    const expressive =
-      decision.speech.act !== "陈述" ||
-      (decision.conflict?.tension ?? 0) >= 0.03 ||
-      !!decision.combo;
-    if (expressive) {
-      return {
-        action: decision.action,
-        proposedAction: proposed || null,
-        overridden: true,
-        inferredFromState: true,
-        decision,
-      };
-    }
+    const visible = ensureVisibleVoiceAction(decision.action, decision.intent);
     return {
-      action: null,
+      action: visible.action,
+      beat: visible.beat,
       proposedAction: proposed || null,
-      overridden: false,
-      inferredFromState: false,
+      overridden: true,
+      inferredFromState: true,
+      actionReplaced: visible.replaced,
       decision,
     };
   }
 
   if (actionFitsDecision(decision, proposed)) {
+    const visible = ensureVisibleVoiceAction(proposed, decision.intent);
     return {
-      action: proposed,
+      action: visible.action,
+      beat: visible.beat,
       proposedAction: proposed,
-      overridden: false,
-      inferredFromState: false,
+      overridden: visible.replaced,
+      inferredFromState: visible.replaced,
+      actionReplaced: visible.replaced,
       decision,
     };
   }
 
   log(`语音本体接管：${proposed} → ${decision.action}（意图 ${decision.intent}）`);
+  const visible = ensureVisibleVoiceAction(decision.action, decision.intent);
   return {
-    action: decision.action,
+    action: visible.action,
+    beat: visible.beat,
     proposedAction: proposed,
     overridden: true,
-    inferredFromState: false,
+    inferredFromState: visible.replaced,
+    actionReplaced: visible.replaced,
     decision,
   };
 }
@@ -175,6 +211,8 @@ export function recordVoiceTurn({
       action: resolved.action,
       actionOverridden: resolved.overridden,
       actionInferredFromState: resolved.inferredFromState,
+      actionPolicy: "guaranteed_voice_beat",
+      beat: resolved.beat,
       move: finalMove === "none" ? null : finalMove,
       ontology: {
         speech: resolved.decision.speech,
@@ -192,6 +230,7 @@ export function recordVoiceTurn({
     proposedAction: resolved.proposedAction,
     overridden: resolved.overridden,
     inferredFromState: resolved.inferredFromState,
+    beat: resolved.beat,
     move: finalMove,
     intent: resolved.decision.intent,
   });
@@ -199,15 +238,17 @@ export function recordVoiceTurn({
   if (resolved.action) {
     broadcast("pet", { action: resolved.action, mood: "active", source: "voice" });
   }
-  if (resolved.decision.combo) {
+  const combo =
+    resolved.beat === "semantic" ? resolved.decision.combo : null;
+  if (combo) {
     scheduleCombo(
-      resolved.decision.combo,
+      combo,
       (nextAction, step) =>
         broadcast("pet", {
           action: nextAction,
           mood: "combo",
           source: "voice",
-          combo: resolved.decision.combo.label,
+          combo: combo.label,
           step,
         }),
       { skipAction: resolved.action }
@@ -235,10 +276,11 @@ export function recordVoiceTurn({
     move: finalMove,
     overridden: resolved.overridden,
     inferredFromState: resolved.inferredFromState,
+    beat: resolved.beat,
     proposedAction: resolved.proposedAction,
     sequence: [
-      ...(resolved.action ? [{ action: resolved.action, atMs: 0 }] : []),
-      ...(resolved.decision.combo?.steps ?? []),
+      { action: resolved.action, atMs: 0 },
+      ...(combo?.steps ?? []),
     ],
     ontology: {
       speech: resolved.decision.speech,

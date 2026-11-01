@@ -22,6 +22,7 @@ import {
   actionFitsDecision,
 } from "../server/ontology.mjs";
 import { planGestureCombo } from "../server/gesture-combo.mjs";
+import { ensureVisibleVoiceAction } from "../server/voice.mjs";
 
 /* 默认打测试实例（7789），不打正在用的那一个。
    原因很实在：冒烟测试第一步就是 /api/dev/reset，它会把对话、记忆、日记、
@@ -416,6 +417,29 @@ async function main() {
     "模型返回 none 时，情绪输入仍由本体补动作",
     inferredVoice.inferredFromState === true && inferredVoice.action !== "none",
     `${inferredVoice.ontology?.speech?.act} → ${inferredVoice.action}`
+  );
+  const passiveBeat = ensureVisibleVoiceAction("listening", "settle");
+  const activeBeat = ensureVisibleVoiceAction("nuzzle", "approach");
+  check(
+    "静止类结果会换成可见动作，明确动作保持原样",
+    passiveBeat.action === "confirm" &&
+      passiveBeat.beat === "neutral" &&
+      activeBeat.action === "nuzzle" &&
+      activeBeat.beat === "semantic",
+    `${passiveBeat.action} / ${activeBeat.action}`
+  );
+  const neutralVoice = await api("/api/voice/turn", {
+    text: "今天周二",
+    reply: "嗯，知道了。",
+    action: "none",
+    sessionId: "sess_smoke_voice_neutral",
+  });
+  check(
+    "普通陈述也保证产生一次可见反馈",
+    neutralVoice.action !== "none" &&
+      neutralVoice.sequence?.[0]?.action === neutralVoice.action &&
+      neutralVoice.beat !== "system",
+    `${neutralVoice.beat} → ${neutralVoice.action}`
   );
   await api("/api/settings", { memoryEnabled: true });
   const musicOut = await api("/api/tools/run", {
